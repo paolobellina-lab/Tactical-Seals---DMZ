@@ -33,6 +33,7 @@
     .btn-status { background: rgba(0,0,0,0.8); border: 1px solid #555; color: #fff; padding: 8px; font-family: 'Courier New', monospace; font-weight: bold; cursor: pointer; text-align: left; transition: 0.2s; }
     .btn-status:active { transform: scale(0.95); }
 
+    /* PULSANTI AZIONE (Centro) */
     #hud-bottom { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 20px; }
     .action-btn { background: rgba(0,0,0,0.8); border: 2px solid #fff; color: #fff; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; backdrop-filter: blur(4px); box-shadow: 0 0 10px #000; }
     .action-btn:active { background: #fff; color: #000; }
@@ -40,6 +41,11 @@
     /* STILE MARKER MAPPA */
     .teammate-label { background: transparent; font-weight: bold; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; font-size: 12px; margin-top: -38px; text-align: center; width: 100px; margin-left: -42px; }
     .exfil-icon { text-align: center; font-size: 20px; text-shadow: 0 0 5px #0f0; }
+
+    /* AVVISO FUORI AREA */
+    #out-of-bounds-warning { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 0, 0, 0.4); z-index: 3000; display: none; flex-direction: column; justify-content: center; align-items: center; pointer-events: none; }
+    .warning-text { color: #fff; background: #f00; padding: 20px; font-size: 30px; font-weight: bold; text-align: center; border: 4px solid #fff; box-shadow: 0 0 30px #f00; animation: flash 1s infinite; }
+    @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 </style>
 </head>
 <body>
@@ -67,6 +73,10 @@
     <button class="btn-status" style="border-color:#0f0; color:#0f0;" onclick="setStatus('active', this)">🟢 IN COMBATTIMENTO</button>
     <button class="btn-status" style="border-color:#555; color:#fff;" onclick="setStatus('down', this)">🟠 DA RIANIMARE</button>
     <button class="btn-status" style="border-color:#555; color:#fff;" onclick="setStatus('dead', this)">💀 ELIMINATO</button>
+</div>
+
+<div id="out-of-bounds-warning">
+    <div class="warning-text">⚠️ ATTENZIONE ⚠️<br>SEI FUORI DALLA ZONA OPERATIVA</div>
 </div>
 
 <div id="hud-bottom" style="display:none;">
@@ -117,9 +127,23 @@
     ];
 
     // -----------------------------------------------------------
-    // FINE CONFIGURAZIONE
+    // MATEMATICA: ALGORITMO PER AREA DI GIOCO (RAY-CASTING)
     // -----------------------------------------------------------
+    function isInsideArea(point, polygon) {
+        let x = point[0], y = point[1];
+        let inside = false;
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+            let xi = polygon[i][0], yi = polygon[i][1];
+            let xj = polygon[j][0], yj = polygon[j][1];
+            let intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+        return inside;
+    }
 
+    // -----------------------------------------------------------
+    // VARIABILI DI GIOCO
+    // -----------------------------------------------------------
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
@@ -143,6 +167,10 @@
         if (wakeLock !== null && document.visibilityState === 'visible') await requestWakeLock();
     });
 
+    // -----------------------------------------------------------
+    // FUNZIONI PRINCIPALI
+    // -----------------------------------------------------------
+
     // AVVIO GIOCO
     window.deploy = function() {
         let n = document.getElementById('p-name').value.trim().toUpperCase();
@@ -154,7 +182,7 @@
         // UI Switch
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('hud-top').style.display = 'flex';
-        document.getElementById('hud-status').style.display = 'flex'; // Mostra menu stato
+        document.getElementById('hud-status').style.display = 'flex';
         document.getElementById('hud-bottom').style.display = 'flex';
         
         requestWakeLock();
@@ -182,6 +210,7 @@
         if(newStatus === 'dead') { btnElement.style.borderColor = "#aaa"; btnElement.style.color = "#aaa"; }
     };
 
+    // INIZIALIZZA MAPPA (VISTA IBRIDA)
     function initMap() {
         map = L.map('map', { zoomControl: false }).setView(fieldCenter, 17);
         
@@ -191,8 +220,10 @@
             maxZoom: 20
         }).addTo(map);
 
+        // Disegna perimetro operativo
         L.polygon(playAreaCoords, { color: 'red', fill: false, weight: 3, dashArray: '10, 10' }).addTo(map);
 
+        // Disegna punti di estrazione
         exfilPoints.forEach(ex => {
             let icon = L.divIcon({
                 className: 'exfil-icon',
@@ -203,6 +234,7 @@
         });
     }
 
+    // TRACCIAMENTO GPS E CONTROLLO CONFINI
     function startGPS() {
         if (!navigator.geolocation) { 
             document.getElementById('gps-status').innerText = "GPS: ERROR";
@@ -217,12 +249,21 @@
 
                 document.getElementById('gps-status').innerText = `GPS: ±${acc}m`;
 
+                // Controllo Area DMZ: Sei dentro o fuori?
+                let amI_Inside = isInsideArea([lat, lng], playAreaCoords);
+                if (!amI_Inside) {
+                    document.getElementById('out-of-bounds-warning').style.display = 'flex';
+                } else {
+                    document.getElementById('out-of-bounds-warning').style.display = 'none';
+                }
+
+                // Invia dati su Firebase
                 update(ref(db, 'dmz_players/' + myId), {
                     name: myName,
                     team: myTeam,
                     lat: lat,
                     lng: lng,
-                    status: myStatus, // Invia stato
+                    status: myStatus, // Invia stato (Vivo/A terra/Eliminato)
                     lastUpdate: Date.now()
                 });
 
@@ -250,8 +291,9 @@
         }
     }
 
+    // RADAR TATTICO E COLLEGAMENTO DATI
     function setupNetworking() {
-        // Ascolta stato UAV globale
+        // Ascolta stato UAV globale da Firebase
         onValue(ref(db, 'dmz_settings/uav_active'), (snapshot) => {
             uavActive = snapshot.val() || false;
             if(uavActive) {
@@ -263,37 +305,47 @@
             }
         });
 
-        // Ascolta altri giocatori
+        // Ascolta le posizioni degli altri giocatori
         onValue(ref(db, 'dmz_players'), (snapshot) => {
             const players = snapshot.val() || {};
             
-            // FASE A: Pulisci marker vecchi o non visibili
+            // FASE A: Pulizia Radar (Rimuovi chi non deve essere visibile)
             Object.keys(markers).forEach(key => {
-                if (!players[key] || (players[key].team !== myTeam && !uavActive)) {
+                const p = players[key];
+                let shouldBeVisible = false;
+                
+                if (p) {
+                    if (p.team === myTeam) shouldBeVisible = true; // Alleato
+                    else if (p.status === "dead") shouldBeVisible = true; // Eliminato
+                    else if (uavActive) shouldBeVisible = true; // Nemico svelato da UAV
+                }
+
+                if (!shouldBeVisible) {
                     map.removeLayer(markers[key]);
                     delete markers[key];
                 }
             });
 
-            // FASE B: Disegna e aggiorna
+            // FASE B: Disegno e Aggiornamento Radar
             Object.keys(players).forEach(key => {
-                if (key === myId) return; 
+                if (key === myId) return; // Ignora te stesso
 
                 const p = players[key];
                 let isVisible = false;
-                let dotColor = "#0f0"; // default alleato
+                let dotColor = (p.team === myTeam) ? "#0f0" : "#f00"; // Verde (alleato) o Rosso (nemico)
                 let iconSymbol = "";
 
-                // Regole Visibilità e Fazione
+                // Regole Visibilità
                 if (p.team === myTeam) {
-                    isVisible = true;
+                    isVisible = true; 
+                } else if (p.status === "dead") {
+                    isVisible = true; 
                 } else if (uavActive) {
-                    isVisible = true;
-                    dotColor = "#f00"; // Nemico UAV
+                    isVisible = true; 
                 }
 
                 if (isVisible) {
-                    // Sovrascrivi se ferito/eliminato
+                    // Modifica colore/icona se ferito o eliminato
                     if (p.status === "down") {
                         dotColor = "#ffa500"; 
                         iconSymbol = "🏥";
@@ -319,9 +371,11 @@
             });
         });
 
+        // Disconnessione pulita
         onDisconnect(ref(db, 'dmz_players/' + myId)).remove();
     }
 
+    // PULSANTI EXTRA HUD
     window.centerMap = function() {
         if(myMarker) map.setView(myMarker.getLatLng(), 18);
     };
