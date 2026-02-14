@@ -15,8 +15,8 @@
     
     /* LOGIN SCREEN */
     #login-screen { position: absolute; top:0; left:0; width:100%; height:100%; background: #050505; z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-    h1 { color: #fff; text-shadow: 0 0 10px #0f0; font-size: 30px; letter-spacing: 2px; margin-bottom: 30px; text-align: center; }
-    .input-box { background: #111; border: 1px solid #333; color: #0f0; padding: 15px; margin: 10px; width: 80%; max-width: 300px; text-align: center; font-size: 18px; font-weight: bold; text-transform: uppercase; }
+    h1 { color: #fff; text-shadow: 0 0 10px #0f0; font-size: 30px; letter-spacing: 2px; margin-bottom: 20px; text-align: center; }
+    .input-box { background: #111; border: 1px solid #333; color: #0f0; padding: 12px; margin: 8px; width: 80%; max-width: 300px; text-align: center; font-size: 16px; font-weight: bold; text-transform: uppercase; }
     .input-box::placeholder { color: #040; }
     .btn-deploy { background: #004400; color: #fff; border: 2px solid #0f0; padding: 15px 40px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 0 15px #0f0; transition: 0.2s; }
     .btn-deploy:active { background: #0f0; color: #000; }
@@ -57,12 +57,22 @@
 <div id="login-screen">
     <h1>DMZ: DEPLOY</h1>
     <input type="text" id="p-name" class="input-box" placeholder="NOME OPERATORE">
+    
     <select id="p-team" class="input-box">
         <option value="ALPHA">SQUADRA ALPHA</option>
         <option value="BRAVO">SQUADRA BRAVO</option>
         <option value="CHARLIE">SQUADRA CHARLIE</option>
         <option value="DELTA">SQUADRA DELTA</option>
     </select>
+
+    <select id="p-field" class="input-box" style="border-color: #ff0; color: #ff0;">
+        <option value="campo1">CAMPO 1: DMZ ORIGINALE</option>
+        <option value="campo2">CAMPO 2: ZONA URBANA</option>
+        <option value="campo3">CAMPO 3: COLLINA NORD</option>
+        <option value="campo4">CAMPO 4: POLIGONO</option>
+        <option value="campo5">CAMPO 5: TEST LOCALE</option>
+    </select>
+
     <button class="btn-deploy" onclick="deploy()">DISPIEGAMENTO</button>
 </div>
 
@@ -92,7 +102,6 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script type="module">
-    // Importate anche le funzioni push e onChildAdded per i Ping
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, update, onDisconnect, onValue, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
@@ -109,27 +118,59 @@
         appId: "1:426944578042:web:c11e7eddd49bbd3bc76443",
         measurementId: "G-8N023X8HSR"
     };
-    
-    // -----------------------------------------------------------
-    // 2. CONFIGURAZIONE CAMPO DA GIOCO
-    // -----------------------------------------------------------
-    const fieldCenter = [45.679141, 9.896634]; 
 
-    const playAreaCoords = [
-        [45.679223271161206, 9.892754719006636],
-        [45.679053080947185, 9.894369628150011],
-        [45.679488010465164, 9.894333540794852],
-        [45.67994184635777, 9.897482162532492],
-        [45.67979056813591, 9.89984588429542],
-        [45.68035785935887, 9.902110365831659],
-        [45.67821215309606, 9.903234794745936],
-        [45.67863434946003, 9.896859606506366]
-    ];
+    // -----------------------------------------------------------
+    // 2. DATABASE DEI CAMPI DA GIOCO (I 5 CAMPI)
+    // -----------------------------------------------------------
+    const fieldsDB = {
+        "campo1": {
+            // IL TUO CAMPO ORIGINALE
+            center: [45.679141, 9.896634],
+            boundaries: [
+                [45.679223271161206, 9.892754719006636],
+                [45.679053080947185, 9.894369628150011],
+                [45.679488010465164, 9.894333540794852],
+                [45.67994184635777, 9.897482162532492],
+                [45.67979056813591, 9.89984588429542],
+                [45.68035785935887, 9.902110365831659],
+                [45.67821215309606, 9.903234794745936],
+                [45.67863434946003, 9.896859606506366]
+            ],
+            exfils: [
+                { lat: 45.680000, lng: 9.896634, label: "EXFIL A" },
+                { lat: 45.678000, lng: 9.896634, label: "EXFIL B" }
+            ]
+        },
+        "campo2": {
+            // CAMPO 2 (Segnaposto, modificalo con le tue coordinate)
+            center: [45.000000, 9.000000],
+            boundaries: [ [45.001, 8.999], [45.001, 9.001], [44.999, 9.001], [44.999, 8.999] ],
+            exfils: [ { lat: 45.0005, lng: 9.0005, label: "EXFIL URBANO" } ]
+        },
+        "campo3": {
+            // CAMPO 3 (Segnaposto)
+            center: [45.100000, 9.100000],
+            boundaries: [ [45.101, 9.099], [45.101, 9.101], [45.099, 9.101], [45.099, 9.099] ],
+            exfils: [ { lat: 45.1005, lng: 9.1005, label: "EXFIL COLLINA" } ]
+        },
+        "campo4": {
+            // CAMPO 4 (Segnaposto)
+            center: [45.200000, 9.200000],
+            boundaries: [ [45.201, 9.199], [45.201, 9.201], [45.199, 9.201], [45.199, 9.199] ],
+            exfils: [ { lat: 45.2005, lng: 9.2005, label: "EXFIL POLIGONO" } ]
+        },
+        "campo5": {
+            // CAMPO 5 (Segnaposto - Usalo magari attorno a casa tua per fare i test!)
+            center: [45.300000, 9.300000],
+            boundaries: [ [45.301, 9.299], [45.301, 9.301], [45.299, 9.301], [45.299, 9.299] ],
+            exfils: [ { lat: 45.3005, lng: 9.3005, label: "EXFIL TEST" } ]
+        }
+    };
 
-    const exfilPoints = [
-        { lat: 45.680000, lng: 9.896634, label: "EXFIL A" },
-        { lat: 45.678000, lng: 9.896634, label: "EXFIL B" } 
-    ];
+    // Variabili Globali per il campo attivo
+    let activeFieldCenter = [];
+    let activePlayAreaCoords = [];
+    let activeExfilPoints = [];
 
     // -----------------------------------------------------------
     // MATEMATICA: ALGORITMO PER AREA DI GIOCO (RAY-CASTING)
@@ -147,7 +188,7 @@
     }
 
     // -----------------------------------------------------------
-    // VARIABILI DI GIOCO
+    // VARIABILI DI GIOCO GLOBALI
     // -----------------------------------------------------------
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -155,13 +196,12 @@
     let myId = "OP_" + Math.floor(Math.random() * 99999);
     let myName = "";
     let myTeam = "";
-    let myStatus = "active"; // Stato iniziale
-    let uavActive = false;   // Stato UAV
+    let myStatus = "active";
+    let uavActive = false;  
     let map;
     let myMarker = null;
     let markers = {}; 
 
-    // WAKE LOCK (Schermo Sempre Acceso)
     let wakeLock = null;
     async function requestWakeLock() {
         if ('wakeLock' in navigator) {
@@ -183,13 +223,22 @@
         
         myName = n;
         myTeam = document.getElementById('p-team').value;
+
+        // PRENDI IL CAMPO SELEZIONATO DAL MENU
+        let selectedFieldKey = document.getElementById('p-field').value;
+        let selectedField = fieldsDB[selectedFieldKey];
+        
+        // Assegna le coordinate del campo scelto alle variabili attive
+        activeFieldCenter = selectedField.center;
+        activePlayAreaCoords = selectedField.boundaries;
+        activeExfilPoints = selectedField.exfils;
         
         // UI Switch
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('hud-top').style.display = 'flex';
         document.getElementById('hud-status').style.display = 'flex';
         document.getElementById('hud-bottom').style.display = 'flex';
-        document.getElementById('crosshair').style.display = 'block'; // Mostra il mirino
+        document.getElementById('crosshair').style.display = 'block'; 
         
         requestWakeLock();
         try { document.documentElement.requestFullscreen(); } catch(e){}
@@ -204,7 +253,6 @@
         myStatus = newStatus;
         update(ref(db, 'dmz_players/' + myId), { status: myStatus });
 
-        // Aggiorna grafica bottoni
         let buttons = document.querySelectorAll('.btn-status');
         buttons.forEach(btn => {
             btn.style.borderColor = "#555";
@@ -216,21 +264,20 @@
         if(newStatus === 'dead') { btnElement.style.borderColor = "#aaa"; btnElement.style.color = "#aaa"; }
     };
 
-    // INIZIALIZZA MAPPA (VISTA IBRIDA)
+    // INIZIALIZZA MAPPA (USA IL CAMPO SELEZIONATO)
     function initMap() {
-        map = L.map('map', { zoomControl: false }).setView(fieldCenter, 17);
+        map = L.map('map', { zoomControl: false }).setView(activeFieldCenter, 17);
         
-        // Mappa Ibrida (Google Maps Satellite + Strade)
         L.tileLayer('http://mt0.google.com/vt/lyrs=y&hl=it&x={x}&y={y}&z={z}', {
             attribution: '© Google',
             maxZoom: 20
         }).addTo(map);
 
-        // Disegna perimetro operativo
-        L.polygon(playAreaCoords, { color: 'red', fill: false, weight: 3, dashArray: '10, 10' }).addTo(map);
+        // Disegna perimetro operativo del campo selezionato
+        L.polygon(activePlayAreaCoords, { color: 'red', fill: false, weight: 3, dashArray: '10, 10' }).addTo(map);
 
-        // Disegna punti di estrazione
-        exfilPoints.forEach(ex => {
+        // Disegna punti di estrazione del campo selezionato
+        activeExfilPoints.forEach(ex => {
             let icon = L.divIcon({
                 className: 'exfil-icon',
                 html: `<div style="background:#0f0; color:#000; font-weight:900; padding:4px 8px; border-radius:4px; border:2px solid #fff; font-family:sans-serif;">🚁 ${ex.label}</div>`,
@@ -255,21 +302,20 @@
 
                 document.getElementById('gps-status').innerText = `GPS: ±${acc}m`;
 
-                // Controllo Area DMZ: Sei dentro o fuori?
-                let amI_Inside = isInsideArea([lat, lng], playAreaCoords);
+                // Controllo Area DMZ: Usa i confini del campo attivo
+                let amI_Inside = isInsideArea([lat, lng], activePlayAreaCoords);
                 if (!amI_Inside) {
                     document.getElementById('out-of-bounds-warning').style.display = 'flex';
                 } else {
                     document.getElementById('out-of-bounds-warning').style.display = 'none';
                 }
 
-                // Invia dati su Firebase
                 update(ref(db, 'dmz_players/' + myId), {
                     name: myName,
                     team: myTeam,
                     lat: lat,
                     lng: lng,
-                    status: myStatus, // Invia stato (Vivo/A terra/Eliminato)
+                    status: myStatus,
                     lastUpdate: Date.now()
                 });
 
@@ -297,9 +343,8 @@
         }
     }
 
-    // RADAR TATTICO E COLLEGAMENTO DATI
+    // RADAR TATTICO
     function setupNetworking() {
-        // Ascolta stato UAV globale da Firebase
         onValue(ref(db, 'dmz_settings/uav_active'), (snapshot) => {
             uavActive = snapshot.val() || false;
             if(uavActive) {
@@ -311,53 +356,40 @@
             }
         });
 
-        // Ascolta le posizioni degli altri giocatori
         onValue(ref(db, 'dmz_players'), (snapshot) => {
             const players = snapshot.val() || {};
             
-            // FASE A: Pulizia Radar (Rimuovi chi non deve essere visibile)
             Object.keys(markers).forEach(key => {
                 const p = players[key];
                 let shouldBeVisible = false;
-                
                 if (p) {
-                    if (p.team === myTeam) shouldBeVisible = true; // Alleato
-                    else if (p.status === "dead") shouldBeVisible = true; // Eliminato
-                    else if (uavActive) shouldBeVisible = true; // Nemico svelato da UAV
+                    if (p.team === myTeam) shouldBeVisible = true;
+                    else if (p.status === "dead") shouldBeVisible = true;
+                    else if (uavActive) shouldBeVisible = true;
                 }
-
                 if (!shouldBeVisible) {
                     map.removeLayer(markers[key]);
                     delete markers[key];
                 }
             });
 
-            // FASE B: Disegno e Aggiornamento Radar
             Object.keys(players).forEach(key => {
-                if (key === myId) return; // Ignora te stesso
+                if (key === myId) return; 
 
                 const p = players[key];
                 let isVisible = false;
-                let dotColor = (p.team === myTeam) ? "#0f0" : "#f00"; // Verde (alleato) o Rosso (nemico)
+                let dotColor = (p.team === myTeam) ? "#0f0" : "#f00";
                 let iconSymbol = "";
 
-                // Regole Visibilità
-                if (p.team === myTeam) {
-                    isVisible = true; 
-                } else if (p.status === "dead") {
-                    isVisible = true; 
-                } else if (uavActive) {
-                    isVisible = true; 
-                }
+                if (p.team === myTeam) isVisible = true; 
+                else if (p.status === "dead") isVisible = true; 
+                else if (uavActive) isVisible = true; 
 
                 if (isVisible) {
-                    // Modifica colore/icona se ferito o eliminato
                     if (p.status === "down") {
-                        dotColor = "#ffa500"; 
-                        iconSymbol = "🏥";
+                        dotColor = "#ffa500"; iconSymbol = "🏥";
                     } else if (p.status === "dead") {
-                        dotColor = "#555555"; 
-                        iconSymbol = "💀";
+                        dotColor = "#555555"; iconSymbol = "💀";
                     }
 
                     let iconHtml = `
@@ -377,15 +409,12 @@
             });
         });
 
-        // ASCOLTA I PING TATTICI DELLA SQUADRA
         onChildAdded(ref(db, 'dmz_pings'), (snapshot) => {
             const ping = snapshot.val();
             const now = Date.now();
             
-            // Ignora i ping più vecchi di 15 secondi
             if (now - ping.timestamp > 15000) return;
             
-            // Mostra il ping SOLO se è della tua squadra
             if (ping.team === myTeam) {
                 let pIcon = L.divIcon({
                     className: 'custom-ping',
@@ -399,17 +428,10 @@
                 });
                 
                 let pingMarker = L.marker([ping.lat, ping.lng], {icon: pIcon}).addTo(map);
-                
-                // Rimuovi il ping automaticamente dopo 10 secondi
-                setTimeout(() => {
-                    if (map.hasLayer(pingMarker)) {
-                        map.removeLayer(pingMarker);
-                    }
-                }, 10000);
+                setTimeout(() => { if (map.hasLayer(pingMarker)) map.removeLayer(pingMarker); }, 10000);
             }
         });
 
-        // Disconnessione pulita
         onDisconnect(ref(db, 'dmz_players/' + myId)).remove();
     }
 
@@ -418,24 +440,13 @@
         if(myMarker) map.setView(myMarker.getLatLng(), 18);
     };
     
-    // INVIO PING TATTICO
     window.pingLocation = function() {
         if (!map) return;
         
-        // Prendi le coordinate esatte del centro della mappa (dove punta il mirino)
         const center = map.getCenter();
-        
-        // Crea un nuovo record nel nodo 'dmz_pings'
         const pingRef = push(ref(db, 'dmz_pings'));
-        update(pingRef, {
-            team: myTeam,
-            lat: center.lat,
-            lng: center.lng,
-            sender: myName,
-            timestamp: Date.now()
-        });
+        update(pingRef, { team: myTeam, lat: center.lat, lng: center.lng, sender: myName, timestamp: Date.now() });
 
-        // Feedback visivo rapido sul tuo HUD
         document.getElementById('obj-status').innerText = "PING INVIATO!";
         document.getElementById('obj-status').style.color = "#ff0";
         setTimeout(() => { 
