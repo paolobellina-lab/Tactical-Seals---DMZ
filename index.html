@@ -160,10 +160,17 @@
             exfils: [ { lat: 45.2005, lng: 9.2005, label: "EXFIL POLIGONO" } ]
         },
         "campo5": {
-            // CAMPO 5 (Segnaposto - Usalo magari attorno a casa tua per fare i test!)
-            center: [45.300000, 9.300000],
-            boundaries: [ [45.301, 9.299], [45.301, 9.301], [45.299, 9.301], [45.299, 9.299] ],
-            exfils: [ { lat: 45.3005, lng: 9.3005, label: "EXFIL TEST" } ]
+            // CAMPO 5: LE TUE COORDINATE (Centro: 45°41'57.9"N 9°49'39.6"E)
+            center: [45.699417, 9.827667],
+            boundaries: [ 
+                [45.701417, 9.825667], // Nord-Ovest
+                [45.701417, 9.829667], // Nord-Est
+                [45.697417, 9.829667], // Sud-Est
+                [45.697417, 9.825667]  // Sud-Ovest
+            ],
+            exfils: [ 
+                { lat: 45.699800, lng: 9.827667, label: "EXFIL TEST" } 
+            ]
         }
     };
 
@@ -343,7 +350,7 @@
         }
     }
 
-    // RADAR TATTICO
+    // RADAR TATTICO E COLLEGAMENTO DATI
     function setupNetworking() {
         onValue(ref(db, 'dmz_settings/uav_active'), (snapshot) => {
             uavActive = snapshot.val() || false;
