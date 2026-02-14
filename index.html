@@ -21,12 +21,13 @@
     .btn-deploy { background: #004400; color: #fff; border: 2px solid #0f0; padding: 15px 40px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 0 15px #0f0; transition: 0.2s; }
     .btn-deploy:active { background: #0f0; color: #000; }
 
-    /* MAPPA */
+    /* MAPPA E MIRINO CENTRALE */
     #map { height: 100vh; width: 100%; z-index: 1; background: #222; }
+    #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(0, 255, 0, 0.5); font-size: 30px; font-weight: bold; z-index: 1000; pointer-events: none; text-shadow: 0 0 5px #000; display: none; }
 
     /* HUD (Interfaccia) */
     #hud-top { position: absolute; top: 10px; left: 10px; right: 10px; z-index: 1000; display: flex; justify-content: space-between; pointer-events: none; }
-    .hud-box { background: rgba(0, 20, 0, 0.9); border: 1px solid #0f0; padding: 5px 10px; color: #0f0; font-weight: bold; font-size: 12px; text-shadow: 0 0 5px #0f0; }
+    .hud-box { background: rgba(0, 20, 0, 0.9); border: 1px solid #0f0; padding: 5px 10px; color: #0f0; font-weight: bold; font-size: 12px; text-shadow: 0 0 5px #0f0; transition: 0.3s; }
     
     /* PULSANTI STATO */
     #hud-status { position: absolute; top: 50px; left: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 5px; }
@@ -38,9 +39,12 @@
     .action-btn { background: rgba(0,0,0,0.8); border: 2px solid #fff; color: #fff; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; backdrop-filter: blur(4px); box-shadow: 0 0 10px #000; }
     .action-btn:active { background: #fff; color: #000; }
 
-    /* STILE MARKER MAPPA */
+    /* STILE MARKER E PING */
     .teammate-label { background: transparent; font-weight: bold; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; font-size: 12px; margin-top: -38px; text-align: center; width: 100px; margin-left: -42px; }
     .exfil-icon { text-align: center; font-size: 20px; text-shadow: 0 0 5px #0f0; }
+    
+    .ping-icon { background: rgba(255, 0, 0, 0.8); border: 2px solid #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; box-shadow: 0 0 15px #f00; animation: ping-pulse 1s infinite; }
+    @keyframes ping-pulse { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
 
     /* AVVISO FUORI AREA */
     #out-of-bounds-warning { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 0, 0, 0.4); z-index: 3000; display: none; flex-direction: column; justify-content: center; align-items: center; pointer-events: none; }
@@ -63,6 +67,7 @@
 </div>
 
 <div id="map"></div>
+<div id="crosshair">✛</div>
 
 <div id="hud-top" style="display:none;">
     <div class="hud-box" id="obj-status">OBIETTIVO: ESTRAZIONE</div>
@@ -87,8 +92,9 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script type="module">
+    // Importate anche le funzioni push e onChildAdded per i Ping
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, update, onDisconnect, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getDatabase, ref, update, onDisconnect, onValue, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
     // -----------------------------------------------------------
     // 1. CONFIGURAZIONE FIREBASE
@@ -107,7 +113,6 @@
     // -----------------------------------------------------------
     // 2. CONFIGURAZIONE CAMPO DA GIOCO
     // -----------------------------------------------------------
-    
     const fieldCenter = [45.679141, 9.896634]; 
 
     const playAreaCoords = [
@@ -184,6 +189,7 @@
         document.getElementById('hud-top').style.display = 'flex';
         document.getElementById('hud-status').style.display = 'flex';
         document.getElementById('hud-bottom').style.display = 'flex';
+        document.getElementById('crosshair').style.display = 'block'; // Mostra il mirino
         
         requestWakeLock();
         try { document.documentElement.requestFullscreen(); } catch(e){}
@@ -371,6 +377,38 @@
             });
         });
 
+        // ASCOLTA I PING TATTICI DELLA SQUADRA
+        onChildAdded(ref(db, 'dmz_pings'), (snapshot) => {
+            const ping = snapshot.val();
+            const now = Date.now();
+            
+            // Ignora i ping più vecchi di 15 secondi
+            if (now - ping.timestamp > 15000) return;
+            
+            // Mostra il ping SOLO se è della tua squadra
+            if (ping.team === myTeam) {
+                let pIcon = L.divIcon({
+                    className: 'custom-ping',
+                    html: `
+                        <div style="width:24px; height:24px;" class="ping-icon">⚠️</div>
+                        <div class="teammate-label" style="color:#ff0; text-shadow: 0 0 5px #000; margin-top:-35px; width:150px; margin-left:-65px;">
+                            PING: ${ping.sender}
+                        </div>
+                    `,
+                    iconSize: [24, 24]
+                });
+                
+                let pingMarker = L.marker([ping.lat, ping.lng], {icon: pIcon}).addTo(map);
+                
+                // Rimuovi il ping automaticamente dopo 10 secondi
+                setTimeout(() => {
+                    if (map.hasLayer(pingMarker)) {
+                        map.removeLayer(pingMarker);
+                    }
+                }, 10000);
+            }
+        });
+
         // Disconnessione pulita
         onDisconnect(ref(db, 'dmz_players/' + myId)).remove();
     }
@@ -380,8 +418,30 @@
         if(myMarker) map.setView(myMarker.getLatLng(), 18);
     };
     
+    // INVIO PING TATTICO
     window.pingLocation = function() {
-        alert("Ping Tattico: In arrivo nelle prossime versioni!");
+        if (!map) return;
+        
+        // Prendi le coordinate esatte del centro della mappa (dove punta il mirino)
+        const center = map.getCenter();
+        
+        // Crea un nuovo record nel nodo 'dmz_pings'
+        const pingRef = push(ref(db, 'dmz_pings'));
+        update(pingRef, {
+            team: myTeam,
+            lat: center.lat,
+            lng: center.lng,
+            sender: myName,
+            timestamp: Date.now()
+        });
+
+        // Feedback visivo rapido sul tuo HUD
+        document.getElementById('obj-status').innerText = "PING INVIATO!";
+        document.getElementById('obj-status').style.color = "#ff0";
+        setTimeout(() => { 
+            document.getElementById('obj-status').innerText = uavActive ? "⚠️ UAV ATTIVO: NEMICI VISIBILI" : "OBIETTIVO: ESTRAZIONE"; 
+            document.getElementById('obj-status').style.color = uavActive ? "#f00" : "#0f0";
+        }, 2000);
     };
 
 </script>
