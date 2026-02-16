@@ -4,8 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
-<title>DMZ: TACTICAL MAP v31 - PERSISTENT STASH</title>
+<title>DMZ: TACTICAL MAP v31 - PWA READY</title>
+
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -68,6 +72,7 @@
     #hud-bottom { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 15px; }
     .action-btn { background: rgba(0,0,0,0.8); border: 2px solid #fff; color: #fff; width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 22px; cursor: pointer; backdrop-filter: blur(4px); box-shadow: 0 0 10px #000; transition: 0.2s; }
     .action-btn:active { background: #fff; color: #000; transform: scale(0.9); }
+    .action-btn.btn-scanner { border-color: #0ff; color: #0ff; box-shadow: 0 0 15px #0ff; }
 
     /* MODALS */
     .game-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 20, 0, 0.95); z-index: 3000; display: none; flex-direction: column; justify-content: center; align-items: center; border: 2px solid #0f0; }
@@ -99,7 +104,7 @@
 
 <div id="login-screen" class="full-screen-ui">
     <h1>DMZ: DEPLOY</h1>
-    <div class="version-tag">SYSTEM v31 - PERSISTENT STASH</div>
+    <div class="version-tag">SYSTEM v31 - PWA READY</div>
     
     <div id="status-label" class="status-label">CONNESSIONE...</div>
     
@@ -140,7 +145,7 @@
     <div class="toggle-row"><span style="color:#e6b800; font-weight:bold;">ARMADIETTI E LOOT (A) 📦</span><label class="switch"><input type="checkbox" id="cfg-lockers-toggle" checked onchange="toggleLockerMenu()"><span class="slider"></span></label></div>
     <div id="locker-settings" class="cfg-box" style="display:flex;"><div class="cfg-label" style="color:#8f8; font-weight:bold; margin-top:10px;">PROBABILITÀ DENARO (Somma = 100%):</div><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="number" id="money-amount" class="input-box" style="width:50%; margin:0; padding:5px; font-size:10px; color:#8f8; border-color:#8f8;" placeholder="IMPORTO $"><input type="number" id="money-chance" class="input-box" style="width:50%; margin:0; padding:5px; font-size:10px;" placeholder="% CHANCE"></div><button class="btn-deploy" style="background:#030; border-color:#0f0; font-size:12px; padding:8px; margin:0;" onclick="addMoneyItem()">+ AGGIUNGI PACCHETTO DENARO</button><div id="money-list" style="margin-top:10px; border-top:1px dashed #8f8; padding-top:10px; max-height:100px; overflow-y:auto;"></div><div class="cfg-label" style="color:#e6b800; font-weight:bold; margin-top:20px;">PROBABILITÀ OGGETTI (Somma = 100%):</div><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="loot-name" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px;" placeholder="NOME OGGETTO"><input type="number" id="loot-chance" class="input-box" style="width:25%; margin:0; padding:5px; font-size:10px;" placeholder="%"><input type="number" id="loot-value" class="input-box" style="width:35%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="VALORE $"></div><button class="btn-deploy" style="background:#330; border-color:#ff0; font-size:12px; padding:8px; margin:0;" onclick="addLootItem()">+ AGGIUNGI OGGETTO</button><div id="loot-list" style="margin-top:10px; border-top:1px dashed #ff0; padding-top:10px; max-height:150px; overflow-y:auto;"></div></div>
     <div class="toggle-row"><span style="color:#0ff; font-weight:bold;">ESFILTRAZIONE (E/C) 🚁</span><label class="switch"><input type="checkbox" id="cfg-exfil-toggle" checked onchange="toggleExfilMenu()"><span class="slider"></span></label></div>
-    <div id="exfil-settings" class="cfg-box" style="display:flex;"><div class="cfg-label">NUMERO DI PUNTI ATTIVI:</div><input type="number" id="cfg-exfil-num" class="input-box" style="width:100%; margin:0; padding:8px;" value="2"><div class="cfg-label">POSIZIONE ESTRAZIONI:</div><select id="cfg-exfil-pos" class="input-box" style="width:100%; margin:0; padding:8px; font-size:14px;"><option value="defined">C: Punti Mappa Standard</option><option value="random">E: Punti Casuali (Sceglie Basi in area)</option></select><div class="cfg-label">TEMPO ARRIVO ELICOTTERO (MINUTI):</div><input type="number" id="cfg-exfil-wait" class="input-box" style="width:100%; margin:0; padding:8px;" value="2"></div>
+    <div id="exfil-settings" class="cfg-box" style="display:flex;"><div class="cfg-label">NUMERO DI PUNTI ATTIVI:</div><input type="number" id="cfg-exfil-num" class="input-box" style="width:100%; margin:0; padding:8px;" value="2" min="1" max="10"><div class="cfg-label">POSIZIONE ESTRAZIONI:</div><select id="cfg-exfil-pos" class="input-box" style="width:100%; margin:0; padding:8px; font-size:14px;"><option value="defined">C: Punti Mappa Standard</option><option value="random">E: Punti Casuali (Sceglie Basi in area)</option></select><div class="cfg-label">TEMPO ARRIVO ELICOTTERO (MINUTI):</div><input type="number" id="cfg-exfil-wait" class="input-box" style="width:100%; margin:0; padding:8px;" value="2" min="0" max="10"></div>
     <button class="btn-deploy" style="background:#004400; border-color:#0f0; margin-top:40px;" onclick="masterStartGame()">🚀 AVVIA PARTITA</button>
     <button class="btn-deploy" style="background:#400; border-color:#f00; box-shadow: 0 0 15px #f00;" onclick="masterStopGame()">⏹ TERMINA PARTITA</button>
     <button class="btn-master" style="margin-bottom: 50px;" onclick="closeMasterPanel()">TORNA AL LOGIN</button>
@@ -258,7 +263,7 @@
 
     let myId = "OP_" + Math.floor(Math.random() * 99999);
     let myName = "", myTeam = "", myStatus = "active", myCash = 0, myBackpack = [];
-    let myStash = { cash: 0, items: [] }; // V31 STASH
+    let myStash = { cash: 0, items: [] }; 
     let map, myMarker = null, markers = {}; 
     let isDeployed = false, bleedoutTimer = null, localUAVActive = false, isTargetingAirstrike = false;
     let myContract = null, exfilTimerEnd = null;
@@ -277,9 +282,6 @@
 
     function isInsideArea(p, poly) { let x = p[0], y = p[1], inside = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { let intersect = ((poly[i][1] > y) != (poly[j][1] > y)) && (x < (poly[j][0] - poly[i][0]) * (y - poly[i][1]) / (poly[j][1] - poly[i][1]) + poly[i][0]); if (intersect) inside = !inside; } return inside; }
 
-    // -----------------------------------------------------------
-    // UI PANNELLO MASTER
-    // -----------------------------------------------------------
     window.updateStartModeUI = function() { document.getElementById('cfg-start-limit-box').style.display = (document.getElementById('cfg-start-mode').value === 'choice') ? 'block' : 'none'; };
     window.toggleGasMenu = function() { document.getElementById('gas-settings').style.display = document.getElementById('cfg-gas-toggle').checked ? 'block' : 'none'; };
     window.toggleExfilMenu = function() { document.getElementById('exfil-settings').style.display = document.getElementById('cfg-exfil-toggle').checked ? 'flex' : 'none'; };
@@ -308,9 +310,6 @@
     window.addShopItem = function() { let n=document.getElementById('shop-name').value.toUpperCase(), p=parseInt(document.getElementById('shop-price').value); if(n&&p>0){ masterShopPool.push({name:n, price:p, enabled:true}); window.renderShopList(); } };
     window.removeShopItem = function(idx) { masterShopPool.splice(idx, 1); window.renderShopList(); };
 
-    // -----------------------------------------------------------
-    // FIREBASE SYNC & MASTER GAME START
-    // -----------------------------------------------------------
     onValue(ref(db, 'dmz_settings'), (snapshot) => {
         let data = snapshot.val(); if(data) globalSettings = data;
         let sl = document.getElementById('status-label'); let bd = document.getElementById('btn-deploy'); let dh = document.getElementById('deploy-help');
@@ -423,20 +422,8 @@
         });
     }
 
-    function saveStashState() {
-        let safeName = myName.replace(/[^a-zA-Z0-9]/g, '_');
-        update(ref(db, 'dmz_stash/' + safeName), myStash);
-        if(isDeployed) updateEconomyHUD();
-    }
-
-    window.transferMoney = function(dir) {
-        let amt = parseInt(prompt("Inserisci l'importo:"));
-        if(!amt || isNaN(amt) || amt <= 0) return;
-        if(dir === 'TO_LOADOUT' && myStash.cash >= amt) { myStash.cash -= amt; myCash += amt; } 
-        else if(dir === 'TO_STASH' && myCash >= amt) { myCash -= amt; myStash.cash += amt; } 
-        else alert("Fondi insufficienti.");
-        saveStashState(); renderStashUI();
-    };
+    function saveStashState() { let safeName = myName.replace(/[^a-zA-Z0-9]/g, '_'); update(ref(db, 'dmz_stash/' + safeName), myStash); if(isDeployed) updateEconomyHUD(); }
+    window.transferMoney = function(dir) { let amt = parseInt(prompt("Inserisci l'importo:")); if(!amt || isNaN(amt) || amt <= 0) return; if(dir === 'TO_LOADOUT' && myStash.cash >= amt) { myStash.cash -= amt; myCash += amt; } else if(dir === 'TO_STASH' && myCash >= amt) { myCash -= amt; myStash.cash += amt; } else alert("Fondi insufficienti."); saveStashState(); renderStashUI(); };
     window.sellStashItem = function(idx) { let it = myStash.items[idx]; if(confirm(`Vendere ${it.name} per $${it.value}? L'oggetto andrà perso.`)) { myStash.cash += it.value; myStash.items.splice(idx, 1); saveStashState(); renderStashUI(); } };
     window.equipStashItem = function(idx) { if(myBackpack.length >= 5) return alert("Zaino pieno (Max 5)!"); let it = myStash.items.splice(idx, 1)[0]; myBackpack.push(it); saveStashState(); renderStashUI(); };
     window.unequipStashItem = function(idx) { let it = myBackpack.splice(idx, 1)[0]; myStash.items.push(it); saveStashState(); renderStashUI(); };
@@ -450,7 +437,7 @@
         currentLockerCode = code; currentLockerData = data; currentLockerType = type;
         let title = `ARMADIETTO ${code}`; let subTitle = `CASSA`;
         if (code.startsWith("DROP_")) { title = "CASSA EQUIPAGGIAMENTO"; subTitle = "DROP"; }
-        if (type === 'PLAYER') { title = `OPERATORE ${code}`; subTitle = "ZAINO NEMICO"; }
+        if (type === 'PLAYER') { title = `ZAINO OPERATORE`; subTitle = "NEMICO"; }
         document.getElementById('locker-title').innerText = title; document.getElementById('locker-left-title').innerText = subTitle;
         renderLockerUI(); document.getElementById('locker-modal').style.display = 'flex';
     }
@@ -523,7 +510,7 @@
     }
 
     // -----------------------------------------------------------
-    // SCANNER E QR (MEDICO AVANZATO E AZIONI)
+    // SCANNER, RIANIMAZIONE E AZIONI GIOCATORE
     // -----------------------------------------------------------
     let actionTargetCode = null; let actionTargetData = null;
     window.closePlayerAction = function() { document.getElementById('player-action-modal').style.display = 'none'; };
@@ -583,7 +570,14 @@
                         if (randomContract === 'INTEL') { let pB = activeBases.filter(b => b.id !== code); if(pB.length===0) return alert("Nessuna Base Intel."); myContract = { type: 'INTEL', targetId: pB[Math.floor(Math.random() * pB.length)].id, state: 'FETCH' }; document.getElementById('obj-status').innerText = `TROVA ${myContract.targetId}`; document.getElementById('obj-status').style.color = "#ff0"; }
                         else if (randomContract === 'DESTROY') { let pB = activeBases.filter(b => b.id !== code); if(pB.length===0) return alert("Nessuna Base Scorte."); myContract = { type: 'DESTROY', targetId: pB[Math.floor(Math.random() * pB.length)].id, state: 'GOTO' }; document.getElementById('obj-status').innerText = `DISTRUGGI ${myContract.targetId}`; document.getElementById('obj-status').style.color = "#ff0"; }
                         else if (randomContract === 'CARGO') { if(myBackpack.length > 2) return alert("Servono 3 slot liberi!"); myBackpack.push({name: "CARICO PESANTE", value: 0}); myBackpack.push({name: "CARICO PESANTE", value: 0}); myBackpack.push({name: "CARICO PESANTE", value: 15000}); myContract = { type: 'CARGO', state: 'DELIVER' }; document.getElementById('obj-status').innerText = `CONSEGNA CARGO`; document.getElementById('obj-status').style.color = "#ff0"; updateEconomyHUD(); }
-                        else if (randomContract === 'HUNT' || randomContract === 'HVT') { get(ref(db, 'dmz_players')).then((snap) => { let players = snap.val() || {}; let enemies = Object.keys(players).filter(k => players[k].team !== myTeam && players[k].status === 'active'); if (enemies.length === 0) return alert("Nessun nemico vivo in campo per la caccia."); let target = enemies[Math.floor(Math.random() * enemies.length)]; myContract = { type: 'HUNT', targetId: target, state: 'HUNTING', endTime: Date.now() + (5 * 60000) }; alert(`Contratto accettato! Dai la caccia alla SQUADRA ${players[target].team}. Guarda la mappa!`); document.getElementById('obj-status').innerText = `🎯 CACCIA ALLA ${players[target].team}`; document.getElementById('obj-status').style.color = "#f00"; }); }
+                        else if (randomContract === 'HUNT' || randomContract === 'HVT') {
+                            get(ref(db, 'dmz_players')).then((snap) => {
+                                let players = snap.val() || {}; let enemies = Object.keys(players).filter(k => players[k].team !== myTeam && players[k].status === 'active');
+                                if (enemies.length === 0) return alert("Nessun nemico vivo in campo per la caccia.");
+                                let target = enemies[Math.floor(Math.random() * enemies.length)];
+                                myContract = { type: 'HUNT', targetId: target, state: 'HUNTING', endTime: Date.now() + (5 * 60000) }; alert(`Contratto accettato! Dai la caccia alla SQUADRA ${players[target].team}. Guarda la mappa!`); document.getElementById('obj-status').innerText = `🎯 CACCIA ALLA ${players[target].team}`; document.getElementById('obj-status').style.color = "#f00";
+                            });
+                        }
                     }
                 }
             } else alert("Base sbloccata.");
@@ -626,28 +620,19 @@
         let hC = myBackpack.findIndex(i => i.name === "CARICO PESANTE"); if (hC > -1 && myContract && myContract.type === 'CARGO') { contractReward += 15000; alert("CONTRATTO CARGO COMPLETATO! +$15000"); myContract = null; myBackpack = myBackpack.filter(i => i.name !== "CARICO PESANTE"); }
         let totalValue = contractReward; myBackpack.forEach(i => totalValue += (i.value||0)); myCash += totalValue; 
         
-        // V31: ESTRAZIONE SALVA NEL MAGAZZINO
         let safeName = myName.replace(/[^a-zA-Z0-9]/g, '_');
         get(ref(db, 'dmz_stash/' + safeName)).then((snap) => {
-            let stash = snap.val() || { cash: 0, items: [] };
-            stash.cash += myCash;
-            if(!stash.items) stash.items = [];
-            stash.items = stash.items.concat(myBackpack);
-            
+            let stash = snap.val() || { cash: 0, items: [] }; stash.cash += myCash; if(!stash.items) stash.items = []; stash.items = stash.items.concat(myBackpack);
             update(ref(db, 'dmz_stash/' + safeName), stash).then(() => {
                 myCash = 0; myBackpack = []; updateEconomyHUD();
                 alert(`ESTRAZIONE COMPLETATA!\nGuadagno Raid: $${totalValue}\nTutto l'equipaggiamento e i fondi sono stati salvati nel tuo Magazzino.`);
-                document.getElementById('obj-status').innerText = `✅ ESTRATTO IN SICUREZZA`; document.getElementById('obj-status').style.color = "#0f0";
-                setStatus('exfil'); 
+                document.getElementById('obj-status').innerText = `✅ ESTRATTO IN SICUREZZA`; document.getElementById('obj-status').style.color = "#0f0"; setStatus('exfil'); 
             });
         });
     }
 
-    window.closeShop = function() { document.getElementById('shop-modal').style.display = 'none'; };
-    window.buyItem = function(idx) { let item = globalSettings.shop_config.pool[idx]; if (myCash >= item.price) { if (myBackpack.length >= 5) return alert("Zaino pieno!"); let newItem = {name: item.name, value: Math.floor(item.price / 2)}; if (item.name.includes("CHIAVE")) newItem.uses = 3; myBackpack.push(newItem); myCash -= item.price; updateEconomyHUD(); alert(`Acquistato: ${item.name}`); } else alert("Fondi insufficienti!"); };
-
     // -----------------------------------------------------------
-    // DEPLOY, MAPPA & GIOCO
+    // DEPLOY & MAPPA
     // -----------------------------------------------------------
     window.deploy = function() {
         let n = document.getElementById('p-name').value.trim().toUpperCase(); if(!n) return alert("Inserisci il Nome Operatore!"); let reqTeam = document.getElementById('p-team').value; let maxP = globalSettings.team_config ? globalSettings.team_config.maxPlayers : 4;
@@ -660,7 +645,6 @@
             if(globalSettings.exfil_config && globalSettings.exfil_config.position === 'random' && globalSettings.exfil_config.points) { currentExfilPoints = globalSettings.exfil_config.points; } else { currentExfilPoints = fieldsDB[globalSettings.activeField].exfils; }
             activeBases = masterBasesDB.filter(b => isInsideArea([b.lat, b.lng], activePlayAreaCoords));
             
-            // V31: L'equipaggiamento iniziale ora è un "Bonus" aggiunto al LOADOUT scelto nel Magazzino
             if (globalSettings.start_gear_config) {
                 let mode = globalSettings.start_gear_config.mode; let pool = globalSettings.start_gear_config.pool || []; let limit = globalSettings.start_gear_config.limit || 5;
                 if (mode === 'fixed') { pool.forEach(i => { let ni = { ...i }; if (ni.name.includes("CHIAVE")) ni.uses = 3; if (myBackpack.length < 5) myBackpack.push(ni); }); } 
