@@ -1,6 +1,6 @@
 {
-  "name": "DMZ Tactical Map",
-  "short_name": "DMZ Map",
+  "name": "DMZ Tactical Seals",
+  "short_name": "DMZ TS",
   "description": "Terminale tattico per operazioni softair DMZ.",
   "start_url": "./index.html",
   "display": "fullscreen",
