@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
-<title>DMZ: TACTICAL MAP v38 - MINIMAL & ROTATION</title>
+<title>DMZ: TACTICAL MAP v38.1 - MASTER FIX</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -38,7 +38,7 @@
     /* MAPPA */
     #map { height: 100vh; width: 100vw; z-index: 1; background: #111; position: absolute; top:0; left:0; }
     
-    /* V38: ROTAZIONE MAPPA CSS */
+    /* ROTAZIONE MAPPA CSS */
     .rotated-east {
         transform: rotate(-90deg);
         transform-origin: center center;
@@ -75,7 +75,7 @@
     .action-btn:active { background: #0f0; color: #000; transform: scale(0.9); box-shadow: 0 0 25px #0f0; }
     .action-btn.btn-scanner { border-color: #0ff; color: #0ff; box-shadow: 0 0 15px rgba(0,255,255,0.4); }
 
-    /* V38 STILE MARKER MINIMALE */
+    /* STILE MARKER MINIMALE */
     .base-marker-container { position:relative; width:30px; height:30px; display:flex; justify-content:center; align-items:center; }
     .base-circle { background:rgba(255,255,0,0.9); border:2px solid #000; border-radius:50%; width:20px; height:20px; display:flex; justify-content:center; align-items:center; color:#000; font-family:'Share Tech Mono', sans-serif; font-weight:bold; font-size:10px; box-shadow:0 0 8px #ff0; }
     .base-name { position:absolute; top:24px; width:120px; text-align:center; color:#ff0; font-size:10px; font-weight:bold; text-shadow:1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; letter-spacing:1px; white-space:nowrap; pointer-events: none; }
@@ -90,14 +90,13 @@
     #cuav-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0, 50, 0, 0.1), rgba(0, 50, 0, 0.1) 2px, transparent 2px, transparent 4px); backdrop-filter: blur(8px) grayscale(100%); z-index: 999; display: none; pointer-events: none; }
     #emp-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #050000; z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; color: #f00; font-family: monospace; font-size: 24px; font-weight: bold; text-align: center; text-shadow: 0 0 20px #f00; }
     #revive-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 40, 0, 0.95); z-index: 6000; display: none; flex-direction: column; justify-content: center; align-items: center; color: #0f0; font-family: 'Share Tech Mono', monospace; font-size: 24px; text-align: center; text-shadow: 0 0 15px #0f0; }
-
 </style>
 </head>
 <body>
 
 <div id="login-screen" class="full-screen-ui">
     <h1>DMZ: DEPLOY</h1>
-    <div class="version-tag">SYSTEM v38 - MINIMAL & ROTATION</div>
+    <div class="version-tag">SYSTEM v38.1 - MASTER UI FIX</div>
     
     <div id="status-label" class="status-label">CONNESSIONE...</div>
     
@@ -106,16 +105,104 @@
         <option value="ALPHA">SQUADRA ALPHA</option><option value="BRAVO">SQUADRA BRAVO</option>
         <option value="CHARLIE">SQUADRA CHARLIE</option><option value="DELTA">SQUADRA DELTA</option>
     </select>
+    
+    <div id="start-gear-selection" style="display:none; width:80%; max-width:300px; margin-top:15px; border:1px solid #0cf; padding:15px; background:rgba(0, 20, 30, 0.8); clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);">
+        <div style="color:#0cf; font-size:14px; font-weight:bold; margin-bottom:15px; text-align:center; letter-spacing:1px;" id="start-gear-title">SELEZIONA EQUIP. AGGIUNTIVO</div>
+        <div id="start-gear-options" style="display:flex; flex-direction:column; gap:8px; max-height:120px; overflow-y:auto;"></div>
+    </div>
+
+    <button class="btn-deploy" style="background:linear-gradient(135deg, #003344 0%, #001122 100%); border-color:#0cf; box-shadow: 0 0 10px rgba(0,255,255,0.3); margin-top:10px; color:#0cf;" onclick="openStash()">🏦 ACCEDI AL MAGAZZINO</button>
 
     <div id="deploy-help" style="color:#ff0; font-size:12px; margin-top:15px; letter-spacing:1px;">Attendi l'avvio della partita dal Comando.</div>
     <button id="btn-deploy" class="btn-deploy" onclick="deploy()" style="display:none;">DISPIEGAMENTO</button>
+    <button class="btn-master" onclick="openMasterPanel()">⚙️ PANNELLO MASTER</button>
+</div>
+
+<div id="master-screen" class="full-screen-ui" style="display:none; z-index: 2500; overflow-y: auto; padding: 40px 0; justify-content: flex-start;">
+    <h1 style="color: #ff0; text-shadow: 0 0 10px #ff0; margin-top:20px;">SISTEMA MASTER</h1>
+    <div class="cfg-label" style="width:80%; max-width:300px; margin-top:10px;">CAMPO OPERATIVO:</div>
+    <select id="m-field" class="input-box" style="border-color: #ff0; color: #ff0;"><option value="campo1">CAMPO 1: DMZ ORIGINALE</option><option value="campo2">CAMPO 2: ZONA URBANA</option><option value="campo5">CAMPO 5: TEST LOCALE</option></select>
+    
+    <div class="toggle-row"><span style="color:#ffa500; font-weight:bold;">SISTEMA MEDICO E SQUADRE 🏥</span><label class="switch"><input type="checkbox" id="cfg-medic-toggle" checked onchange="toggleMedicMenu()"><span class="slider"></span></label></div>
+    <div id="medic-settings" class="cfg-box" style="display:flex;"><div class="cfg-label" style="color:#ffa500; font-weight:bold;">MAX GIOCATORI PER SQUADRA:</div><input type="number" id="cfg-team-size" class="input-box" style="width:100%; margin:0; padding:8px;" value="4"><div class="cfg-label" style="margin-top:10px;">TEMPO DISSANGUAMENTO (SECONDI):</div><input type="number" id="cfg-medic-bleedout" class="input-box" style="width:100%; margin:0; padding:8px;" value="60"><div class="cfg-label" style="margin-top:10px;">MAX CURE CONSENTITE (DA FERITO):</div><input type="number" id="cfg-medic-cures" class="input-box" style="width:100%; margin:0; padding:8px;" value="2"><div class="cfg-label">MAX RIANIMAZIONI (DA MORTO/ASSIMILAZIONE):</div><input type="number" id="cfg-medic-revives" class="input-box" style="width:100%; margin:0; padding:8px;" value="1"></div>
+    <div class="toggle-row" style="border-color:#0cf;"><span style="color:#0cf; font-weight:bold;">FORNITURA INIZIALE (BONUS) 🎒</span></div>
+    <div class="cfg-box" style="display:flex; border-color:#0cf; border-top:1px solid #0cf;"><div class="cfg-label">MODALITÀ DI ASSEGNAZIONE:</div><select id="cfg-start-mode" class="input-box" style="width:100%; margin:0; padding:8px; font-size:12px; border-color:#0cf; color:#0cf;" onchange="updateStartModeUI()"><option value="none">NESSUNO (Solo Magazzino Personale)</option><option value="fixed">FISSO (Bonus a tutti)</option><option value="choice">A SCELTA (Bonus a scelta)</option></select><div id="cfg-start-limit-box" style="display:none; margin-top:10px;"><div class="cfg-label">OGGETTI MASSIMI SELEZIONABILI:</div><input type="number" id="cfg-start-limit" class="input-box" style="width:100%; margin:0; padding:8px; border-color:#0cf;" value="2" min="1" max="5"></div><div style="display:flex; gap:5px; margin-bottom:5px; margin-top:10px;"><input type="text" id="start-name" class="input-box" style="width:60%; margin:0; padding:5px; font-size:10px;" placeholder="OGGETTO"><input type="number" id="start-value" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="VALORE $"></div><button class="btn-deploy" style="background:#033; border-color:#0cf; font-size:12px; padding:8px; margin:0;" onclick="addStartGearItem()">+ AGGIUNGI IN LISTA</button><div id="start-gear-list" style="margin-top:10px; border-top:1px solid #444; padding-top:10px; max-height:150px; overflow-y:auto;"></div></div>
+    <div class="toggle-row"><span style="color:#f0f; font-weight:bold;">ZONA GAS ☢️</span><label class="switch"><input type="checkbox" id="cfg-gas-toggle" onchange="toggleGasMenu()"><span class="slider"></span></label></div>
+    <div id="gas-settings" class="cfg-box"><div class="toggle-row" style="margin-top:0; border:none; padding:0; width:100%;"><span style="color:#f0f; font-size:12px;">GAS LETALE</span><label class="switch"><input type="checkbox" id="cfg-gas-lethal" checked><span class="slider"></span></label></div><div class="cfg-label" style="margin-top:10px;">TEMPO SOPRAVVIVENZA SENZA MASCHERA (SEC):</div><input type="number" id="cfg-gas-time" class="input-box" style="width:100%; margin:0; padding:8px;" value="30"><div class="toggle-row" style="margin-top:10px; border:none; padding:0; width:100%;"><span style="color:#f0f; font-size:12px; max-width:70%;">MOSTRA NEMICI CHE TOSSISCONO NEL GAS</span><label class="switch"><input type="checkbox" id="cfg-gas-vis" checked><span class="slider"></span></label></div><div class="cfg-label" style="margin-top:10px;">NUMERO RESTRINGIMENTI AREA (STEP):</div><input type="number" id="cfg-gas-steps" class="input-box" style="width:100%; margin:0; padding:8px;" value="3"><div class="cfg-label">INTERVALLO TRA STEP (MINUTI):</div><input type="number" id="cfg-gas-interval" class="input-box" style="width:100%; margin:0; padding:8px;" value="10"></div>
+    <div class="toggle-row"><span style="color:#e6e6fa; font-weight:bold;">CONTRATTI BASI (B) 📜</span><label class="switch"><input type="checkbox" id="cfg-contracts-toggle" checked onchange="toggleContractsMenu()"><span class="slider"></span></label></div>
+    <div id="contracts-settings" class="cfg-box cfg-checkbox-list" style="display:flex;"><label><input type="checkbox" class="contract-cb" value="INTEL" checked> RECUPERO DATI SEGRETI</label><label><input type="checkbox" class="contract-cb" value="DESTROY" checked> DISTRUZIONE SCORTE</label><label><input type="checkbox" class="contract-cb" value="CARGO" checked> CONSEGNA MATERIALE (DROP)</label><label><input type="checkbox" class="contract-cb" value="HUNT" checked> CACCIA ALLA SQUADRA (PvP)</label></div>
+    <div class="toggle-row"><span style="color:#8f8; font-weight:bold;">SISTEMA ECONOMICO E CHIAVI 💵</span><label class="switch"><input type="checkbox" id="cfg-eco-toggle" checked><span class="slider"></span></label></div>
+    <div class="toggle-row"><span style="color:#0aa; font-weight:bold;">NEGOZI E KILLSTREAKS 🛒</span><label class="switch"><input type="checkbox" id="cfg-shops-toggle" checked onchange="toggleShopMenu()"><span class="slider"></span></label></div>
+    <div id="shop-settings" class="cfg-box" style="display:flex;"><div class="cfg-label">LISTINO PREZZI NEGOZIO:</div><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="shop-name" class="input-box" style="width:60%; margin:0; padding:5px; font-size:10px;" placeholder="OGGETTO"><input type="number" id="shop-price" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="PREZZO $"></div><button class="btn-deploy" style="background:#333; border-color:#aaa; font-size:12px; padding:8px; margin:0;" onclick="addShopItem()">+ AGGIUNGI IN VENDITA</button><div id="shop-list" style="margin-top:10px; border-top:1px solid #444; padding-top:10px; max-height:150px; overflow-y:auto; font-family:'Share Tech Mono', monospace;"></div></div>
+    <div class="toggle-row"><span style="color:#e6b800; font-weight:bold;">ARMADIETTI E LOOT (A) 📦</span><label class="switch"><input type="checkbox" id="cfg-lockers-toggle" checked onchange="toggleLockerMenu()"><span class="slider"></span></label></div>
+    <div id="locker-settings" class="cfg-box" style="display:flex;"><div class="cfg-label" style="color:#8f8; font-weight:bold; margin-top:10px;">PROBABILITÀ DENARO (Somma = 100%):</div><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="number" id="money-amount" class="input-box" style="width:50%; margin:0; padding:5px; font-size:10px; color:#8f8; border-color:#8f8;" placeholder="IMPORTO $"><input type="number" id="money-chance" class="input-box" style="width:50%; margin:0; padding:5px; font-size:10px;" placeholder="% CHANCE"></div><button class="btn-deploy" style="background:#030; border-color:#0f0; font-size:12px; padding:8px; margin:0;" onclick="addMoneyItem()">+ AGGIUNGI PACCHETTO DENARO</button><div id="money-list" style="margin-top:10px; border-top:1px dashed #8f8; padding-top:10px; max-height:100px; overflow-y:auto;"></div><div class="cfg-label" style="color:#e6b800; font-weight:bold; margin-top:20px;">PROBABILITÀ OGGETTI (Somma = 100%):</div><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="loot-name" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px;" placeholder="NOME OGGETTO"><input type="number" id="loot-chance" class="input-box" style="width:25%; margin:0; padding:5px; font-size:10px;" placeholder="%"><input type="number" id="loot-value" class="input-box" style="width:35%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="VALORE $"></div><button class="btn-deploy" style="background:#330; border-color:#ff0; font-size:12px; padding:8px; margin:0;" onclick="addLootItem()">+ AGGIUNGI OGGETTO</button><div id="loot-list" style="margin-top:10px; border-top:1px dashed #ff0; padding-top:10px; max-height:150px; overflow-y:auto;"></div></div>
+    <div class="toggle-row"><span style="color:#0ff; font-weight:bold;">ESFILTRAZIONE (E/C) 🚁</span><label class="switch"><input type="checkbox" id="cfg-exfil-toggle" checked onchange="toggleExfilMenu()"><span class="slider"></span></label></div>
+    <div id="exfil-settings" class="cfg-box" style="display:flex;"><div class="cfg-label">NUMERO DI PUNTI ATTIVI:</div><input type="number" id="cfg-exfil-num" class="input-box" style="width:100%; margin:0; padding:8px;" value="2" min="1" max="10"><div class="cfg-label">POSIZIONE ESTRAZIONI:</div><select id="cfg-exfil-pos" class="input-box" style="width:100%; margin:0; padding:8px; font-size:14px;"><option value="defined">C: Punti Mappa Standard</option><option value="random">E: Punti Casuali (Sceglie Basi in area)</option></select><div class="cfg-label">TEMPO ARRIVO ELICOTTERO (MINUTI):</div><input type="number" id="cfg-exfil-wait" class="input-box" style="width:100%; margin:0; padding:8px;" value="2" min="0" max="10"></div>
+    <button class="btn-deploy" style="background:#004400; border-color:#0f0; margin-top:40px;" onclick="masterStartGame()">🚀 AVVIA PARTITA</button>
+    <button class="btn-deploy" style="background:rgba(255,0,0,0.2); border-color:#f00; margin-top:20px;" onclick="masterStopGame()">⏹ TERMINA PARTITA</button>
+    <button class="btn-master" style="margin-bottom: 50px;" onclick="closeMasterPanel()">TORNA AL LOGIN</button>
+</div>
+
+<div id="stash-modal" class="game-modal">
+    <div class="modal-title" style="color:#0cf; text-shadow:0 0 10px #0cf;">MAGAZZINO SEGRETO</div>
+    <div class="modal-desc" style="color:#0cf;">Gestisci equipaggiamento.</div>
+    <div style="display:flex; width:95%; max-width: 400px; gap:10px; height: 50%;">
+        <div class="locker-panel" style="border-color:#0cf;"><h3 style="color:#0cf; border-color:#0cf;">STASH</h3><div id="stash-money-box" style="margin-bottom:10px; padding:5px; background:rgba(0,30,30,0.8); border:1px solid #0cf; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);"></div><div id="stash-items-box"></div></div>
+        <div class="locker-panel"><h3 style="color:#8f8; border-color:#8f8;">ZAINO</h3><div id="stash-loadout-money" style="margin-bottom:10px; padding:5px; background:rgba(0,40,0,0.8); border:1px solid #0f0; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);"></div><div id="stash-loadout-items"></div></div>
+    </div>
+    <button class="btn-close-modal" style="border-color:#0cf;" onclick="closeStash()">CHIUDI E SALVA</button>
+</div>
+
+<div id="scanner-modal" class="game-modal">
+    <div class="modal-title">SCANSIONE OTTICA</div>
+    <div class="modal-desc">Inquadra QR o inserisci codice.</div>
+    <div id="qr-reader"></div>
+    <div style="display:flex; width: 90%; max-width: 350px; gap: 5px; margin-top: 15px;">
+        <input type="text" id="manual-code-input" class="input-box" placeholder="ES: B5" style="width:70%; font-size:18px; border-color:#0ff; color:#0ff; margin:0;">
+        <button class="btn-deploy" style="width:30%; background:linear-gradient(135deg, #004444 0%, #001111 100%); border-color:#0ff; box-shadow: 0 0 10px rgba(0,255,255,0.4); margin:0; padding:10px;" onclick="processScannedCode()">INVIA</button>
+    </div>
+    <button class="btn-close-modal" onclick="closeScanner()">ANNULLA SCANSIONE</button>
+</div>
+
+<div id="player-action-modal" class="game-modal">
+    <div class="modal-title" style="color:#fff;">OPERATORE RILEVATO</div>
+    <div class="modal-desc" id="pam-desc" style="color:#aaa; font-size:14px; margin-bottom:30px;">Scegli l'azione tattica.</div>
+    <button class="btn-deploy" style="background:linear-gradient(135deg, #005500 0%, #002200 100%); border-color:#0f0; width:90%; max-width:300px; margin-bottom:15px;" onclick="executePlayerAction('REVIVE')">💉 RIANIMA E ASSIMILA</button>
+    <button class="btn-deploy" style="background:linear-gradient(135deg, #550000 0%, #220000 100%); border-color:#f00; width:90%; max-width:300px;" onclick="executePlayerAction('LOOT')">🎒 DEPREDA ZAINO</button>
+    <button class="btn-close-modal" style="border-color:#555; color:#aaa; margin-top:40px;" onclick="closePlayerAction()">ANNULLA</button>
+</div>
+
+<div id="locker-modal" class="game-modal">
+    <div class="modal-title" id="locker-title" style="color:#e6b800;">CONTENITORE</div>
+    <div style="display:flex; width:95%; max-width: 400px; gap:10px; height: 60%;">
+        <div class="locker-panel"><h3 id="locker-left-title" style="color:#e6b800; border-color:#e6b800;">CONTENUTO</h3><div id="locker-money-box" style="margin-bottom:10px; padding:5px; background:rgba(40,30,0,0.8); border:1px solid #e6b800; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);"></div><div id="locker-items-box"></div></div>
+        <div class="locker-panel"><h3 style="color:#8f8; border-color:#8f8;">IL TUO ZAINO</h3><div id="locker-backpack-box"></div></div>
+    </div>
+    <button class="btn-close-modal" style="border-color:#e6b800;" onclick="closeLocker()">CHIUDI SPORTELLO</button>
+</div>
+
+<div id="shop-modal" class="game-modal">
+    <div class="modal-title" style="color:#0aa;">MERCATO NERO</div>
+    <div id="shop-items-container" style="width:100%; display:flex; flex-direction:column; align-items:center; overflow-y:auto; max-height:60%;"></div>
+    <button class="btn-close-modal" style="border-color:#0aa;" onclick="closeShop()">ESCI DAL NEGOZIO</button>
+</div>
+
+<div id="backpack-modal" class="game-modal">
+    <div class="modal-title" style="color:#8f8;">IL TUO ZAINO</div>
+    <div class="modal-desc" id="bp-desc" style="color:#8f8;">Capacità: 5 slot</div>
+    <div id="bp-items-container" style="width:100%; display:flex; flex-direction:column; align-items:center; overflow-y:auto; max-height:60%;"></div>
+    <button class="btn-close-modal" style="border-color:#8f8;" onclick="closeBackpack()">CHIUDI ZAINO</button>
+</div>
+
+<div id="revive-overlay">
+    🏥 RIANIMAZIONE...<br><br><span id="revive-timer" style="font-size: 60px; color:#fff;">10</span>s<br><br>
+    <button class="btn-deploy" style="background:#500; border-color:#f00; margin-top:40px;" onclick="cancelRevive()">INTERROMPI</button>
 </div>
 
 <div id="map"></div>
 <div id="gas-overlay"></div>
 <div id="cuav-overlay"></div>
 <div id="crosshair">✛</div>
-<div id="targeting-overlay" style="display:none; z-index:2000; position:absolute; top:120px; left:50%; transform:translateX(-50%); background:rgba(255,0,0,0.85); color:#fff; padding:15px; border:1px solid #f00;">⬇ CLICCA SULLA MAPPA PER LANCIARE L'ATTACCO AEREO ⬇</div>
 
 <div id="hud-top-container" style="display:none;">
     <div id="obj-banner">OBIETTIVO: SOPRAVVIVENZA</div>
@@ -138,7 +225,7 @@
 <div id="hud-bottom" style="display:none;">
     <div class="action-btn" onclick="centerMap()">📍</div> 
     <div class="action-btn" style="border-color:#ff0; color:#ff0; box-shadow: 0 0 15px rgba(255,255,0,0.3);" onclick="toggleMapRotation()">🧭</div>
-    <div class="action-btn btn-scanner" onclick="alert('Scanner disabilitato temporaneamente in v38 per test mappa')">📷</div> 
+    <div class="action-btn btn-scanner" onclick="openScanner()">📷</div> 
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
