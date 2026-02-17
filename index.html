@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
-<title>DMZ: TACTICAL MAP v34 - TACTICAL UI</title>
+<title>DMZ: TACTICAL MAP v37 - FULL TOPOGRAPHY</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -15,7 +15,7 @@
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
 <style>
-    /* STILE MILITARE/DMZ V34 - TACTICAL REDESIGN */
+    /* STILE MILITARE/DMZ */
     @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
     
     body { margin: 0; padding: 0; background: #000; font-family: 'Share Tech Mono', 'Courier New', monospace; overflow: hidden; color: #0f0; }
@@ -38,7 +38,7 @@
 
     .btn-master { background: transparent; border: 1px solid #555; color: #aaa; padding: 10px; margin-top: 30px; font-size: 12px; cursor: pointer; width: 60%; max-width: 200px; font-family: 'Share Tech Mono', monospace; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
 
-    /* TOGGLE SWITCH E IMPOSTAZIONI */
+    /* TOGGLE E MASTER PANEL */
     .toggle-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,20,0,0.5); padding: 12px; border: 1px solid #333; margin-top: 15px; width: 80%; max-width: 300px; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
     .switch { position: relative; display: inline-block; width: 50px; height: 24px; flex-shrink: 0; }
     .switch input { opacity: 0; width: 0; height: 0; }
@@ -51,43 +51,43 @@
     .cfg-label { color: #aaa; font-size: 11px; text-align: left; }
     .cfg-checkbox-list label { color: #ddd; font-size: 13px; display: flex; align-items: center; gap: 8px; margin-bottom: 5px; cursor: pointer; }
 
-    /* MAPPA E MIRINO CENTRALE */
+    /* MAPPA */
     #map { height: 100vh; width: 100%; z-index: 1; background: #111; }
     #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(0, 255, 0, 0.6); font-size: 30px; font-weight: bold; z-index: 1000; pointer-events: none; text-shadow: 0 0 5px #000; display: none; font-family: sans-serif; }
 
-    /* EFFETTI A SCHERMO */
+    /* EFFETTI */
     #gas-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(200, 0, 255, 0.15); z-index: 999; display: none; pointer-events: none; box-shadow: inset 0 0 100px rgba(200,0,255,0.9); }
     #cuav-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0, 50, 0, 0.1), rgba(0, 50, 0, 0.1) 2px, transparent 2px, transparent 4px); backdrop-filter: blur(8px) grayscale(100%); z-index: 999; display: none; pointer-events: none; }
     #emp-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #050000; z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; color: #f00; font-family: monospace; font-size: 24px; font-weight: bold; text-align: center; text-shadow: 0 0 20px #f00; }
     #revive-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 40, 0, 0.95); z-index: 6000; display: none; flex-direction: column; justify-content: center; align-items: center; color: #0f0; font-family: 'Share Tech Mono', monospace; font-size: 24px; text-align: center; text-shadow: 0 0 15px #0f0; }
 
-    /* NUOVO HUD (Interfaccia) V34 */
+    /* HUD SUPERIORE */
     #hud-top-container { position: absolute; top: 0; left: 0; width: 100%; z-index: 1000; display: flex; flex-direction: column; pointer-events: none; }
-    
-    /* Striscia superore a larghezza intera per l'Obiettivo */
     #obj-banner { width: 100%; background: rgba(0, 15, 0, 0.85); border-bottom: 2px solid #0f0; padding: 10px 0; color: #0f0; font-weight: bold; font-size: 16px; text-shadow: 0 0 8px #0f0; text-align: center; letter-spacing: 1px; backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-    
-    /* Contenitore per GPS ed Economia sotto il banner */
     #hud-sub-top { display: flex; justify-content: space-between; padding: 10px; width: calc(100% - 20px); }
-    
     .hud-box { background: rgba(0, 20, 0, 0.7); border: 1px solid #0f0; padding: 6px 12px; color: #0f0; font-size: 12px; text-shadow: 0 0 5px #0f0; backdrop-filter: blur(4px); clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); box-shadow: 0 0 5px rgba(0,255,0,0.2); }
     .hud-economy { background: linear-gradient(135deg, rgba(0,40,0,0.9) 0%, rgba(0,15,0,0.9) 100%); cursor: pointer; pointer-events: auto; font-size: 14px; font-weight: bold; }
 
-    /* PULSANTI STATO LATERALI */
-    #hud-status { position: absolute; top: 90px; left: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
+    /* FEED DEGLI EVENTI (COMBAT LOG) */
+    #combat-log { position: absolute; top: 120px; right: 10px; width: 65%; max-width: 280px; display: flex; flex-direction: column; gap: 5px; align-items: flex-end; z-index: 1000; pointer-events: none; }
+    .log-entry { background: rgba(0, 15, 0, 0.85); border-right: 3px solid #0f0; color: #fff; padding: 6px 10px; font-size: 11px; font-family: 'Share Tech Mono', monospace; text-shadow: 0 0 3px #000; clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px); animation: slideIn 0.4s ease-out; backdrop-filter: blur(2px); text-align: right; }
+    .log-entry span.time { color: #0ff; margin-right: 5px; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* HUD LATERALE E INFERIORE */
+    #hud-status { position: absolute; top: 110px; left: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
     .btn-status { background: rgba(0,10,0,0.8); border: 1px solid #555; color: #fff; padding: 10px; font-family: 'Share Tech Mono', monospace; font-size: 12px; cursor: pointer; text-align: left; transition: 0.2s; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); backdrop-filter: blur(4px); }
     .btn-status:active { transform: scale(0.95); }
 
-    /* HUD INFERIORE (Azioni) */
     #hud-bottom { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 20px; }
     .action-btn { background: rgba(0,20,0,0.85); border: 2px solid #0f0; color: #0f0; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; backdrop-filter: blur(5px); box-shadow: 0 0 15px rgba(0,255,0,0.3); transition: 0.2s; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); }
     .action-btn:active { background: #0f0; color: #000; transform: scale(0.9); box-shadow: 0 0 25px #0f0; }
     .action-btn.btn-scanner { border-color: #0ff; color: #0ff; box-shadow: 0 0 15px rgba(0,255,255,0.4); }
     .action-btn.btn-scanner:active { background: #0ff; color: #000; }
 
-    /* MODALS MIGLIORATI */
+    /* MODALS */
     .game-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 15, 0, 0.95); backdrop-filter: blur(8px); z-index: 3000; display: none; flex-direction: column; justify-content: center; align-items: center; border: 2px solid #0f0; box-sizing: border-box; }
-    .modal-title { color: #0ff; font-size: 26px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 15px #0ff; letter-spacing: 2px; text-transform: uppercase; }
+    .modal-title { color: #0ff; font-size: 26px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 15px #0ff; letter-spacing: 2px; text-transform: uppercase; text-align:center;}
     .modal-desc { color: #0a0; font-size: 13px; margin-bottom: 20px; text-align: center; width: 85%; line-height: 1.4; }
     .btn-close-modal { background: transparent; color: #fff; border: 1px solid #f00; padding: 12px 25px; font-size: 16px; margin-top: 25px; cursor: pointer; font-family: 'Share Tech Mono', monospace; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); transition: 0.2s; text-transform: uppercase; }
     .btn-close-modal:active { background: #f00; color: #000; box-shadow: 0 0 15px #f00; }
@@ -105,7 +105,7 @@
     .locker-btn { background: rgba(0,80,80,0.8); border: 1px solid #0ff; color: #0ff; padding: 5px 10px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 10px; clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px); transition: 0.2s;}
     .locker-btn:active { background: #0ff; color: #000; }
 
-    /* STILE MARKER E PING */
+    /* STILE MARKER */
     .teammate-label { background: rgba(0,0,0,0.7); color: #fff; font-family: sans-serif; font-weight: bold; border-radius: 3px; padding: 2px 4px; font-size: 10px; margin-top: -38px; text-align: center; width: 100px; margin-left: -42px; border: 1px solid #555; }
     .drop-icon { font-size: 30px; text-shadow: 0 0 10px #ff0; cursor: pointer; text-align:center; }
     .ping-icon { background: rgba(255, 0, 0, 0.8); border: 2px solid #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; box-shadow: 0 0 15px #f00; animation: ping-pulse 1s infinite; }
@@ -119,7 +119,7 @@
 
 <div id="login-screen" class="full-screen-ui">
     <h1>DMZ: DEPLOY</h1>
-    <div class="version-tag">SYSTEM v34 - TACTICAL UI & TERRAIN</div>
+    <div class="version-tag">SYSTEM v37 - FULL TOPOGRAPHY</div>
     
     <div id="status-label" class="status-label">CONNESSIONE...</div>
     
@@ -152,7 +152,7 @@
     <div class="toggle-row"><span style="color:#f0f; font-weight:bold;">ZONA GAS ☢️</span><label class="switch"><input type="checkbox" id="cfg-gas-toggle" onchange="toggleGasMenu()"><span class="slider"></span></label></div>
     <div id="gas-settings" class="cfg-box"><div class="toggle-row" style="margin-top:0; border:none; padding:0; width:100%;"><span style="color:#f0f; font-size:12px;">GAS LETALE</span><label class="switch"><input type="checkbox" id="cfg-gas-lethal" checked><span class="slider"></span></label></div><div class="cfg-label" style="margin-top:10px;">TEMPO SOPRAVVIVENZA SENZA MASCHERA (SEC):</div><input type="number" id="cfg-gas-time" class="input-box" style="width:100%; margin:0; padding:8px;" value="30"><div class="toggle-row" style="margin-top:10px; border:none; padding:0; width:100%;"><span style="color:#f0f; font-size:12px; max-width:70%;">MOSTRA NEMICI CHE TOSSISCONO NEL GAS</span><label class="switch"><input type="checkbox" id="cfg-gas-vis" checked><span class="slider"></span></label></div><div class="cfg-label" style="margin-top:10px;">NUMERO RESTRINGIMENTI AREA (STEP):</div><input type="number" id="cfg-gas-steps" class="input-box" style="width:100%; margin:0; padding:8px;" value="3"><div class="cfg-label">INTERVALLO TRA STEP (MINUTI):</div><input type="number" id="cfg-gas-interval" class="input-box" style="width:100%; margin:0; padding:8px;" value="10"></div>
     <div class="toggle-row"><span style="color:#e6e6fa; font-weight:bold;">CONTRATTI BASI (B) 📜</span><label class="switch"><input type="checkbox" id="cfg-contracts-toggle" checked onchange="toggleContractsMenu()"><span class="slider"></span></label></div>
-    <div id="contracts-settings" class="cfg-box cfg-checkbox-list" style="display:flex;"><label><input type="checkbox" class="contract-cb" value="INTEL" checked> RECUPERO DATI SEGRETI</label><label><input type="checkbox" class="contract-cb" value="DESTROY" checked> DISTRUZIONE SCORTE</label><label><input type="checkbox" class="contract-cb" value="CARGO" checked> CONSEGNA MATERIALE</label><label><input type="checkbox" class="contract-cb" value="HUNT" checked> CACCIA ALLA SQUADRA (PvP)</label></div>
+    <div id="contracts-settings" class="cfg-box cfg-checkbox-list" style="display:flex;"><label><input type="checkbox" class="contract-cb" value="INTEL" checked> RECUPERO DATI SEGRETI</label><label><input type="checkbox" class="contract-cb" value="DESTROY" checked> DISTRUZIONE SCORTE</label><label><input type="checkbox" class="contract-cb" value="CARGO" checked> CONSEGNA MATERIALE (DROP)</label><label><input type="checkbox" class="contract-cb" value="HUNT" checked> CACCIA ALLA SQUADRA (PvP)</label></div>
     <div class="toggle-row"><span style="color:#8f8; font-weight:bold;">SISTEMA ECONOMICO E CHIAVI 💵</span><label class="switch"><input type="checkbox" id="cfg-eco-toggle" checked><span class="slider"></span></label></div>
     <div class="toggle-row" style="display:none;"><span style="color:#ffd700; font-weight:bold; max-width: 60%; font-size:14px;">RICHIEDI CHIAVI PER SBLOCCARE OBIETTIVI 🔑</span><label class="switch"><input type="checkbox" id="cfg-keys-toggle" checked><span class="slider"></span></label></div>
     <div class="toggle-row"><span style="color:#0aa; font-weight:bold;">NEGOZI E KILLSTREAKS 🛒</span><label class="switch"><input type="checkbox" id="cfg-shops-toggle" checked onchange="toggleShopMenu()"><span class="slider"></span></label></div>
@@ -231,7 +231,6 @@
 
 <div id="hud-top-container" style="display:none;">
     <div id="obj-banner">OBIETTIVO: SOPRAVVIVENZA</div>
-    
     <div id="hud-sub-top">
         <div class="hud-box" id="gps-status" style="color:#0ff; border-color:#0ff;">GPS: RICERCA...</div>
         <div id="hud-economy-box" class="hud-box hud-economy" style="display:none;" onclick="openBackpack()">
@@ -239,6 +238,8 @@
         </div>
     </div>
 </div>
+
+<div id="combat-log"></div>
 
 <div id="hud-status" style="display:none;">
     <button id="btn-status-active" class="btn-status" style="border-color:#0f0; color:#0f0;" onclick="manualSetStatus('active')">🟢 IN COMBATTIMENTO</button>
@@ -262,17 +263,50 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const masterBasesDB = [];
-    for(let i=1; i<=20; i++) masterBasesDB.push({ id: "B"+i, lat: 45.6792 + (Math.random()*0.004 - 0.002), lng: 9.8950 + (Math.random()*0.004 - 0.002), name: "BASE " + i });
+    // V37 FIX: COORDINATE GEOMETRICHE E BASI PERFETTE
+    const masterBasesDB = [
+        { id: "B1", name: "CHIRINGUITO", lat: 45.679325, lng: 9.895191 },
+        { id: "B2", name: "BANCA", lat: 45.679668, lng: 9.896275 },
+        { id: "B3", name: "BUCO NERO", lat: 45.679326, lng: 9.897387 },
+        { id: "B4", name: "PRATI BASSI", lat: 45.679367, lng: 9.899083 },
+        { id: "B5", name: "LABORATORIO", lat: 45.679264, lng: 9.900673 },
+        { id: "B6", name: "PRATI ALTI", lat: 45.680613, lng: 9.900875 },
+        { id: "B7", name: "ANFITEATRO", lat: 45.679424, lng: 9.90205 },
+        { id: "B8", name: "AVAMPOSTO 8", lat: 45.679779, lng: 9.894188 },
+        { id: "B9", name: "AVAMPOSTO 9", lat: 45.67905, lng: 9.895674 },
+        { id: "B10", name: "AVAMPOSTO 10", lat: 45.679973, lng: 9.899075 },
+        { id: "B11", name: "AVAMPOSTO 11", lat: 45.680284, lng: 9.894652 },
+        { id: "B12", name: "AVAMPOSTO 12", lat: 45.679344, lng: 9.894223 },
+        { id: "B13", name: "AVAMPOSTO 13", lat: 45.678937, lng: 9.89779 },
+        { id: "B14", name: "AVAMPOSTO 14", lat: 45.678553, lng: 9.895491 },
+        { id: "B15", name: "AVAMPOSTO 15", lat: 45.6798, lng: 9.898087 },
+        { id: "B16", name: "AVAMPOSTO 16", lat: 45.678941, lng: 9.898419 },
+        { id: "B17", name: "AVAMPOSTO 17", lat: 45.680119, lng: 9.894049 },
+        { id: "B18", name: "AVAMPOSTO 18", lat: 45.680112, lng: 9.899236 },
+        { id: "B19", name: "AVAMPOSTO 19", lat: 45.679181, lng: 9.895166 },
+        { id: "B20", name: "AVAMPOSTO 20", lat: 45.680414, lng: 9.896524 }
+    ];
 
     const fieldsDB = {
-        "campo1": { center: [45.679141, 9.896634], boundaries: [[45.6792, 9.8927], [45.6790, 9.8943], [45.6799, 9.8974], [45.6782, 9.9032]], exfils: [ { id: "C1", lat: 45.6800, lng: 9.8966, label: "EXFIL C1" } ] },
-        "campo5": { center: [45.699417, 9.827667], boundaries: [[45.7014, 9.8256], [45.7014, 9.8296], [45.6974, 9.8296], [45.6974, 9.8256]], exfils: [ { id: "C1", lat: 45.6998, lng: 9.8276, label: "EXFIL C1" } ] }
+        "campo1": { 
+            center: [45.6795, 9.8975], 
+            boundaries: [ [45.679223, 9.892754], [45.679053, 9.894369], [45.678634, 9.896859], [45.678212, 9.903234], [45.680357, 9.902110], [45.679790, 9.899845], [45.679941, 9.897482], [45.679488, 9.894333] ], 
+            exfils: [ { id: "C1", lat: 45.6800, lng: 9.8966, label: "EXFIL C1" } ] 
+        },
+        "campo5": { 
+            center: [45.699417, 9.827667], 
+            boundaries: [[45.7014, 9.8256], [45.7014, 9.8296], [45.6974, 9.8296], [45.6974, 9.8256]], 
+            exfils: [ { id: "C1", lat: 45.6998, lng: 9.8276, label: "EXFIL C1" } ] 
+        }
     };
     
-    let activeFieldCenter = [], activePlayAreaCoords = [], activeBases = [], currentExfilPoints = [];
+    // V37: TRACCIATI GPX DEI SENTIERI (Gia estratti)
+    const customTrails = [
+        [ [45.679254, 9.894659], [45.679155, 9.894616], [45.679045, 9.894601], [45.678974, 9.894686], [45.678905, 9.894783], [45.678883, 9.894916], [45.678878, 9.895047], [45.678874, 9.895188], [45.678818, 9.895301], [45.678726, 9.89537], [45.678711, 9.895502], [45.678697, 9.895634], [45.678662, 9.895759], [45.678653, 9.895891], [45.678658, 9.896032], [45.678656, 9.896185], [45.678637, 9.896324], [45.678618, 9.896461], [45.678601, 9.896583], [45.678583, 9.896723], [45.678545, 9.896851], [45.678537, 9.89698], [45.678551, 9.897095], [45.678587, 9.897218], [45.678678, 9.897221], [45.678769, 9.897257], [45.678871, 9.897279], [45.678966, 9.897274], [45.67905, 9.897353], [45.679033, 9.897488], [45.679005, 9.89762], [45.679004, 9.897748], [45.679052, 9.897872], [45.679101, 9.897985], [45.679107, 9.898127], [45.679148, 9.898234], [45.679151, 9.898097], [45.679167, 9.897998], [45.67917, 9.897997], [45.679166, 9.897857], [45.679153, 9.89771], [45.679173, 9.897574], [45.679215, 9.897456], [45.679307, 9.897391], [45.679361, 9.8973], [45.67935, 9.897313], [45.679287, 9.897407], [45.679348, 9.897502], [45.679422, 9.897549], [45.679419, 9.897693], [45.679432, 9.897835], [45.679436, 9.897974], [45.679419, 9.898103], [45.679487, 9.898186], [45.679525, 9.898306], [45.679472, 9.898418], [45.679495, 9.898493], [45.679447, 9.898609], [45.679417, 9.898737], [45.679393, 9.898872], [45.679365, 9.899006], [45.67939, 9.898881], [45.679384, 9.898736], [45.679423, 9.898599], [45.679492, 9.898527], [45.679585, 9.898575], [45.679614, 9.898449], [45.679631, 9.898315], [45.679659, 9.898186], [45.679687, 9.898051], [45.679689, 9.897904], [45.679713, 9.897766], [45.679715, 9.897646], [45.679741, 9.897508], [45.679761, 9.897362], [45.679763, 9.897224], [45.679728, 9.897093], [45.679658, 9.897034], [45.679624, 9.89691], [45.679602, 9.896783], [45.67951, 9.89679], [45.67944, 9.896882], [45.679419, 9.896839], [45.679437, 9.896704], [45.679445, 9.896571], [45.679476, 9.896437], [45.679513, 9.896348], [45.679599, 9.89628], [45.679642, 9.896152], [45.679718, 9.896172], [45.679701, 9.896032], [45.679618, 9.895956], [45.679527, 9.895901], [45.679497, 9.895764], [45.679551, 9.895635], [45.679548, 9.895495], [45.679504, 9.895382], [45.679423, 9.895337], [45.679392, 9.895249], [45.679356, 9.89513], [45.679379, 9.89512], [45.679313, 9.895011], [45.679271, 9.894875], [45.679233, 9.894743] ],
+        [ [45.678797, 9.894583], [45.678889, 9.894589], [45.678983, 9.894581], [45.679035, 9.894487], [45.679068, 9.894349], [45.679154, 9.894316], [45.679221, 9.894413], [45.67928, 9.894526], [45.679321, 9.89465], [45.679301, 9.894781], [45.679354, 9.894894], [45.679408, 9.894999], [45.679399, 9.895125], [45.67946, 9.895219], [45.679441, 9.895343], [45.679487, 9.895286], [45.679506, 9.89536], [45.679557, 9.895436], [45.679557, 9.89557], [45.679496, 9.895675], [45.679483, 9.895814], [45.679571, 9.895868], [45.679645, 9.895954], [45.679685, 9.896094], [45.679673, 9.896231], [45.679641, 9.896366], [45.679586, 9.896477], [45.679488, 9.896479], [45.679506, 9.896374], [45.679487, 9.896387], [45.679502, 9.896534], [45.679544, 9.896647], [45.679634, 9.896692], [45.679662, 9.896813], [45.679672, 9.896959], [45.679713, 9.897099], [45.679713, 9.897218], [45.679699, 9.897225], [45.679744, 9.897145], [45.679795, 9.897256], [45.679753, 9.897381], [45.679758, 9.897522], [45.679743, 9.897675], [45.679718, 9.897813], [45.679707, 9.897963], [45.679687, 9.898098], [45.679673, 9.8982], [45.679633, 9.898321], [45.679629, 9.898478], [45.679616, 9.898608], [45.679528, 9.898563], [45.679438, 9.898581], [45.679419, 9.898713], [45.679398, 9.898851], [45.679349, 9.898952], [45.679362, 9.898824], [45.679392, 9.898676], [45.679431, 9.89855], [45.679526, 9.898552], [45.679609, 9.898539], [45.67963, 9.89838], [45.679658, 9.898227], [45.679386, 9.898987], [45.679388, 9.899132], [45.679362, 9.899275], [45.679332, 9.899415], [45.679332, 9.899555], [45.679322, 9.899696], [45.679319, 9.899833], [45.679347, 9.899964], [45.679393, 9.900085], [45.679401, 9.900235], [45.679335, 9.900313], [45.679268, 9.90041], [45.679276, 9.900547], [45.679239, 9.900678], [45.679288, 9.900789], [45.679353, 9.9007], [45.679301, 9.900821], [45.679319, 9.9008], [45.679288, 9.900869], [45.679275, 9.900977], [45.679345, 9.900876], [45.679337, 9.90087], [45.679276, 9.900959], [45.679241, 9.900832], [45.679188, 9.900847], [45.679228, 9.90087], [45.679208, 9.900734], [45.679248, 9.900765], [45.679206, 9.900638], [45.679128, 9.900567], [45.679026, 9.900563], [45.679037, 9.900473], [45.67904, 9.900448], [45.679023, 9.90039], [45.678938, 9.900307], [45.678899, 9.900199], [45.678853, 9.900072], [45.67884, 9.899942], [45.678836, 9.899787], [45.678838, 9.899758], [45.678806, 9.899659], [45.678819, 9.899527], [45.678813, 9.899403], [45.678851, 9.899289], [45.678876, 9.89937], [45.678919, 9.89932], [45.67897, 9.899227], [45.678962, 9.899249], [45.678933, 9.899205], [45.678926, 9.899227], [45.679005, 9.899153], [45.67898, 9.899206], [45.678969, 9.899144], [45.67893, 9.899015], [45.678967, 9.898892], [45.678943, 9.898773], [45.678998, 9.898657], [45.679045, 9.898532], [45.67908, 9.898393], [45.679056, 9.898259], [45.679091, 9.898286], [45.679065, 9.898216], [45.679065, 9.898201], [45.679075, 9.898057], [45.679049, 9.897973], [45.678982, 9.89789], [45.678965, 9.897765], [45.678945, 9.897643], [45.678977, 9.897523], [45.679029, 9.897394], [45.678947, 9.897317], [45.678852, 9.897311], [45.678761, 9.897289], [45.678667, 9.89725], [45.678569, 9.89721], [45.678497, 9.897133], [45.678537, 9.897016], [45.678504, 9.896882], [45.678507, 9.89674], [45.67853, 9.896587], [45.678544, 9.896452], [45.67855, 9.89632], [45.678581, 9.896191], [45.678573, 9.896057], [45.678569, 9.895922], [45.678589, 9.895819], [45.678635, 9.895702], [45.678632, 9.895564], [45.678658, 9.895428], [45.678719, 9.895325], [45.678794, 9.895237], [45.678804, 9.89511], [45.678797, 9.89497], [45.678826, 9.894831], [45.67887, 9.894718], [45.678858, 9.894625], [45.678767, 9.894578], [45.678866, 9.894595], [45.678966, 9.894563], [45.678997, 9.894432], [45.678924, 9.894322], [45.67889, 9.894194], [45.678865, 9.894063], [45.678809, 9.893955], [45.67878, 9.893831], [45.67877, 9.893694], [45.678753, 9.893542], [45.678711, 9.893412], [45.678624, 9.893406], [45.678634, 9.893402], [45.678715, 9.893332], [45.678811, 9.893348], [45.67889, 9.893446], [45.678957, 9.893569], [45.679019, 9.893706], [45.679046, 9.89384], [45.679037, 9.893978], [45.679035, 9.894119], [45.679062, 9.894258], [45.679147, 9.894329] ]
+    ];
 
-    let myId = "OP_" + Math.floor(Math.random() * 99999);
+    let myId = ""; 
     let myName = "", myTeam = "", myStatus = "active", myCash = 0, myBackpack = [];
     let myStash = { cash: 0, items: [] }; 
     let map, myMarker = null, markers = {}; 
@@ -287,7 +321,7 @@
 
     let globalSettings = { status: 'lobby' }; let activeStreaks = {};
 
-    function isInsideArea(p, poly) { let x = p[0], y = p[1], inside = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { let intersect = ((poly[i][1] > y) != (poly[j][1] > y)) && (x < (poly[j][0] - poly[i][0]) * (y - poly[i][1]) / (poly[j][1] - poly[i][1]) + poly[i][0]); if (intersect) inside = !inside; } return inside; }
+    window.logEvent = function(msg) { push(ref(db, 'dmz_logs'), { msg: msg, timestamp: Date.now() }); };
 
     window.updateStartModeUI = function() { document.getElementById('cfg-start-limit-box').style.display = (document.getElementById('cfg-start-mode').value === 'choice') ? 'block' : 'none'; };
     window.toggleGasMenu = function() { document.getElementById('gas-settings').style.display = document.getElementById('cfg-gas-toggle').checked ? 'block' : 'none'; };
@@ -389,17 +423,14 @@
             medic_config: { active: document.getElementById('cfg-medic-toggle').checked, bleedout_time: parseInt(document.getElementById('cfg-medic-bleedout').value) || 60, maxCures: parseInt(document.getElementById('cfg-medic-cures').value) || 2, maxRevives: parseInt(document.getElementById('cfg-medic-revives').value) || 1 },
             gas_config: { enabled: document.getElementById('cfg-gas-toggle').checked, lethal: document.getElementById('cfg-gas-lethal').checked, survivalTime: parseInt(document.getElementById('cfg-gas-time').value) || 30, visibility: document.getElementById('cfg-gas-vis').checked, steps: parseInt(document.getElementById('cfg-gas-steps').value) || 3, interval: parseInt(document.getElementById('cfg-gas-interval').value) || 10, startTime: Date.now() }
         });
-        set(ref(db, 'dmz_lockers'), null); set(ref(db, 'dmz_streaks'), null); alert("PARTITA INIZIATA.");
+        set(ref(db, 'dmz_lockers'), null); set(ref(db, 'dmz_streaks'), null); set(ref(db, 'dmz_logs'), null); alert("PARTITA INIZIATA.");
     };
     window.masterStopGame = function() { if(confirm("Terminare Partita?")) { update(ref(db, 'dmz_settings'), { status: 'lobby' }); set(ref(db, 'dmz_players'), null); } };
 
-    // -----------------------------------------------------------
-    // STASH E LOCKERS
-    // -----------------------------------------------------------
     window.openStash = function() {
         let n = document.getElementById('p-name').value.trim().toUpperCase();
-        if(!n) return alert("Inserisci il tuo Nome Operatore per accedere al tuo magazzino.");
-        myName = n; let safeName = myName.replace(/[^a-zA-Z0-9]/g, '_');
+        if(!n) return alert("Inserisci il tuo Nome Operatore per accedere al magazzino.");
+        myName = n; let safeName = myName.replace(/[^A-Z0-9]/g, '');
         get(ref(db, 'dmz_stash/' + safeName)).then((snap) => {
             myStash = snap.val() || { cash: 0, items: [] }; if(!myStash.items) myStash.items = [];
             renderStashUI(); document.getElementById('stash-modal').style.display = 'flex';
@@ -417,7 +448,7 @@
         myBackpack.forEach((it, i) => { let v = it.value > 0 ? `$${it.value}` : "Cons."; let u = it.uses !== undefined ? ` [${it.uses}/3]` : ""; li.innerHTML += `<div class="locker-item" style="border-color:#8f8;"><span>${it.name}${u}</span><button class="locker-btn" style="background:#050; border-color:#0f0;" onclick="unequipStashItem(${i})">RIPONI</button></div>`; });
     }
 
-    function saveStashState() { let safeName = myName.replace(/[^a-zA-Z0-9]/g, '_'); update(ref(db, 'dmz_stash/' + safeName), myStash); if(isDeployed) updateEconomyHUD(); }
+    function saveStashState() { let safeName = myName.replace(/[^A-Z0-9]/g, ''); update(ref(db, 'dmz_stash/' + safeName), myStash); if(isDeployed) updateEconomyHUD(); }
     window.transferMoney = function(dir) { let amt = parseInt(prompt("Inserisci l'importo:")); if(!amt || isNaN(amt) || amt <= 0) return; if(dir === 'TO_LOADOUT' && myStash.cash >= amt) { myStash.cash -= amt; myCash += amt; } else if(dir === 'TO_STASH' && myCash >= amt) { myCash -= amt; myStash.cash += amt; } else alert("Fondi insufficienti."); saveStashState(); renderStashUI(); };
     window.sellStashItem = function(idx) { let it = myStash.items[idx]; if(confirm(`Vendere ${it.name} per $${it.value}? L'oggetto andrà perso.`)) { myStash.cash += it.value; myStash.items.splice(idx, 1); saveStashState(); renderStashUI(); } };
     window.equipStashItem = function(idx) { if(myBackpack.length >= 5) return alert("Zaino pieno (Max 5)!"); let it = myStash.items.splice(idx, 1)[0]; myBackpack.push(it); saveStashState(); renderStashUI(); };
@@ -454,7 +485,6 @@
         return { money, items };
     }
 
-    // ZAINO E USO OGGETTI
     window.updateEconomyHUD = function() { document.getElementById('txt-cash').innerText = `💵 $${myCash}`; document.getElementById('txt-bp').innerText = `🎒 ${myBackpack.length}/5`; let hasCargo = myBackpack.some(i => i.name === "CARICO PESANTE"); update(ref(db, 'dmz_players/' + myId), { cash: myCash, backpack: myBackpack, has_cargo: hasCargo }); };
     
     window.openBackpack = function() {
@@ -480,10 +510,10 @@
     window.useItem = function(idx, type) {
         if (myStatus !== 'active' && type !== 'MEDIC') return alert("Non puoi usare l'oggetto da terra."); let item = myBackpack[idx];
         if (type === 'MEDIC') { if (myStatus === 'active') return alert("Sei curato!"); if (myStatus === 'dead') return alert("Sei eliminato."); alert(`Usato ${item.name}.`); myBackpack.splice(idx, 1); updateEconomyHUD(); openBackpack(); setStatus('active'); } 
-        else if (type === 'UAV') { alert(`Radar locale attivo 30s.`); myBackpack.splice(idx, 1); updateEconomyHUD(); closeBackpack(); localUAVActive = true; update(ref(db, 'dmz_players/' + myId), { lastUpdate: Date.now() }); setTimeout(() => { localUAVActive = false; update(ref(db, 'dmz_players/' + myId), { lastUpdate: Date.now() }); }, 30000); }
-        else if (type === 'CUAV') { alert(`UAV Disturbo Lanciato!`); myBackpack.splice(idx, 1); updateEconomyHUD(); closeBackpack(); update(ref(db, 'dmz_streaks/cuav'), { active: true, team: myTeam, endTime: Date.now() + 60000 }); }
-        else if (type === 'EMP') { alert(`Impulso EMP Inviato!`); myBackpack.splice(idx, 1); updateEconomyHUD(); closeBackpack(); update(ref(db, 'dmz_streaks/emp'), { active: true, team: myTeam, endTime: Date.now() + 60000 }); }
-        else if (type === 'DROP') { alert(`Drop in arrivo!`); myBackpack.splice(idx, 1); updateEconomyHUD(); closeBackpack(); update(ref(db, `dmz_lockers/DROP_${Math.floor(Math.random()*9999)}`), { money: 5000, items: [{name: "CHIAVE UNIVERSALE", value: 5000, uses: 3}, {name: "Hard Disk Segreto", value: 5000}], lat: myMarker.getLatLng().lat, lng: myMarker.getLatLng().lng }); }
+        else if (type === 'UAV') { alert(`Radar locale attivo 30s.`); myBackpack.splice(idx, 1); updateEconomyHUD(); closeBackpack(); localUAVActive = true; update(ref(db, 'dmz_players/' + myId), { lastUpdate: Date.now() }); setTimeout(() => { localUAVActive = false; update(ref(db, 'dmz_players/' + myId), { lastUpdate: Date.now() }); }, 30000); logEvent(`📡 ${myName} ha attivato un UAV locale.`); }
+        else if (type === 'CUAV') { alert(`UAV Disturbo Lanciato!`); myBackpack.splice(idx, 1); updateEconomyHUD(); closeBackpack(); update(ref(db, 'dmz_streaks/cuav'), { active: true, team: myTeam, endTime: Date.now() + 60000 }); logEvent(`📡 SQUADRA ${myTeam} ha lanciato un UAV di disturbo.`); }
+        else if (type === 'EMP') { alert(`Impulso EMP Inviato!`); myBackpack.splice(idx, 1); updateEconomyHUD(); closeBackpack(); update(ref(db, 'dmz_streaks/emp'), { active: true, team: myTeam, endTime: Date.now() + 60000 }); logEvent(`⚡ SQUADRA ${myTeam} ha innescato un EMP.`); }
+        else if (type === 'DROP') { alert(`Drop in arrivo!`); myBackpack.splice(idx, 1); updateEconomyHUD(); closeBackpack(); update(ref(db, `dmz_lockers/DROP_${Math.floor(Math.random()*9999)}`), { money: 5000, items: [{name: "CHIAVE UNIVERSALE", value: 5000, uses: 3}, {name: "Hard Disk Segreto", value: 5000}], lat: myMarker.getLatLng().lat, lng: myMarker.getLatLng().lng }); logEvent(`📦 Drop tattico richiesto.`); }
         else if (type === 'AIRSTRIKE') { closeBackpack(); document.getElementById('targeting-overlay').style.display = 'block'; isTargetingAirstrike = true; window.airstrikeIdxPending = idx; }
     };
 
@@ -493,22 +523,19 @@
         if (idxToUse > -1) {
             let key = myBackpack[idxToUse]; if (key.uses === undefined) key.uses = 3;
             if (confirm(`Serratura bloccata. Usare ${key.name}?\n(Usi rimanenti: ${key.uses}/3)`)) {
-                key.uses -= 1; if (key.uses <= 0) { myBackpack.splice(idxToUse, 1); alert(`Sbloccato!\nLa ${key.name} si è rotta.`); } else { alert(`Sbloccato!\nUsi: ${key.uses}/3.`); }
+                key.uses -= 1; if (key.uses <= 0) { myBackpack.splice(idxToUse, 1); alert(`Porta sbloccata!\nLa ${key.name} si è rotta.`); } else { alert(`Porta sbloccata!\nUsi: ${key.uses}/3.`); }
                 updateEconomyHUD(); return true;
             } else return false;
         }
         alert(`ACCESSO NEGATO: Serve CHIAVE ${targetCode} o UNIVERSALE.`); return false;
     }
 
-    // -----------------------------------------------------------
-    // SCANNER E RIANIMAZIONE
-    // -----------------------------------------------------------
     let actionTargetCode = null; let actionTargetData = null;
     window.closePlayerAction = function() { document.getElementById('player-action-modal').style.display = 'none'; };
     window.executePlayerAction = function(action) {
         closePlayerAction();
         if (action === 'LOOT') {
-            if (myContract && myContract.type === 'HUNT' && myContract.targetId === actionTargetCode) { alert("BERSAGLIO TAGLIA ELIMINATO E DERUBATO! +$10000"); myCash += 10000; myContract = null; updateEconomyHUD(); document.getElementById('obj-status').innerText = `OBIETTIVO: SOPRAVVIVENZA`; document.getElementById('obj-status').style.color = "#0f0"; }
+            if (myContract && myContract.type === 'HUNT' && myContract.targetId === actionTargetCode) { alert("BERSAGLIO TAGLIA ELIMINATO E DERUBATO! +$10000"); myCash += 10000; myContract = null; updateEconomyHUD(); document.getElementById('obj-status').innerText = `OBIETTIVO: SOPRAVVIVENZA`; document.getElementById('obj-status').style.color = "#0f0"; logEvent(`🎯 Taglia HVT completata dalla Sq. ${myTeam}.`); }
             openLockerUI(actionTargetCode, {money: actionTargetData.cash || 0, items: actionTargetData.backpack || []}, 'PLAYER');
         } 
         else if (action === 'REVIVE') {
@@ -517,7 +544,11 @@
             document.getElementById('revive-overlay').style.display = 'flex'; let timeLeft = 10; document.getElementById('revive-timer').innerText = timeLeft;
             window.reviveInterval = setInterval(() => {
                 timeLeft--; document.getElementById('revive-timer').innerText = timeLeft;
-                if (timeLeft <= 0) { clearInterval(window.reviveInterval); document.getElementById('revive-overlay').style.display = 'none'; update(ref(db, 'dmz_players/' + actionTargetCode), { status: 'active', team: myTeam, revives_left: revivesLeft - 1 }); alert("Operatore rianimato e assimilato alla squadra!"); }
+                if (timeLeft <= 0) {
+                    clearInterval(window.reviveInterval); document.getElementById('revive-overlay').style.display = 'none';
+                    update(ref(db, 'dmz_players/' + actionTargetCode), { status: 'active', team: myTeam, revives_left: revivesLeft - 1 }); alert("Operatore rianimato e assimilato alla squadra!");
+                    logEvent(`🤝 SQUADRA ${myTeam} ha assimilato un operatore sul campo.`);
+                }
             }, 1000);
         }
     };
@@ -543,8 +574,11 @@
             let baseExists = activeBases.find(b => b.id === code); if (!baseExists) return alert(`ERRORE: Base ${code} fuori area.`);
             if (globalSettings.keys_active) { if (!consumeKey(code)) return; }
             if (myContract) {
-                if (myContract.type === 'INTEL' && myContract.targetId === code && myContract.state === 'FETCH') { if(myBackpack.length >= 5) return alert("Devi avere 1 slot libero per i DATI SEGRETI!"); alert("Dati Segreti recuperati! Estrai (C/E)!"); myBackpack.push({name: "DATI SEGRETI", value: 8000}); myContract.state = 'DELIVER'; updateEconomyHUD(); return; }
-                if (myContract.type === 'DESTROY' && myContract.targetId === code && myContract.state === 'GOTO') { alert("Bomba innescata! Difendete per 7 minuti."); myContract.state = 'ARMED'; myContract.endTime = Date.now() + (7 * 60000); return; }
+                if (myContract.type === 'INTEL' && myContract.targetId === code && myContract.state === 'FETCH') {
+                    if(myBackpack.length >= 5) return alert("Devi avere 1 slot libero per i DATI SEGRETI!"); alert("Dati Segreti recuperati! Estrai (C/E)!");
+                    myBackpack.push({name: "DATI SEGRETI", value: 8000}); myContract.state = 'DELIVER'; updateEconomyHUD(); logEvent(`💾 Dati recuperati in ${baseExists.name}.`); return;
+                }
+                if (myContract.type === 'DESTROY' && myContract.targetId === code && myContract.state === 'GOTO') { alert("Bomba innescata! Difendete per 7 minuti."); myContract.state = 'ARMED'; myContract.endTime = Date.now() + (7 * 60000); logEvent(`💣 SQUADRA ${myTeam} ha innescato ordigno in ${baseExists.name}.`); return; }
                 return alert("Hai già un altro contratto in corso.");
             }
             if (globalSettings.contracts_config && globalSettings.contracts_config.enabled) {
@@ -552,15 +586,16 @@
                 if (pool && pool.length > 0) {
                     let randomContract = pool[Math.floor(Math.random() * pool.length)];
                     if (confirm(`BASE ${code} SBLOCCATA.\nCONTRATTO DISPONIBILE: "${randomContract}".\nAccettare?`)) { 
-                        if (randomContract === 'INTEL') { let pB = activeBases.filter(b => b.id !== code); if(pB.length===0) return alert("Nessuna Base Intel."); myContract = { type: 'INTEL', targetId: pB[Math.floor(Math.random() * pB.length)].id, state: 'FETCH' }; }
-                        else if (randomContract === 'DESTROY') { let pB = activeBases.filter(b => b.id !== code); if(pB.length===0) return alert("Nessuna Base Scorte."); myContract = { type: 'DESTROY', targetId: pB[Math.floor(Math.random() * pB.length)].id, state: 'GOTO' }; }
-                        else if (randomContract === 'CARGO') { if(myBackpack.length > 2) return alert("Servono 3 slot liberi!"); myBackpack.push({name: "CARICO PESANTE", value: 0}); myBackpack.push({name: "CARICO PESANTE", value: 0}); myBackpack.push({name: "CARICO PESANTE", value: 15000}); myContract = { type: 'CARGO', state: 'DELIVER' }; updateEconomyHUD(); }
+                        if (randomContract === 'INTEL') { let pB = activeBases.filter(b => b.id !== code); if(pB.length===0) return alert("Nessuna Base Intel."); myContract = { type: 'INTEL', targetId: pB[Math.floor(Math.random() * pB.length)].id, state: 'FETCH' }; logEvent(`📜 Sq. ${myTeam} avvia RECUPERO DATI.`); }
+                        else if (randomContract === 'DESTROY') { let pB = activeBases.filter(b => b.id !== code); if(pB.length===0) return alert("Nessuna Base Scorte."); myContract = { type: 'DESTROY', targetId: pB[Math.floor(Math.random() * pB.length)].id, state: 'GOTO' }; logEvent(`📜 Sq. ${myTeam} avvia DISTRUZIONE SCORTE.`); }
+                        else if (randomContract === 'CARGO') { if(myBackpack.length > 2) return alert("Servono 3 slot liberi!"); myBackpack.push({name: "CARICO PESANTE", value: 0}); myBackpack.push({name: "CARICO PESANTE", value: 0}); myBackpack.push({name: "CARICO PESANTE", value: 15000}); myContract = { type: 'CARGO', state: 'DELIVER' }; updateEconomyHUD(); logEvent(`📜 Sq. ${myTeam} sta trasportando CARICO PESANTE.`); }
                         else if (randomContract === 'HUNT' || randomContract === 'HVT') {
                             get(ref(db, 'dmz_players')).then((snap) => {
                                 let players = snap.val() || {}; let enemies = Object.keys(players).filter(k => players[k].team !== myTeam && players[k].status === 'active');
                                 if (enemies.length === 0) return alert("Nessun nemico vivo in campo per la caccia.");
                                 let target = enemies[Math.floor(Math.random() * enemies.length)];
                                 myContract = { type: 'HUNT', targetId: target, state: 'HUNTING', endTime: Date.now() + (5 * 60000) }; alert(`Contratto accettato! Dai la caccia alla SQUADRA ${players[target].team}. Guarda la mappa!`);
+                                logEvent(`🎯 CACCIA ALLA SQUADRA avviata contro la ${players[target].team}.`);
                             });
                         }
                     }
@@ -573,7 +608,7 @@
                 if (!isValidExfil && globalSettings.exfil_config.position === 'random') return alert(`Il punto ${code} non è un'estrazione attiva in questa partita!`);
                 if(exfilTimerEnd) return alert("Hai già chiamato un elicottero!");
                 let waitMins = globalSettings.exfil_config.waitTime || 0;
-                if(waitMins > 0) { exfilTimerEnd = Date.now() + (waitMins * 60000); alert(`Elicottero in arrivo a ${code}! Difendi l'area per ${waitMins} minuti.`); update(push(ref(db, 'dmz_pings')), { team: myTeam, lat: myMarker.getLatLng().lat, lng: myMarker.getLatLng().lng, sender: "ELICOTTERO CHIAMATO", timestamp: Date.now() }); } else { doExfil(); }
+                if(waitMins > 0) { exfilTimerEnd = Date.now() + (waitMins * 60000); alert(`Elicottero in arrivo a ${code}! Difendi l'area per ${waitMins} minuti.`); update(push(ref(db, 'dmz_pings')), { team: myTeam, lat: myMarker.getLatLng().lat, lng: myMarker.getLatLng().lng, sender: "ELICOTTERO CHIAMATO", timestamp: Date.now() }); logEvent(`🚁 ELICOTTERO richiesto al punto ${code}.`); } else { doExfil(); }
             } else alert("Elicottero non disponibile.");
         } 
         else if (code.startsWith('D')) {
@@ -605,18 +640,18 @@
         let hC = myBackpack.findIndex(i => i.name === "CARICO PESANTE"); if (hC > -1 && myContract && myContract.type === 'CARGO') { contractReward += 15000; alert("CONTRATTO CARGO COMPLETATO! +$15000"); myContract = null; myBackpack = myBackpack.filter(i => i.name !== "CARICO PESANTE"); }
         let totalValue = contractReward; myBackpack.forEach(i => totalValue += (i.value||0)); myCash += totalValue; 
         
-        let safeName = myName.replace(/[^a-zA-Z0-9]/g, '_');
+        let safeName = myName.replace(/[^A-Z0-9]/g, '');
         get(ref(db, 'dmz_stash/' + safeName)).then((snap) => {
             let stash = snap.val() || { cash: 0, items: [] }; stash.cash += myCash; if(!stash.items) stash.items = []; stash.items = stash.items.concat(myBackpack);
             update(ref(db, 'dmz_stash/' + safeName), stash).then(() => {
                 myCash = 0; myBackpack = []; updateEconomyHUD();
-                alert(`ESTRAZIONE COMPLETATA!\nGuadagno Raid: $${totalValue}\nTutto l'equipaggiamento e i fondi sono stati salvati nel tuo Magazzino.`); document.getElementById('obj-status').innerText = `✅ ESTRATTO IN SICUREZZA`; document.getElementById('obj-status').style.color = "#0f0"; setStatus('exfil'); 
+                alert(`ESTRAZIONE COMPLETATA!\nGuadagno Raid: $${totalValue}\nTutto l'equipaggiamento e i fondi sono stati salvati nel tuo Magazzino.`); document.getElementById('obj-status').innerText = `✅ ESTRATTO IN SICUREZZA`; document.getElementById('obj-status').style.color = "#0f0"; setStatus('exfil'); logEvent(`✅ SQUADRA ${myTeam} è stata esfiltrata con successo.`);
             });
         });
     }
 
     // -----------------------------------------------------------
-    // DEPLOY & CORE LOGIC
+    // DEPLOY & MAPPA V37 (INIEZIONE TRACCIATI GPX)
     // -----------------------------------------------------------
     window.deploy = function() {
         let n = document.getElementById('p-name').value.trim().toUpperCase(); if(!n) return alert("Inserisci il Nome Operatore!"); 
@@ -626,8 +661,7 @@
             let players = snap.val() || {}; let count = 0; Object.keys(players).forEach(k => { if(players[k].team === reqTeam && players[k].status !== 'exfil') count++; });
             if(count >= maxP) return alert(`ERRORE: La squadra ${reqTeam} è al completo (Max ${maxP}).`);
             
-            myName = n; myTeam = reqTeam; 
-            let safeName = myName.replace(/[^A-Z0-9]/g, ''); myId = "OP_" + safeName; 
+            myName = n; myTeam = reqTeam; let safeName = myName.replace(/[^A-Z0-9]/g, ''); myId = "OP_" + safeName; 
 
             activeFieldCenter = fieldsDB[globalSettings.activeField].center; activePlayAreaCoords = fieldsDB[globalSettings.activeField].boundaries; 
             if(globalSettings.exfil_config && globalSettings.exfil_config.position === 'random' && globalSettings.exfil_config.points) { currentExfilPoints = globalSettings.exfil_config.points; } else { currentExfilPoints = fieldsDB[globalSettings.activeField].exfils; }
@@ -645,7 +679,7 @@
             
             update(ref(db, 'dmz_players/' + myId), { name: myName, team: myTeam, status: 'active', cash: myCash, backpack: myBackpack, cures_left: maxC, revives_left: maxR, lastUpdate: Date.now() });
             
-            initMap(); startGPS(); setupNetworking();
+            initMap(); startGPS(); setupNetworking(); logEvent(`🪂 ${myName} (Sq. ${myTeam}) schierato nell'AO.`);
         });
     };
 
@@ -667,18 +701,26 @@
         if (newStatus === 'down' && globalSettings.medic_config && globalSettings.medic_config.active) { let boTime = globalSettings.medic_config.bleedout_time || 60; window.bleedoutEndTime = Date.now() + (boTime * 1000); } else { window.bleedoutEndTime = null; }
     };
 
-    // V34 FIX MAP TILE (Google Terrain)
+    // V37 MAP FIX (GPX Trails & Boundary Fix)
     function initMap() {
         map = L.map('map', { zoomControl: false }).setView(activeFieldCenter, 17); 
-        L.tileLayer('http://mt0.google.com/vt/lyrs=p&hl=it&x={x}&y={y}&z={z}', { attribution: '© Google', maxZoom: 20 }).addTo(map); 
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(map); 
         L.polygon(activePlayAreaCoords, { color: 'red', fill: false, weight: 3, dashArray: '10, 10' }).addTo(map);
         
-        activeBases.forEach(b => { L.marker([b.lat, b.lng], {icon: L.divIcon({ className: 'base-icon', html: `<div style="background:rgba(255,255,0,0.8); backdrop-filter:blur(4px); color:#000; font-family:'Share Tech Mono', monospace; font-weight:900; padding:6px 10px; border-radius:4px; border:2px solid #000; text-align:center; box-shadow: 0 0 10px rgba(255,255,0,0.5);">🚩 ${b.id}</div>`, iconSize: [60, 30] }) }).addTo(map); });
+        // Disegno dei Tracciati GPX sulla mappa
+        customTrails.forEach(trail => {
+            L.polyline(trail, {color: '#fff', weight: 3, opacity: 0.7, dashArray: '5, 5'}).addTo(map);
+        });
+
+        activeBases.forEach(b => { 
+            let baseLabel = b.name ? `${b.id} - ${b.name}` : b.id;
+            L.marker([b.lat, b.lng], {icon: L.divIcon({ className: 'base-icon', html: `<div style="background:rgba(255,255,0,0.8); backdrop-filter:blur(4px); color:#000; font-family:'Share Tech Mono', monospace; font-weight:900; padding:6px 10px; border-radius:4px; border:2px solid #000; text-align:center; box-shadow: 0 0 10px rgba(255,255,0,0.5); white-space:nowrap;">🚩 ${baseLabel}</div>`, iconSize: [120, 30] }) }).addTo(map); 
+        });
         
         if (globalSettings.exfil_config && globalSettings.exfil_config.enabled) {
             let maxPoints = globalSettings.exfil_config.numPoints || currentExfilPoints.length;
             currentExfilPoints.slice(0, maxPoints).forEach(ex => { 
-                L.marker([ex.lat, ex.lng], {icon: L.divIcon({ className: 'exfil-icon', html: `<div style="background:rgba(0,255,255,0.8); backdrop-filter:blur(4px); color:#000; font-family:'Share Tech Mono', monospace; font-weight:900; padding:6px 10px; border-radius:4px; border:2px solid #fff; white-space:nowrap; margin-top:35px; box-shadow: 0 0 15px rgba(0,255,255,0.5);">🚁 ${ex.label}</div>`, iconSize: [80, 30] }) }).addTo(map); 
+                L.marker([ex.lat, ex.lng], {icon: L.divIcon({ className: 'exfil-icon', html: `<div style="background:rgba(0,255,255,0.8); backdrop-filter:blur(4px); color:#000; font-family:'Share Tech Mono', monospace; font-weight:900; padding:4px 8px; border-radius:4px; border:2px solid #fff; white-space:nowrap; margin-top:35px; box-shadow: 0 0 15px rgba(0,255,255,0.5);">🚁 ${ex.label}</div>`, iconSize: [80, 30] }) }).addTo(map); 
             });
         }
 
@@ -687,6 +729,7 @@
                 isTargetingAirstrike = false; document.getElementById('targeting-overlay').style.display = 'none'; document.getElementById('map').style.cursor = ''; myBackpack.splice(window.airstrikeIdxPending, 1); updateEconomyHUD();
                 update(ref(db, `dmz_streaks/airstrikes/STRK_${Math.floor(Math.random()*9999)}`), { lat: e.latlng.lat, lng: e.latlng.lng, timestamp: Date.now(), team: myTeam, sender: myName });
                 alert("Attacco aereo in arrivo! Impatto tra 15 secondi.");
+                logEvent(`✈️ ATTACCO AEREO sganciato dalla Sq. ${myTeam}.`);
             }
         });
     }
@@ -711,7 +754,7 @@
         if(!isDeployed || !map || myStatus === 'exfil') return; let now = Date.now();
         
         if (exfilTimerEnd) { if (myStatus !== 'active') { exfilTimerEnd = null; } else if (Math.ceil((exfilTimerEnd - now) / 1000) <= 0) { exfilTimerEnd = null; doExfil(); } }
-        if (myContract && myContract.type === 'DESTROY' && myContract.state === 'ARMED') { if (myStatus !== 'active') { myContract = null; } else if (Math.ceil((myContract.endTime - now) / 1000) <= 0) { alert("BOOM! Scorte distrutte!\n+$10000"); myCash += 10000; updateEconomyHUD(); myContract = null; } }
+        if (myContract && myContract.type === 'DESTROY' && myContract.state === 'ARMED') { if (myStatus !== 'active') { myContract = null; } else if (Math.ceil((myContract.endTime - now) / 1000) <= 0) { alert("BOOM! Scorte distrutte!\n+$10000"); myCash += 10000; updateEconomyHUD(); myContract = null; logEvent(`💥 Scorte distrutte (Contratto completato).`); } }
 
         let inGas = false; let gasRemain = 0;
         if(globalSettings.gas_config && globalSettings.gas_config.enabled) {
@@ -739,7 +782,6 @@
         if(activeStreaks.emp && activeStreaks.emp.endTime > now && activeStreaks.emp.team !== myTeam) empOn = true;
         document.getElementById('cuav-overlay').style.display = cuavOn ? 'block' : 'none'; document.getElementById('emp-overlay').style.display = empOn ? 'flex' : 'none';
 
-        // V34 HUD UPDATE
         let osText = (globalSettings.exfil_config && globalSettings.exfil_config.enabled) ? "OBIETTIVO: ESTRAZIONE" : "OBIETTIVO: SOPRAVVIVENZA"; let osColor = "#0f0";
         if (globalSettings.uav_active || localUAVActive) { osText = "⚠️ UAV ATTIVO"; osColor = "#f00"; }
         if (myContract) { osText = `CONTRATTO ATTIVO`; osColor = "#ff0"; }
@@ -797,6 +839,15 @@
             }
         });
         
+        onChildAdded(ref(db, 'dmz_logs'), (snapshot) => {
+            if(!isDeployed) return; let data = snapshot.val(); if (Date.now() - data.timestamp > 300000) return; 
+            let logBox = document.getElementById('combat-log'); let div = document.createElement('div');
+            let d = new Date(data.timestamp); let timeStr = d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0');
+            div.className = "log-entry"; div.innerHTML = `<span class="time">[${timeStr}]</span> ${data.msg}`; logBox.appendChild(div);
+            if(logBox.children.length > 5) logBox.removeChild(logBox.firstChild); 
+            setTimeout(() => { if (div.parentNode === logBox) { logBox.removeChild(div); } }, 15000);
+        });
+
         onChildAdded(ref(db, 'dmz_pings'), (snapshot) => {
             if(!isDeployed) return; const ping = snapshot.val();
             if (Date.now() - ping.timestamp <= 15000 && ping.team === myTeam) { let pingMarker = L.marker([ping.lat, ping.lng], {icon: L.divIcon({ className: 'custom-ping', html: `<div style="width:24px; height:24px;" class="ping-icon">⚠️</div><div class="teammate-label" style="color:#ff0; margin-top:-35px; width:150px; margin-left:-65px;">PING: ${ping.sender}</div>`, iconSize: [24, 24] }) }).addTo(map); setTimeout(() => { if (map.hasLayer(pingMarker)) map.removeLayer(pingMarker); }, 10000); }
