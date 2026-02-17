@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
-<title>DMZ: TACTICAL MAP v37.2 - DEPLOY FIX</title>
+<title>DMZ: TACTICAL MAP v37.3 - DEPLOY FIX</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -119,7 +119,7 @@
 
 <div id="login-screen" class="full-screen-ui">
     <h1>DMZ: DEPLOY</h1>
-    <div class="version-tag">SYSTEM v37.2 - DEPLOY FIX</div>
+    <div class="version-tag">SYSTEM v37.3 - DEPLOY FIX</div>
     
     <div id="status-label" class="status-label">CONNESSIONE...</div>
     
@@ -328,6 +328,16 @@
     let masterShopPool = [ { name: "CHIAVE UNIVERSALE", price: 10000, enabled: true }, { name: "MASCHERA GAS COMPLETA", price: 3000, enabled: true }, { name: "Terminale UAV", price: 4000, enabled: true }, { name: "Kit Medico", price: 1500, enabled: true }, { name: "ATTACCO AEREO", price: 8000, enabled: true }, { name: "IMPULSO EMP", price: 12000, enabled: true }, { name: "LANCIO EQUIPAGGIAMENTO", price: 10000, enabled: true } ];
 
     let globalSettings = { status: 'lobby' }; let activeStreaks = {};
+
+    // V37.3 FIX: Aggiunta la funzione mancante
+    function isInsideArea(p, poly) { 
+        let x = p[0], y = p[1], inside = false; 
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { 
+            let intersect = ((poly[i][1] > y) != (poly[j][1] > y)) && (x < (poly[j][0] - poly[i][0]) * (y - poly[i][1]) / (poly[j][1] - poly[i][1]) + poly[i][0]); 
+            if (intersect) inside = !inside; 
+        } 
+        return inside; 
+    }
 
     window.logEvent = function(msg) { push(ref(db, 'dmz_logs'), { msg: msg, timestamp: Date.now() }); };
 
@@ -659,7 +669,7 @@
     }
 
     // -----------------------------------------------------------
-    // DEPLOY & MAPPA V37.1 (FAILSAFE)
+    // DEPLOY & MAPPA V37.3 (FAILSAFE E CORREZIONE ISINSIDE)
     // -----------------------------------------------------------
     window.deploy = function() {
         try {
@@ -803,7 +813,6 @@
         if(activeStreaks.emp && activeStreaks.emp.endTime > now && activeStreaks.emp.team !== myTeam) empOn = true;
         document.getElementById('cuav-overlay').style.display = cuavOn ? 'block' : 'none'; document.getElementById('emp-overlay').style.display = empOn ? 'flex' : 'none';
 
-        // HUD PRIORITIES V35
         let osText = (globalSettings.exfil_config && globalSettings.exfil_config.enabled) ? "OBIETTIVO: ESTRAZIONE" : "OBIETTIVO: SOPRAVVIVENZA"; let osColor = "#0f0";
         if (globalSettings.uav_active || localUAVActive) { osText = "⚠️ UAV ATTIVO"; osColor = "#f00"; }
         if (myContract) { osText = `CONTRATTO ATTIVO`; osColor = "#ff0"; }
@@ -861,7 +870,6 @@
             }
         });
         
-        // V35 COMBAT LOG LISTENER
         onChildAdded(ref(db, 'dmz_logs'), (snapshot) => {
             if(!isDeployed) return; let data = snapshot.val(); if (Date.now() - data.timestamp > 300000) return; 
             let logBox = document.getElementById('combat-log'); let div = document.createElement('div');
