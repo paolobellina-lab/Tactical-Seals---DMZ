@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
-<title>DMZ: TACTICAL MAP v43 - COMPLETE & STABLE</title>
+<title>DMZ: TACTICAL MAP v43.1</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -34,7 +34,6 @@
     
     .btn-deploy { background: linear-gradient(135deg, #004400 0%, #001100 100%); color: #0f0; border: 1px solid #0f0; padding: 15px 40px; font-size: 18px; font-family: 'Share Tech Mono', monospace; cursor: pointer; margin-top: 15px; box-shadow: 0 0 10px rgba(0,255,0,0.2); transition: 0.2s; width: 80%; max-width: 300px; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); text-transform: uppercase; letter-spacing: 1px; }
     .btn-deploy:active { background: #0f0; color: #000; box-shadow: 0 0 20px #0f0; }
-    .btn-deploy:disabled { background: #111; border-color: #333; color: #555; box-shadow: none; cursor: not-allowed; }
 
     .btn-master { background: transparent; border: 1px solid #555; color: #aaa; padding: 10px; margin-top: 30px; font-size: 12px; cursor: pointer; width: 60%; max-width: 200px; font-family: 'Share Tech Mono', monospace; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
 
@@ -59,7 +58,7 @@
 
     #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(0, 255, 0, 0.6); font-size: 30px; font-weight: bold; z-index: 1000; pointer-events: none; text-shadow: 0 0 5px #000; display: none; font-family: sans-serif; }
 
-    /* EFFETTI */
+    /* EFFETTI A SCHERMO */
     #gas-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(200, 0, 255, 0.15); z-index: 999; display: none; pointer-events: none; box-shadow: inset 0 0 100px rgba(200,0,255,0.9); }
     #cuav-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0, 50, 0, 0.1), rgba(0, 50, 0, 0.1) 2px, transparent 2px, transparent 4px); backdrop-filter: blur(8px) grayscale(100%); z-index: 999; display: none; pointer-events: none; }
     #emp-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #050000; z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; color: #f00; font-family: monospace; font-size: 24px; font-weight: bold; text-align: center; text-shadow: 0 0 20px #f00; }
@@ -68,14 +67,12 @@
     /* HUD SUPERIORE */
     #hud-top-container { position: absolute; top: 0; left: 0; width: 100%; z-index: 1000; display: flex; flex-direction: column; pointer-events: none; }
     #obj-banner { width: 100%; background: rgba(0, 15, 0, 0.85); border-bottom: 2px solid #0f0; padding: 10px 0; color: #0f0; font-weight: bold; font-size: 16px; text-shadow: 0 0 8px #0f0; text-align: center; letter-spacing: 1px; backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-    
     #team-banner { background: rgba(0,0,0,0.6); color: #fff; font-size: 10px; padding: 4px; text-align: center; border-bottom: 1px solid #555; }
-    
     #hud-sub-top { display: flex; justify-content: space-between; padding: 10px; width: calc(100% - 20px); }
     .hud-box { background: rgba(0, 20, 0, 0.7); border: 1px solid #0f0; padding: 6px 12px; color: #0f0; font-size: 12px; text-shadow: 0 0 5px #0f0; backdrop-filter: blur(4px); clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); box-shadow: 0 0 5px rgba(0,255,0,0.2); }
     .hud-economy { background: linear-gradient(135deg, rgba(0,40,0,0.9) 0%, rgba(0,15,0,0.9) 100%); cursor: pointer; pointer-events: auto; font-size: 14px; font-weight: bold; }
 
-    /* FEED COMBAT LOG */
+    /* COMBAT LOG */
     #combat-log { position: absolute; top: 120px; right: 10px; width: 65%; max-width: 280px; display: flex; flex-direction: column; gap: 5px; align-items: flex-end; z-index: 1000; pointer-events: none; }
     .log-entry { background: rgba(0, 15, 0, 0.85); border-right: 3px solid #0f0; color: #fff; padding: 6px 10px; font-size: 11px; font-family: 'Share Tech Mono', monospace; text-shadow: 0 0 3px #000; clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px); animation: slideIn 0.4s ease-out; backdrop-filter: blur(2px); text-align: right; }
     .log-entry span.time { color: #0ff; margin-right: 5px; }
@@ -84,8 +81,7 @@
     /* HUD LATERALE E INFERIORE */
     #hud-status { position: absolute; top: 130px; left: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
     .btn-status { background: rgba(0,10,0,0.8); border: 1px solid #555; color: #fff; padding: 10px; font-family: 'Share Tech Mono', monospace; font-size: 12px; cursor: pointer; text-align: left; transition: 0.2s; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); backdrop-filter: blur(4px); pointer-events: auto; }
-    .btn-status:active { transform: scale(0.95); }
-
+    
     #hud-bottom { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 20px; pointer-events: auto; }
     .action-btn { background: rgba(0,20,0,0.85); border: 2px solid #0f0; color: #0f0; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; backdrop-filter: blur(5px); box-shadow: 0 0 15px rgba(0,255,0,0.3); transition: 0.2s; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); }
     .action-btn:active { background: #0f0; color: #000; transform: scale(0.9); box-shadow: 0 0 25px #0f0; }
@@ -95,10 +91,8 @@
     .base-marker-container { position:relative; width:30px; height:30px; display:flex; justify-content:center; align-items:center; }
     .base-circle { background:rgba(255,255,0,0.9); border:2px solid #000; border-radius:50%; width:20px; height:20px; display:flex; justify-content:center; align-items:center; color:#000; font-family:'Share Tech Mono', sans-serif; font-weight:bold; font-size:10px; box-shadow:0 0 8px #ff0; }
     .base-name { position:absolute; top:24px; width:120px; text-align:center; color:#ff0; font-size:10px; font-weight:bold; text-shadow:1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; letter-spacing:1px; white-space:nowrap; pointer-events: none; }
-    
     .exfil-circle { background:rgba(0,255,255,0.9); border:2px solid #000; border-radius:50%; width:24px; height:24px; display:flex; justify-content:center; align-items:center; font-size:12px; box-shadow:0 0 8px #0ff; }
-    .exfil-name { position:absolute; top:28px; width:100px; text-align:center; color:#0ff; font-size:10px; font-weight:bold; text-shadow:1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; pointer-events: none; }
-
+    .exfil-name { position:absolute; top:28px; width:100px; text-align:center; color:#0ff; font-size:10px; font-weight:bold; text-shadow:1px 1px 0 #000, -1px -1px 0 #000; pointer-events: none; }
     .teammate-label { background: rgba(0,0,0,0.7); color: #fff; font-family: sans-serif; font-weight: bold; border-radius: 3px; padding: 2px 4px; font-size: 10px; margin-top: -38px; text-align: center; width: 100px; margin-left: -42px; border: 1px solid #555; pointer-events: none; }
 
     /* MODALS */
@@ -106,27 +100,22 @@
     .modal-title { color: #0ff; font-size: 26px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 15px #0ff; letter-spacing: 2px; text-transform: uppercase; text-align:center;}
     .modal-desc { color: #0a0; font-size: 13px; margin-bottom: 20px; text-align: center; width: 85%; line-height: 1.4; }
     .btn-close-modal { background: transparent; color: #fff; border: 1px solid #f00; padding: 12px 25px; font-size: 16px; margin-top: 25px; cursor: pointer; font-family: 'Share Tech Mono', monospace; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); transition: 0.2s; text-transform: uppercase; }
-    .btn-close-modal:active { background: #f00; color: #000; box-shadow: 0 0 15px #f00; }
-
-    #qr-reader { width: 100%; max-width: 350px; border: 2px solid #0ff; margin-bottom: 15px; background: #000; box-shadow: 0 0 20px rgba(0,255,255,0.2); }
 
     .shop-item { display:flex; justify-content:space-between; align-items:center; background:rgba(0,30,0,0.6); border:1px solid #0aa; padding:12px; margin-bottom:8px; width:90%; max-width:350px; color:#fff; font-size:14px; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
     .shop-btn { background:rgba(0,80,0,0.8); border:1px solid #0f0; color:#0f0; padding:6px 12px; cursor:pointer; font-family: 'Share Tech Mono', monospace; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px); transition: 0.2s; }
-    .shop-btn:active { background: #0f0; color: #000; }
     .bp-item { display:flex; flex-direction:column; background:rgba(0,20,0,0.8); border:1px dashed #0f0; padding:12px; margin-bottom:8px; width:90%; max-width:350px; color:#fff; font-size:14px; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
     
     .locker-panel { flex: 1; border: 1px solid #0aa; background: rgba(0,15,15,0.8); display: flex; flex-direction: column; overflow-y: auto; padding: 8px; height: 350px; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); }
     .locker-panel h3 { margin: 0 0 10px 0; color: #0ff; font-size: 14px; text-align: center; border-bottom: 1px solid #0aa; padding-bottom: 5px; letter-spacing: 1px; }
     .locker-item { background: rgba(0,0,0,0.6); border: 1px solid #0aa; padding: 10px; margin-bottom: 5px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; color: #ddd; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px); }
     .locker-btn { background: rgba(0,80,80,0.8); border: 1px solid #0ff; color: #0ff; padding: 5px 10px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 10px; clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px); transition: 0.2s;}
-    .locker-btn:active { background: #0ff; color: #000; }
 </style>
 </head>
 <body>
 
 <div id="login-screen" class="full-screen-ui">
     <h1>DMZ: DEPLOY</h1>
-    <div class="version-tag">SYSTEM v43 - COMPLETE & STABLE</div>
+    <div class="version-tag">STABLE CORE v43.1 (Tutto-In-Uno)</div>
     
     <div id="status-label" class="status-label">CONNESSIONE...</div>
     
@@ -146,7 +135,7 @@
         <div id="start-gear-options" style="display:flex; flex-direction:column; gap:8px; max-height:120px; overflow-y:auto;"></div>
     </div>
 
-    <button class="btn-deploy" style="background:linear-gradient(135deg, #003344 0%, #001122 100%); border-color:#0cf; box-shadow: 0 0 10px rgba(0,255,255,0.3); margin-top:10px; color:#0cf;" onclick="openStash()">🏦 ACCEDI AL MAGAZZINO</button>
+    <button class="btn-deploy" style="background:linear-gradient(135deg, #003344 0%, #001122 100%); border-color:#0cf; margin-top:10px; color:#0cf;" onclick="openStash()">🏦 ACCEDI AL MAGAZZINO</button>
     <div id="deploy-help" style="color:#ff0; font-size:12px; margin-top:15px;">Attendi l'avvio della partita dal Comando.</div>
     <button id="btn-deploy" class="btn-deploy" onclick="deploy()" style="display:none;">DISPIEGAMENTO</button>
     <button class="btn-master" onclick="openMasterPanel()">⚙️ PANNELLO MASTER</button>
@@ -174,17 +163,9 @@
     <div class="toggle-row" style="border-color:#0cf;"><span style="color:#0cf; font-weight:bold;">FORNITURA INIZIALE (BONUS) 🎒</span></div>
     <div class="cfg-box" style="display:flex; border-color:#0cf; border-top:1px solid #0cf;">
         <div class="cfg-label">MODALITÀ DI ASSEGNAZIONE:</div>
-        <select id="cfg-start-mode" class="input-box" style="width:100%; margin:0; padding:8px; font-size:12px; border-color:#0cf; color:#0cf;" onchange="updateStartModeUI()">
-            <option value="none">NESSUNO (Solo Magazzino Personale)</option><option value="fixed">FISSO (Bonus a tutti)</option><option value="choice">A SCELTA (Bonus a scelta)</option>
-        </select>
-        <div id="cfg-start-limit-box" style="display:none; margin-top:10px;">
-            <div class="cfg-label">OGGETTI MASSIMI SELEZIONABILI:</div>
-            <input type="number" id="cfg-start-limit" class="input-box" style="width:100%; margin:0; padding:8px; border-color:#0cf;" value="2" min="1" max="5">
-        </div>
-        <div style="display:flex; gap:5px; margin-bottom:5px; margin-top:10px;">
-            <input type="text" id="start-name" class="input-box" style="width:60%; margin:0; padding:5px; font-size:10px;" placeholder="OGGETTO">
-            <input type="number" id="start-value" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="VALORE $">
-        </div>
+        <select id="cfg-start-mode" class="input-box" style="width:100%; margin:0; padding:8px; font-size:12px; border-color:#0cf; color:#0cf;" onchange="updateStartModeUI()"><option value="none">NESSUNO</option><option value="fixed">FISSO (Bonus a tutti)</option><option value="choice" selected>A SCELTA (Bonus a scelta)</option></select>
+        <div id="cfg-start-limit-box" style="display:block; margin-top:10px;"><div class="cfg-label">OGGETTI MASSIMI SELEZIONABILI:</div><input type="number" id="cfg-start-limit" class="input-box" style="width:100%; margin:0; padding:8px; border-color:#0cf;" value="2" min="1" max="5"></div>
+        <div style="display:flex; gap:5px; margin-bottom:5px; margin-top:10px;"><input type="text" id="start-name" class="input-box" style="width:60%; margin:0; padding:5px; font-size:10px;" placeholder="OGGETTO"><input type="number" id="start-value" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="VALORE $"></div>
         <button class="btn-deploy" style="background:#033; border-color:#0cf; font-size:12px; padding:8px; margin:0;" onclick="addStartGearItem()">+ AGGIUNGI IN LISTA</button>
         <div id="start-gear-list" style="margin-top:10px; border-top:1px solid #444; padding-top:10px; max-height:150px; overflow-y:auto;"></div>
     </div>
@@ -192,13 +173,10 @@
     <div class="toggle-row"><span style="color:#f0f; font-weight:bold;">ZONA GAS ☢️</span><label class="switch"><input type="checkbox" id="cfg-gas-toggle" onchange="toggleGasMenu()"><span class="slider"></span></label></div>
     <div id="gas-settings" class="cfg-box">
         <div class="toggle-row" style="margin-top:0; border:none; padding:0; width:100%;"><span style="color:#f0f; font-size:12px;">GAS LETALE</span><label class="switch"><input type="checkbox" id="cfg-gas-lethal" checked><span class="slider"></span></label></div>
-        <div class="cfg-label" style="margin-top:10px;">TEMPO SOPRAVVIVENZA SENZA MASCHERA (SEC):</div>
-        <input type="number" id="cfg-gas-time" class="input-box" style="width:100%; margin:0; padding:8px;" value="30">
+        <div class="cfg-label" style="margin-top:10px;">TEMPO SOPRAVVIVENZA SENZA MASCHERA (SEC):</div><input type="number" id="cfg-gas-time" class="input-box" style="width:100%; margin:0; padding:8px;" value="30">
         <div class="toggle-row" style="margin-top:10px; border:none; padding:0; width:100%;"><span style="color:#f0f; font-size:12px; max-width:70%;">MOSTRA NEMICI CHE TOSSISCONO NEL GAS</span><label class="switch"><input type="checkbox" id="cfg-gas-vis" checked><span class="slider"></span></label></div>
-        <div class="cfg-label" style="margin-top:10px;">NUMERO RESTRINGIMENTI AREA (STEP):</div>
-        <input type="number" id="cfg-gas-steps" class="input-box" style="width:100%; margin:0; padding:8px;" value="3">
-        <div class="cfg-label">INTERVALLO TRA STEP (MINUTI):</div>
-        <input type="number" id="cfg-gas-interval" class="input-box" style="width:100%; margin:0; padding:8px;" value="10">
+        <div class="cfg-label" style="margin-top:10px;">NUMERO RESTRINGIMENTI AREA (STEP):</div><input type="number" id="cfg-gas-steps" class="input-box" style="width:100%; margin:0; padding:8px;" value="3">
+        <div class="cfg-label">INTERVALLO TRA STEP (MINUTI):</div><input type="number" id="cfg-gas-interval" class="input-box" style="width:100%; margin:0; padding:8px;" value="10">
     </div>
 
     <div class="toggle-row"><span style="color:#e6e6fa; font-weight:bold;">CONTRATTI E BASI (B) 📜</span><label class="switch"><input type="checkbox" id="cfg-contracts-toggle" checked onchange="toggleContractsMenu()"><span class="slider"></span></label></div>
@@ -208,33 +186,38 @@
         <label><input type="checkbox" class="contract-cb" value="CARGO" checked> CONSEGNA MATERIALE (DROP)</label>
         <label><input type="checkbox" class="contract-cb" value="HUNT" checked> CACCIA ALLA SQUADRA (PvP)</label>
         <label><input type="checkbox" class="contract-cb" value="NUKE" checked> <span style="color:#ff0;">MATERIALI NUCLEARI (Geiger)</span></label>
-        <div style="border-top:1px solid #444; margin-top:10px; padding-top:10px;">
-            <label style="color:#ffd700;"><input type="checkbox" id="cfg-keys-bases"> RICHIEDI CHIAVI PER I CONTRATTI</label>
-        </div>
+        <div style="border-top:1px solid #444; margin-top:10px; padding-top:10px;"><label style="color:#ffd700;"><input type="checkbox" id="cfg-keys-bases"> RICHIEDI CHIAVI PER I CONTRATTI</label></div>
     </div>
 
     <div class="toggle-row"><span style="color:#e6b800; font-weight:bold;">ARMADIETTI E LOOT (A) 📦</span><label class="switch"><input type="checkbox" id="cfg-lockers-toggle" checked onchange="toggleLockerMenu()"><span class="slider"></span></label></div>
     <div id="locker-settings" class="cfg-box" style="display:flex;">
-        <label style="color:#ffd700; font-size:13px; margin-bottom:10px;"><input type="checkbox" id="cfg-keys-lockers" checked> ARMADIETTI CHIUSI A CHIAVE</label>
-        <div class="cfg-label" style="color:#8f8; font-weight:bold;">PROBABILITÀ DENARO (Editabile):</div>
-        <div id="money-list" style="margin-top:5px; border-bottom:1px dashed #8f8; padding-bottom:10px; max-height:100px; overflow-y:auto;"></div>
+        <label style="color:#ffd700; font-size:13px; margin-bottom:10px;"><input type="checkbox" id="cfg-keys-lockers" checked> ARMADIETTI CHIUSI A CHIAVE (Loot Raro)</label>
+        <div class="cfg-label" style="color:#8f8; font-weight:bold;">PROBABILITÀ DENARO (Editabile):</div><div id="money-list" style="margin-top:5px; border-bottom:1px dashed #8f8; padding-bottom:10px; max-height:100px; overflow-y:auto;"></div>
         <div class="cfg-label" style="color:#e6b800; font-weight:bold; margin-top:10px;">PROBABILITÀ OGGETTI (Editabile):</div>
-        <div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="loot-name" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px;" placeholder="NOME"><input type="number" id="loot-chance" class="input-box" style="width:25%; margin:0; padding:5px; font-size:10px;" placeholder="%"><input type="number" id="loot-value" class="input-box" style="width:35%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="VAL $"></div><button class="btn-deploy" style="background:#330; border-color:#ff0; font-size:12px; padding:8px; margin:0;" onclick="addLootItem()">+ AGGIUNGI</button>
+        <div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="loot-name" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px;" placeholder="NOME"><input type="number" id="loot-chance" class="input-box" style="width:25%; margin:0; padding:5px; font-size:10px;" placeholder="%"><input type="number" id="loot-value" class="input-box" style="width:35%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="VAL $"></div>
+        <button class="btn-deploy" style="background:#330; border-color:#ff0; font-size:12px; padding:8px; margin:0;" onclick="addLootItem()">+ AGGIUNGI</button>
         <div id="loot-list" style="margin-top:10px; border-top:1px dashed #ff0; padding-top:10px; max-height:150px; overflow-y:auto;"></div>
     </div>
 
     <div class="toggle-row"><span style="color:#0aa; font-weight:bold;">NEGOZI E KILLSTREAKS 🛒</span><label class="switch"><input type="checkbox" id="cfg-shops-toggle" checked onchange="toggleShopMenu()"><span class="slider"></span></label></div>
     <div id="shop-settings" class="cfg-box" style="display:flex;">
-        <div class="cfg-label">LISTINO (Editabile):</div><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="shop-name" class="input-box" style="width:60%; margin:0; padding:5px; font-size:10px;" placeholder="OGGETTO"><input type="number" id="shop-price" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="PREZZO $"></div><button class="btn-deploy" style="background:#333; border-color:#aaa; font-size:12px; padding:8px; margin:0;" onclick="addShopItem()">+ AGGIUNGI IN VENDITA</button><div id="shop-list" style="margin-top:10px; border-top:1px solid #444; padding-top:10px; max-height:150px; overflow-y:auto;"></div>
+        <div class="cfg-label">LISTINO (Editabile):</div>
+        <div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="shop-name" class="input-box" style="width:60%; margin:0; padding:5px; font-size:10px;" placeholder="OGGETTO"><input type="number" id="shop-price" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="PREZZO $"></div>
+        <button class="btn-deploy" style="background:#333; border-color:#aaa; font-size:12px; padding:8px; margin:0;" onclick="addShopItem()">+ AGGIUNGI IN VENDITA</button>
+        <div id="shop-list" style="margin-top:10px; border-top:1px solid #444; padding-top:10px; max-height:150px; overflow-y:auto;"></div>
     </div>
 
     <div class="toggle-row"><span style="color:#0ff; font-weight:bold;">ESFILTRAZIONE (E/C) 🚁</span><label class="switch"><input type="checkbox" id="cfg-exfil-toggle" checked onchange="toggleExfilMenu()"><span class="slider"></span></label></div>
-    <div id="exfil-settings" class="cfg-box" style="display:flex;"><div class="cfg-label">NUMERO DI PUNTI ATTIVI:</div><input type="number" id="cfg-exfil-num" class="input-box" style="width:100%; margin:0; padding:8px;" value="2" min="1" max="10"><div class="cfg-label">POSIZIONE ESTRAZIONI:</div><select id="cfg-exfil-pos" class="input-box" style="width:100%; margin:0; padding:8px; font-size:14px;"><option value="defined">C: Punti Mappa Standard</option><option value="random">E: Punti Casuali (Sceglie Basi in area)</option></select><div class="cfg-label">TEMPO ARRIVO ELICOTTERO (MINUTI):</div><input type="number" id="cfg-exfil-wait" class="input-box" style="width:100%; margin:0; padding:8px;" value="2" min="0" max="10"></div>
+    <div id="exfil-settings" class="cfg-box" style="display:flex;">
+        <div class="cfg-label">NUMERO DI PUNTI ATTIVI:</div><input type="number" id="cfg-exfil-num" class="input-box" style="width:100%; margin:0; padding:8px;" value="2" min="1" max="10">
+        <div class="cfg-label">POSIZIONE ESTRAZIONI:</div><select id="cfg-exfil-pos" class="input-box" style="width:100%; margin:0; padding:8px; font-size:14px;"><option value="defined">C: Punti Mappa Standard</option><option value="random">E: Punti Casuali (Sceglie Basi in area)</option></select>
+        <div class="cfg-label">TEMPO ARRIVO ELICOTTERO (MINUTI):</div><input type="number" id="cfg-exfil-wait" class="input-box" style="width:100%; margin:0; padding:8px;" value="2" min="0" max="10">
+    </div>
     
     <div class="toggle-row" style="display:none;"><label class="switch"><input type="checkbox" id="cfg-eco-toggle" checked><span class="slider"></span></label></div>
 
     <button class="btn-deploy" style="background:#004400; border-color:#0f0; margin-top:40px;" onclick="masterStartGame()">🚀 AVVIA PARTITA</button>
-    <button class="btn-deploy" style="background:rgba(255,0,0,0.2); border-color:#f00; margin-top:20px;" onclick="masterStopGame()">⏹ TERMINA PARTITA</button>
+    <button class="btn-deploy" style="background:rgba(255,0,0,0.2); border-color:#f00; margin-top:20px; margin-bottom:50px;" onclick="masterStopGame()">⏹ TERMINA PARTITA</button>
     <button class="btn-master" style="margin-bottom: 50px;" onclick="closeMasterPanel()">TORNA AL LOGIN</button>
 </div>
 
@@ -249,7 +232,7 @@
 
 <div id="scanner-modal" class="game-modal">
     <div class="modal-title">SCANSIONE OTTICA</div>
-    <div id="qr-reader"></div>
+    <div id="qr-reader" style="width: 100%; max-width: 350px; background: #000; border: 2px solid #0ff; margin-bottom:15px; min-height: 250px;"></div>
     <div style="display:flex; width: 90%; max-width: 350px; gap: 5px; margin-top: 15px;">
         <input type="text" id="manual-code-input" class="input-box" placeholder="ES: B5" style="width:70%; font-size:18px; border-color:#0ff; color:#0ff; margin:0;">
         <button class="btn-deploy" style="width:30%; background:linear-gradient(135deg, #004444 0%, #001111 100%); border-color:#0ff; margin:0; padding:10px;" onclick="processScannedCode()">INVIA</button>
@@ -298,6 +281,7 @@
 <div id="gas-overlay"></div>
 <div id="cuav-overlay"></div>
 <div id="crosshair">✛</div>
+<div id="targeting-overlay" style="display:none; z-index:2000; position:absolute; top:120px; left:50%; transform:translateX(-50%); background:rgba(255,0,0,0.85); color:#fff; padding:15px; border:1px solid #f00;">⬇ CLICCA SULLA MAPPA PER LANCIARE L'ATTACCO AEREO ⬇</div>
 
 <div id="hud-top-container" style="display:none;">
     <div id="obj-banner">OBIETTIVO: SOPRAVVIVENZA</div>
@@ -324,8 +308,6 @@
     <div class="action-btn btn-scanner" onclick="openScanner()">📷</div> 
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, update, set, onDisconnect, onValue, push, onChildAdded, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
@@ -335,23 +317,23 @@
     const db = getDatabase(app);
 
     const masterBasesDB = [
-        { id: "B1", name: "CHIRINGUITO", lat: 45.679325, lng: 9.895191 }, { id: "B2", name: "BANCA", lat: 45.679668, lng: 9.896275 },
-        { id: "B3", name: "BUCO NERO", lat: 45.679326, lng: 9.897387 }, { id: "B4", name: "PRATI BASSI", lat: 45.679367, lng: 9.899083 },
-        { id: "B5", name: "LABORATORIO", lat: 45.679264, lng: 9.900673 }, { id: "B6", name: "PRATI ALTI", lat: 45.680613, lng: 9.900875 },
-        { id: "B7", name: "ANFITEATRO", lat: 45.679424, lng: 9.90205 }, { id: "B8", name: "AVAMPOSTO 8", lat: 45.679779, lng: 9.894188 },
-        { id: "B9", name: "AVAMPOSTO 9", lat: 45.67905, lng: 9.895674 }, { id: "B10", name: "AVAMPOSTO 10", lat: 45.679973, lng: 9.899075 },
-        { id: "B11", name: "AVAMPOSTO 11", lat: 45.680284, lng: 9.894652 }, { id: "B12", name: "AVAMPOSTO 12", lat: 45.679344, lng: 9.894223 },
-        { id: "B13", name: "AVAMPOSTO 13", lat: 45.678937, lng: 9.89779 }, { id: "B14", name: "AVAMPOSTO 14", lat: 45.678553, lng: 9.895491 },
-        { id: "B15", name: "AVAMPOSTO 15", lat: 45.6798, lng: 9.898087 }, { id: "B16", name: "AVAMPOSTO 16", lat: 45.678941, lng: 9.898419 },
-        { id: "B17", name: "AVAMPOSTO 17", lat: 45.680119, lng: 9.894049 }, { id: "B18", name: "AVAMPOSTO 18", lat: 45.680112, lng: 9.899236 },
-        { id: "B19", name: "AVAMPOSTO 19", lat: 45.679181, lng: 9.895166 }, { id: "B20", name: "AVAMPOSTO 20", lat: 45.680414, lng: 9.896524 }
+        { id: "B1", lat: 45.679325, lng: 9.895191 }, { id: "B2", lat: 45.679668, lng: 9.896275 }, { id: "B3", lat: 45.679326, lng: 9.897387 }, { id: "B4", lat: 45.679367, lng: 9.899083 },
+        { id: "B5", lat: 45.679264, lng: 9.900673 }, { id: "B6", lat: 45.680613, lng: 9.900875 }, { id: "B7", lat: 45.679424, lng: 9.90205 }, { id: "B8", lat: 45.679779, lng: 9.894188 },
+        { id: "B9", lat: 45.67905, lng: 9.895674 }, { id: "B10", lat: 45.679973, lng: 9.899075 }, { id: "B11", lat: 45.680284, lng: 9.894652 }, { id: "B12", lat: 45.679344, lng: 9.894223 },
+        { id: "B13", lat: 45.678937, lng: 9.89779 }, { id: "B14", lat: 45.678553, lng: 9.895491 }, { id: "B15", lat: 45.6798, lng: 9.898087 }, { id: "B16", lat: 45.678941, lng: 9.898419 },
+        { id: "B17", lat: 45.680119, lng: 9.894049 }, { id: "B18", lat: 45.680112, lng: 9.899236 }, { id: "B19", lat: 45.679181, lng: 9.895166 }, { id: "B20", lat: 45.680414, lng: 9.896524 }
     ];
-
     const fieldsDB = {
-        "campo1": { center: [45.6795, 9.8975], boundaries: [ [45.679223, 9.892754], [45.679053, 9.894369], [45.678634, 9.896859], [45.678212, 9.903234], [45.680357, 9.902110], [45.679790, 9.899845], [45.679941, 9.897482], [45.679488, 9.894333] ], exfils: [ { id: "C1", lat: 45.6800, lng: 9.8966, label: "EXFIL C1" } ] },
-        "campo2": { center: [45.000, 9.000], boundaries: [[45.001, 8.999], [45.001, 9.001], [44.999, 9.001], [44.999, 8.999]], exfils: [] },
-        "campo5": { center: [45.699417, 9.827667], boundaries: [[45.7014, 9.8256], [45.7014, 9.8296], [45.6974, 9.8296], [45.6974, 9.8256]], exfils: [ { id: "C1", lat: 45.6998, lng: 9.8276, label: "EXFIL C1" } ] }
+        "campo1": { boundaries: [ [45.679223, 9.892754], [45.679053, 9.894369], [45.678634, 9.896859], [45.678212, 9.903234], [45.680357, 9.902110], [45.679790, 9.899845], [45.679941, 9.897482], [45.679488, 9.894333] ], exfils: [ { id: "C1", lat: 45.6800, lng: 9.8966, label: "EXFIL C1" } ] },
+        "campo2": { boundaries: [[45.001, 8.999], [45.001, 9.001], [44.999, 9.001], [44.999, 8.999]], exfils: [] },
+        "campo5": { boundaries: [[45.7014, 9.8256], [45.7014, 9.8296], [45.6974, 9.8296], [45.6974, 9.8256]], exfils: [ { id: "C1", lat: 45.6998, lng: 9.8276, label: "EXFIL C1" } ] }
     };
+
+    let masterStartPool = [ { name: "Benda Medica", value: 0, enabled: true }, { name: "MASCHERA GAS SEMPLICE", value: 500, enabled: true }, { name: "Kit Medico", value: 1500, enabled: false }, { name: "CHIAVE UNIVERSALE", value: 5000, enabled: false } ];
+    let masterMoneyPool = [{ amount: 0, chance: 30, enabled: true }, { amount: 500, chance: 40, enabled: true }, { amount: 2500, chance: 30, enabled: true }];
+    let masterLootPool = [ { name: "VUOTO", chance: 15, value: 0, enabled: true }, { name: "CHIAVE UNIVERSALE", chance: 5, value: 5000, enabled: true }, { name: "MASCHERA GAS SEMPLICE", chance: 15, value: 500, enabled: true }, { name: "Hard Disk Segreto", chance: 15, value: 2500, enabled: true }, { name: "Benda Medica", chance: 20, value: 0, enabled: true }, { name: "ATTACCO AEREO", chance: 10, value: 4000, enabled: true }, { name: "LANCIO EQUIPAGGIAMENTO", chance: 10, value: 5000, enabled: true }, { name: "UAV DI DISTURBO", chance: 10, value: 2500, enabled: true } ];
+    let masterRareLootPool = [ { name: "CHIAVE UNIVERSALE", chance: 30, value: 5000, enabled: true }, { name: "LINGOTTO D'ORO", chance: 30, value: 8000, enabled: true }, { name: "ATTACCO AEREO", chance: 20, value: 8000, enabled: true }, { name: "UAV DI DISTURBO", chance: 20, value: 2500, enabled: true } ];
+    let masterShopPool = [ { name: "CHIAVE UNIVERSALE", price: 10000, enabled: true }, { name: "MASCHERA GAS COMPLETA", price: 3000, enabled: true }, { name: "Terminale UAV", price: 4000, enabled: true }, { name: "Kit Medico", price: 1500, enabled: true }, { name: "ATTACCO AEREO", price: 8000, enabled: true }, { name: "IMPULSO EMP", price: 12000, enabled: true }, { name: "LANCIO EQUIPAGGIAMENTO", price: 10000, enabled: true } ];
 
     let activeFieldCenter = [], activePlayAreaCoords = [], activeBases = [], currentExfilPoints = [];
     let myId = ""; let myName = "", myTeam = "", myStatus = "active", myCash = 0, myBackpack = [];
@@ -361,102 +343,15 @@
     let myContract = null, exfilTimerEnd = null; window.bleedoutEndTime = null; let isMapRotated = false;
     let globalSettings = { status: 'lobby' }; let activeStreaks = {};
 
-    let masterStartPool = [ { name: "Benda Medica", value: 0, enabled: true }, { name: "MASCHERA GAS SEMPLICE", value: 500, enabled: true } ];
-    let masterMoneyPool = [{ amount: 0, chance: 30, enabled: true }, { amount: 500, chance: 40, enabled: true }, { amount: 2500, chance: 30, enabled: true }];
-    let masterLootPool = [ { name: "VUOTO", chance: 20, value: 0, enabled: true }, { name: "Benda Medica", chance: 30, value: 0, enabled: true }, { name: "Hard Disk Segreto", chance: 20, value: 2500, enabled: true } ];
-    let masterRareLootPool = [ { name: "CHIAVE UNIVERSALE", chance: 30, value: 5000, enabled: true }, { name: "LINGOTTO D'ORO", chance: 30, value: 8000, enabled: true }, { name: "ATTACCO AEREO", chance: 20, value: 8000, enabled: true }, { name: "UAV DI DISTURBO", chance: 20, value: 2500, enabled: true } ];
-    let masterShopPool = [ { name: "CHIAVE UNIVERSALE", price: 10000, enabled: true }, { name: "MASCHERA GAS COMPLETA", price: 3000, enabled: true }, { name: "Kit Medico", price: 1500, enabled: true }, { name: "ATTACCO AEREO", price: 8000, enabled: true } ];
-
     window.logEvent = function(msg) { push(ref(db, 'dmz_logs'), { msg: msg, timestamp: Date.now() }); };
+    function isInsideArea(p, poly) { let x = p[0], y = p[1], inside = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { let intersect = ((poly[i][1] > y) != (poly[j][1] > y)) && (x < (poly[j][0] - poly[i][0]) * (y - poly[i][1]) / (poly[j][1] - poly[i][1]) + poly[i][0]); if (intersect) inside = !inside; } return inside; }
 
-    // V43: FUNZIONI SICURE PER RECUPERARE DATI DAL PANNELLO MASTER
-    let getVal = (id, def) => { let el = document.getElementById(id); return el ? (parseInt(el.value) || def) : def; };
-    let getChk = (id, def) => { let el = document.getElementById(id); return el ? el.checked : def; };
-    let getStr = (id, def) => { let el = document.getElementById(id); return el ? el.value : def; };
-
-    window.updateStartModeUI = function() { let el = document.getElementById('cfg-start-limit-box'); if(el) el.style.display = (document.getElementById('cfg-start-mode').value === 'choice') ? 'block' : 'none'; };
-    window.toggleGasMenu = function() { let el = document.getElementById('gas-settings'); if(el) el.style.display = document.getElementById('cfg-gas-toggle').checked ? 'block' : 'none'; };
-    window.toggleExfilMenu = function() { let el = document.getElementById('exfil-settings'); if(el) el.style.display = document.getElementById('cfg-exfil-toggle').checked ? 'flex' : 'none'; };
-    window.toggleLockerMenu = function() { let el = document.getElementById('locker-settings'); if(el) el.style.display = document.getElementById('cfg-lockers-toggle').checked ? 'flex' : 'none'; };
-    window.toggleShopMenu = function() { let el = document.getElementById('shop-settings'); if(el) el.style.display = document.getElementById('cfg-shops-toggle').checked ? 'flex' : 'none'; };
-    window.toggleContractsMenu = function() { let el = document.getElementById('contracts-settings'); if(el) el.style.display = document.getElementById('cfg-contracts-toggle').checked ? 'flex' : 'none'; };
-    window.toggleMedicMenu = function() { let el = document.getElementById('medic-settings'); if(el) el.style.display = document.getElementById('cfg-medic-toggle').checked ? 'flex' : 'none'; };
-
-    window.updateMoneyItem = function(idx, field, val) { masterMoneyPool[idx][field] = parseInt(val) || 0; };
-    window.updateLootItem = function(idx, field, val) { masterLootPool[idx][field] = parseInt(val) || 0; };
-    window.updateShopItem = function(idx, field, val) { masterShopPool[idx][field] = parseInt(val) || 0; };
-
+    // RENDER LISTE (UTILIZZATO DA UI OPERATORE PER MOSTRARE OPZIONI START)
     window.renderStartGearList = function() { const list = document.getElementById('start-gear-list'); if(!list) return; list.innerHTML = ""; masterStartPool.forEach((i, idx) => { let valStr = i.value > 0 ? `<span style="color:#8f8;">$${i.value}</span>` : `<span style="color:#aaa;">Consum.</span>`; let chk = i.enabled ? "checked" : "", op = i.enabled ? "1" : "0.4"; list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#0cf; margin-bottom:5px; align-items:center; opacity:${op};"><div style="display:flex; align-items:center; gap:8px;"><input type="checkbox" ${chk} onchange="toggleStartGearItem(${idx})" style="transform:scale(1.2);"><span>- ${i.name} - ${valStr}</span></div><span style="color:red;cursor:pointer;font-weight:bold;padding:2px 5px;" onclick="removeStartGearItem(${idx})">X</span></div>`; });  };
-    window.toggleStartGearItem = function(idx) { masterStartPool[idx].enabled = !masterStartPool[idx].enabled; window.renderStartGearList(); };
-    window.addStartGearItem = function() { let n=document.getElementById('start-name').value.toUpperCase(), v=parseInt(document.getElementById('start-value').value)||0; if(n){ masterStartPool.push({name:n, value:v, enabled: true}); document.getElementById('start-name').value=''; document.getElementById('start-value').value=''; window.renderStartGearList(); } };
-    window.removeStartGearItem = function(idx) { masterStartPool.splice(idx, 1); window.renderStartGearList(); };
+    window.updateStartModeUI = function() { let el = document.getElementById('cfg-start-limit-box'); if(el) el.style.display = (document.getElementById('cfg-start-mode').value === 'choice') ? 'block' : 'none'; };
+    window.renderMoneyList = function() {}; window.renderLootList = function() {}; window.renderShopList = function() {};
 
-    window.renderMoneyList = function() { const list = document.getElementById('money-list'); if(!list) return; list.innerHTML = ""; masterMoneyPool.forEach((i, idx) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#8f8; margin-bottom:5px; align-items:center;"><div style="display:flex; align-items:center; gap:5px;">$<input type="number" class="cfg-input-edit" value="${i.amount}" onchange="updateMoneyItem(${idx}, 'amount', this.value)"> | %<input type="number" class="cfg-input-edit" value="${i.chance}" onchange="updateMoneyItem(${idx}, 'chance', this.value)"></div><span style="color:red;cursor:pointer;" onclick="removeMoneyItem(${idx})">X</span></div>`; }); };
-    window.addMoneyItem = function() { let a=parseInt(document.getElementById('money-amount').value)||0, c=parseInt(document.getElementById('money-chance').value); if(c>0){ masterMoneyPool.push({amount:a, chance:c, enabled: true}); window.renderMoneyList(); } };
-    window.removeMoneyItem = function(idx) { masterMoneyPool.splice(idx, 1); window.renderMoneyList(); };
-
-    window.renderLootList = function() { const list = document.getElementById('loot-list'); if(!list) return; list.innerHTML = ""; masterLootPool.forEach((i, idx) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#e6b800; margin-bottom:5px; align-items:center;"><span>${i.name}</span><div style="display:flex; align-items:center; gap:5px;">%<input type="number" class="cfg-input-edit" value="${i.chance}" onchange="updateLootItem(${idx}, 'chance', this.value)"> | $<input type="number" class="cfg-input-edit" value="${i.value}" onchange="updateLootItem(${idx}, 'value', this.value)"> <span style="color:red;cursor:pointer;" onclick="removeLootItem(${idx})">X</span></div></div>`; }); };
-    window.addLootItem = function() { let n=document.getElementById('loot-name').value.toUpperCase(), c=parseInt(document.getElementById('loot-chance').value), v=parseInt(document.getElementById('loot-value').value)||0; if(n&&c>0){ masterLootPool.push({name:n, chance:c, value:v, enabled: true}); window.renderLootList(); } };
-    window.removeLootItem = function(idx) { masterLootPool.splice(idx, 1); window.renderLootList(); };
-
-    window.renderShopList = function() { const list = document.getElementById('shop-list'); if(!list) return; list.innerHTML = ""; masterShopPool.forEach((i, idx) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#0aa; margin-bottom:5px; align-items:center;"><span>${i.name}</span><div style="display:flex; align-items:center; gap:5px;">$<input type="number" class="cfg-input-edit" value="${i.price}" onchange="updateShopItem(${idx}, 'price', this.value)"> <span style="color:red;cursor:pointer;" onclick="removeShopItem(${idx})">X</span></div></div>`; }); };
-    window.addShopItem = function() { let n=document.getElementById('shop-name').value.toUpperCase(), p=parseInt(document.getElementById('shop-price').value); if(n&&p>0){ masterShopPool.push({name:n, price:p, enabled:true}); window.renderShopList(); } };
-    window.removeShopItem = function(idx) { masterShopPool.splice(idx, 1); window.renderShopList(); };
-
-    window.saveConfig = function() {
-        let slot = document.getElementById('config-slot').value;
-        let conf = { 
-            loot: masterLootPool, money: masterMoneyPool, shop: masterShopPool, startPool: masterStartPool,
-            teamSize: getVal('cfg-team-size', 4),
-            bleedout: getVal('cfg-medic-bleedout', 60),
-            cures: getVal('cfg-medic-cures', 2),
-            revives: getVal('cfg-medic-revives', 1),
-            medicActive: getChk('cfg-medic-toggle', true),
-            contractsActive: getChk('cfg-contracts-toggle', true),
-            keysBases: getChk('cfg-keys-bases', false),
-            keysLockers: getChk('cfg-keys-lockers', true),
-            gasActive: getChk('cfg-gas-toggle', false),
-            gasLethal: getChk('cfg-gas-lethal', true),
-            gasTime: getVal('cfg-gas-time', 30),
-            gasSteps: getVal('cfg-gas-steps', 3),
-            gasInterval: getVal('cfg-gas-interval', 10),
-            startMode: getStr('cfg-start-mode', 'choice'),
-            startLimit: getVal('cfg-start-limit', 2)
-        };
-        localStorage.setItem('dmz_config_' + slot, JSON.stringify(conf));
-        alert("Configurazione " + slot + " salvata nel browser!");
-    };
-    
-    window.loadConfig = function() {
-        let slot = document.getElementById('config-slot').value;
-        let data = localStorage.getItem('dmz_config_' + slot);
-        if(data) {
-            let conf = JSON.parse(data); 
-            masterLootPool = conf.loot || masterLootPool; masterMoneyPool = conf.money || masterMoneyPool; masterShopPool = conf.shop || masterShopPool; masterStartPool = conf.startPool || masterStartPool;
-            
-            if(conf.teamSize) document.getElementById('cfg-team-size').value = conf.teamSize;
-            if(conf.bleedout) document.getElementById('cfg-medic-bleedout').value = conf.bleedout;
-            if(conf.cures) document.getElementById('cfg-medic-cures').value = conf.cures;
-            if(conf.revives) document.getElementById('cfg-medic-revives').value = conf.revives;
-            if(conf.startMode) document.getElementById('cfg-start-mode').value = conf.startMode;
-            if(conf.startLimit) document.getElementById('cfg-start-limit').value = conf.startLimit;
-            
-            if(conf.medicActive !== undefined) { document.getElementById('cfg-medic-toggle').checked = conf.medicActive; window.toggleMedicMenu(); }
-            if(conf.contractsActive !== undefined) { document.getElementById('cfg-contracts-toggle').checked = conf.contractsActive; window.toggleContractsMenu(); }
-            if(conf.keysBases !== undefined) document.getElementById('cfg-keys-bases').checked = conf.keysBases;
-            if(conf.keysLockers !== undefined) document.getElementById('cfg-keys-lockers').checked = conf.keysLockers;
-            if(conf.gasActive !== undefined) { document.getElementById('cfg-gas-toggle').checked = conf.gasActive; window.toggleGasMenu(); }
-            if(conf.gasLethal !== undefined) document.getElementById('cfg-gas-lethal').checked = conf.gasLethal;
-            
-            if(conf.gasTime) document.getElementById('cfg-gas-time').value = conf.gasTime;
-            if(conf.gasSteps) document.getElementById('cfg-gas-steps').value = conf.gasSteps;
-            if(conf.gasInterval) document.getElementById('cfg-gas-interval').value = conf.gasInterval;
-
-            window.renderMoneyList(); window.renderLootList(); window.renderShopList(); window.renderStartGearList(); window.updateStartModeUI();
-            alert("Configurazione " + slot + " caricata con successo!");
-        } else alert("Nessun salvataggio trovato per: " + slot);
-    };
-
+    // MASTER PANEL JS (QUI SOLO APERTURA/CHIUSURA)
     window.openMasterPanel = function() { 
         if(prompt("PIN:")==="0000"){ 
             document.getElementById('master-screen').style.display='flex'; 
@@ -465,13 +360,16 @@
     };
     window.closeMasterPanel = function() { document.getElementById('master-screen').style.display = 'none'; };
 
-    // V43: FAILSAFE ENGINE (ANTI-CRASH)
+    // FUNZIONI RECUPERO DATI MASTER (FAIL SAFE)
+    let getVal = (id, def) => { let el = document.getElementById(id); return el ? (parseInt(el.value) || def) : def; };
+    let getChk = (id, def) => { let el = document.getElementById(id); return el ? el.checked : def; };
+    let getStr = (id, def) => { let el = document.getElementById(id); return el ? el.value : def; };
+
+    // AVVIO PARTITA MASTER
     window.masterStartGame = function() {
         let activeContracts = []; document.querySelectorAll('.contract-cb:checked').forEach(cb => activeContracts.push(cb.value)); 
-        
         let exfilPosMode = getStr('cfg-exfil-pos', 'defined'); 
-        let generatedExfils = []; 
-        let selectedFieldCoords = fieldsDB[getStr('m-field', 'campo1')].boundaries;
+        let generatedExfils = []; let selectedFieldCoords = fieldsDB[getStr('m-field', 'campo1')].boundaries;
         if (exfilPosMode === 'random') {
             let validBases = masterBasesDB.filter(b => isInsideArea([b.lat, b.lng], selectedFieldCoords));
             let numP = getVal('cfg-exfil-num', 2); 
@@ -493,38 +391,41 @@
         });
         set(ref(db, 'dmz_lockers'), null); set(ref(db, 'dmz_streaks'), null); set(ref(db, 'dmz_logs'), null); alert("PARTITA INIZIATA.");
     };
-    
     window.masterStopGame = function() { if(confirm("Terminare Partita?")) { update(ref(db, 'dmz_settings'), { status: 'lobby' }); set(ref(db, 'dmz_players'), null); } };
 
-    onValue(ref(db, 'dmz_settings'), (snapshot) => {
-        let data = snapshot.val(); if(data) globalSettings = data;
-        let sl = document.getElementById('status-label'); let bd = document.getElementById('btn-deploy');
-        if (globalSettings.status === 'running') {
-            sl.innerText = "🟢 PARTITA IN CORSO"; sl.className = "status-label running"; bd.style.display = "block";
-            let sgs = document.getElementById('start-gear-selection'); let sgo = document.getElementById('start-gear-options'); let sgt = document.getElementById('start-gear-title');
-            if (!isDeployed && globalSettings.start_gear_config) {
-                let mode = globalSettings.start_gear_config.mode; let pool = globalSettings.start_gear_config.pool || []; let limit = globalSettings.start_gear_config.limit || 5;
-                if (mode === 'none') { if(sgs) sgs.style.display = 'none'; } 
-                else if (mode === 'fixed') { if(sgs) sgs.style.display = 'block'; if(sgt) sgt.innerText = "EQUIPAGGIAMENTO ASSEGNATO:"; if(sgo) sgo.innerHTML = pool.map(i => `<div style="color:#0cf; font-size:12px;">- ${i.name}</div>`).join(''); } 
-                else if (mode === 'choice') { if(sgs) sgs.style.display = 'block'; if(sgt) sgt.innerText = `SELEZIONA EQUIP. EXTRA (Max ${limit}):`; if(sgo) sgo.innerHTML = pool.map((i, idx) => `<label style="color:#0cf; font-size:12px; display:flex; align-items:center; gap:5px;"><input type="checkbox" class="start-gear-cb" value="${idx}" style="transform:scale(1.2);"> ${i.name}</label>`).join(''); }
-            } else { if(sgs) sgs.style.display = 'none'; }
-        } else {
-            sl.innerText = "🔴 IN ATTESA DEL MASTER"; sl.className = "status-label"; bd.style.display = "none"; let sgs = document.getElementById('start-gear-selection'); if(sgs) sgs.style.display = 'none';
-            if (isDeployed) { alert("Partita Terminata!"); window.location.reload(); }
-        }
-        if (isDeployed) { document.getElementById('hud-economy-box').style.display = globalSettings.economy_active ? 'flex' : 'none'; getDatabase()._root && get(ref(db, 'dmz_players')); }
-    });
+    // CARICAMENTO INIZIALE E LISTENERS
+    window.onload = function() {
+        onValue(ref(db, 'dmz_settings'), (snapshot) => {
+            let data = snapshot.val(); if(data) globalSettings = data;
+            let sl = document.getElementById('status-label'); let bd = document.getElementById('btn-deploy');
+            if (globalSettings.status === 'running') {
+                if(sl) sl.innerText = "🟢 PARTITA IN CORSO"; if(sl) sl.className = "status-label running"; if(bd) bd.style.display = "block";
+                let sgs = document.getElementById('start-gear-selection'); let sgo = document.getElementById('start-gear-options');
+                if (!isDeployed && globalSettings.start_gear_config) {
+                    let mode = globalSettings.start_gear_config.mode; let pool = globalSettings.start_gear_config.pool || []; let limit = globalSettings.start_gear_config.limit || 5;
+                    if (mode === 'none') { if(sgs) sgs.style.display = 'none'; } 
+                    else if (mode === 'fixed') { if(sgs) sgs.style.display = 'block'; if(sgo) sgo.innerHTML = pool.map(i => `<div style="color:#0cf; font-size:12px;">- ${i.name}</div>`).join(''); } 
+                    else if (mode === 'choice') { if(sgs) sgs.style.display = 'block'; if(sgo) sgo.innerHTML = pool.map((i, idx) => `<label style="color:#0cf; font-size:12px; display:flex; align-items:center; gap:5px;"><input type="checkbox" class="start-gear-cb" value="${idx}" style="transform:scale(1.2);"> ${i.name}</label>`).join(''); }
+                } else { if(sgs) sgs.style.display = 'none'; }
+            } else {
+                if(sl) sl.innerText = "🔴 IN ATTESA DEL MASTER"; if(sl) sl.className = "status-label"; if(bd) bd.style.display = "none"; let sgs = document.getElementById('start-gear-selection'); if(sgs) sgs.style.display = 'none';
+                if (isDeployed) { alert("Partita Terminata!"); window.location.reload(); }
+            }
+            if (isDeployed) { document.getElementById('hud-economy-box').style.display = globalSettings.economy_active ? 'flex' : 'none'; getDatabase()._root && get(ref(db, 'dmz_players')); }
+        });
 
-    onValue(ref(db, 'dmz_streaks'), (snap) => {
-        activeStreaks = snap.val() || {};
-        if(activeStreaks.airstrikes && map) {
-            Object.keys(activeStreaks.airstrikes).forEach(k => { let s = activeStreaks.airstrikes[k]; if (Date.now() < s.timestamp + 20000) { if (!window.strikeCircles) window.strikeCircles = {}; if (!window.strikeCircles[k]) { window.strikeCircles[k] = L.circle([s.lat, s.lng], {color: 'red', fillColor: '#f00', fillOpacity: 0.4, radius: 20}).addTo(map); try { navigator.vibrate([200,100,200,100,200]); }catch(e){} } } });
-            if(window.strikeCircles) { Object.keys(window.strikeCircles).forEach(k => { if(!activeStreaks.airstrikes[k] || Date.now() > activeStreaks.airstrikes[k].timestamp + 20000) { map.removeLayer(window.strikeCircles[k]); delete window.strikeCircles[k]; } }); }
-        }
-    });
+        onValue(ref(db, 'dmz_streaks'), (snap) => {
+            activeStreaks = snap.val() || {};
+            if(activeStreaks.airstrikes && map) {
+                Object.keys(activeStreaks.airstrikes).forEach(k => { let s = activeStreaks.airstrikes[k]; if (Date.now() < s.timestamp + 20000) { if (!window.strikeCircles) window.strikeCircles = {}; if (!window.strikeCircles[k]) { window.strikeCircles[k] = L.circle([s.lat, s.lng], {color: 'red', fillColor: '#f00', fillOpacity: 0.4, radius: 20}).addTo(map); try { navigator.vibrate([200,100,200,100,200]); }catch(e){} } } });
+                if(window.strikeCircles) { Object.keys(window.strikeCircles).forEach(k => { if(!activeStreaks.airstrikes[k] || Date.now() > activeStreaks.airstrikes[k].timestamp + 20000) { map.removeLayer(window.strikeCircles[k]); delete window.strikeCircles[k]; } }); }
+            }
+        });
+    };
 
+    // FUNZIONI STASH
     window.openStash = function() {
-        let n = document.getElementById('p-name').value.trim().toUpperCase(); if(!n) return alert("Inserisci il tuo Nome Operatore per accedere al magazzino.");
+        let n = document.getElementById('p-name').value.trim().toUpperCase(); if(!n) return alert("Inserisci il Nome Operatore!");
         myName = n; let safeName = myName.replace(/[^A-Z0-9]/g, '');
         get(ref(db, 'dmz_stash/' + safeName)).then((snap) => {
             myStash = snap.val() || { cash: 0, items: [] }; if(!myStash.items) myStash.items = [];
@@ -550,6 +451,7 @@
     window.unequipStashItem = function(idx) { let it = myBackpack.splice(idx, 1)[0]; myStash.items.push(it); saveStashState(); renderStashUI(); };
     window.closeStash = function() { document.getElementById('stash-modal').style.display = 'none'; };
 
+    // FUNZIONI SHOP
     window.openShop = function() {
         if (!globalSettings.shop_config || !globalSettings.shop_config.enabled) return alert("Negozio chiuso.");
         const bCont = document.getElementById('shop-items-container'); bCont.innerHTML = ""; 
@@ -566,6 +468,7 @@
     window.sellBackpackItem = function(idx, val) { myCash += val; myBackpack.splice(idx, 1); updateEconomyHUD(); window.openShop(); };
     window.closeShop = function() { document.getElementById('shop-modal').style.display = 'none'; };
 
+    // FUNZIONI LOCKER E INTERAZIONI
     let currentLockerCode = null; let currentLockerData = null; let currentLockerType = 'LOCKER';
     function openLockerUI(code, data, type) {
         currentLockerCode = code; currentLockerData = data; currentLockerType = type;
@@ -589,12 +492,16 @@
     window.closeLocker = function() { document.getElementById('locker-modal').style.display = 'none'; currentLockerCode = null; currentLockerData = null; };
 
     function generateLockerContent(isRare) {
-        let money = 0, items = []; let pMoney = globalSettings.lockers_config.moneyPool; let pItems = isRare ? masterRareLootPool : globalSettings.lockers_config.pool;
+        let money = 0, items = []; let pMoney = globalSettings.lockers_config.moneyPool; 
+        let defaultRarePool = [ { name: "CHIAVE UNIVERSALE", chance: 30, value: 5000, enabled: true }, { name: "LINGOTTO D'ORO", chance: 30, value: 8000, enabled: true }, { name: "ATTACCO AEREO", chance: 20, value: 8000, enabled: true }, { name: "UAV DI DISTURBO", chance: 20, value: 2500, enabled: true } ];
+        let pItems = isRare ? defaultRarePool : (globalSettings.lockers_config.pool || []);
+        
         if (globalSettings.economy_active && pMoney && pMoney.length > 0) { let rM = Math.random() * 100, cM = 0; for(let m of pMoney) { cM += m.chance; if(rM <= cM){ money = m.amount; break; } } }
         if (pItems && pItems.length > 0) { let rI = Math.random() * 100, cI = 0; for(let i of pItems) { cI += i.chance; if(rI <= cI){ if(i.name !== "VUOTO") { let newItem = { ...i }; if (newItem.name.includes("CHIAVE")) newItem.uses = 3; items.push(newItem); } break; } } }
         return { money, items };
     }
 
+    // FUNZIONI ZAINO E USO OGGETTI
     window.updateEconomyHUD = function() { document.getElementById('txt-cash').innerText = `💵 $${myCash}`; document.getElementById('txt-bp').innerText = `🎒 ${myBackpack.length}/5`; let hasCargo = myBackpack.some(i => i.name === "CARICO PESANTE"); update(ref(db, 'dmz_players/' + myId), { cash: myCash, backpack: myBackpack, has_cargo: hasCargo }); };
     
     window.openBackpack = function() {
@@ -663,13 +570,52 @@
     };
     window.cancelRevive = function() { if (window.reviveInterval) clearInterval(window.reviveInterval); document.getElementById('revive-overlay').style.display = 'none'; };
 
-    let html5QrCode = null;
+    // ==========================================
+    // V2.1 - FIX DEFINITIVO FOTOCAMERA (STILE V35)
+    // ==========================================
     window.openScanner = function() { 
-        if(myStatus !== 'active') return alert("Sei a terra o eliminato!"); if(document.getElementById('emp-overlay').style.display === 'flex') return alert("SISTEMA BLOCCATO DA EMP.");
-        document.getElementById('scanner-modal').style.display = 'flex'; document.getElementById('manual-code-input').value = ""; 
-        html5QrCode = new Html5Qrcode("qr-reader"); html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, (decodedText) => { if (html5QrCode && html5QrCode.isScanning) { html5QrCode.stop().then(() => { document.getElementById('manual-code-input').value = decodedText; window.processScannedCode(); }).catch(()=>{}); } }, () => {}).catch(() => { document.getElementById('qr-reader').innerHTML = `<div style="color:red; padding:20px; text-align:center;">Fotocamera non disponibile.</div>`; });
+        if(myStatus !== 'active') return alert("Sei a terra o eliminato!"); 
+        if(document.getElementById('emp-overlay').style.display === 'flex') return alert("SISTEMA BLOCCATO DA EMP.");
+        
+        document.getElementById('scanner-modal').style.display = 'flex'; 
+        document.getElementById('manual-code-input').value = ""; 
+        
+        // Ritardo di sicurezza per permettere all'interfaccia HTML di caricare prima di lanciare la fotocamera
+        setTimeout(() => {
+            if(window.html5QrCode) return; // Evita di aprire due istanze contemporaneamente
+            
+            window.html5QrCode = new Html5Qrcode("qr-reader"); 
+            window.html5QrCode.start(
+                { facingMode: "environment" }, 
+                { fps: 10, qrbox: { width: 250, height: 250 } }, 
+                (decodedText) => { 
+                    if (window.html5QrCode && window.html5QrCode.isScanning) { 
+                        window.html5QrCode.stop().then(() => { 
+                            window.html5QrCode.clear();
+                            window.html5QrCode = null;
+                            document.getElementById('manual-code-input').value = decodedText; 
+                            window.processScannedCode(); 
+                        }).catch(()=>{}); 
+                    } 
+                }, 
+                (errorMessage) => { 
+                    // ignora gli errori continui di mancata lettura del frame
+                }
+            ).catch((err) => { 
+                document.getElementById('qr-reader').innerHTML = `<div style="color:red; padding:20px; text-align:center;">Fotocamera non disponibile.<br>Assicurati di usare il link HTTPS per dare i permessi.</div>`; 
+            });
+        }, 200);
     };
-    window.closeScanner = function() { document.getElementById('scanner-modal').style.display = 'none'; if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop().catch(()=>{}); };
+    
+    window.closeScanner = function() { 
+        document.getElementById('scanner-modal').style.display = 'none'; 
+        if (window.html5QrCode && window.html5QrCode.isScanning) {
+            window.html5QrCode.stop().then(() => {
+                window.html5QrCode.clear();
+                window.html5QrCode = null;
+            }).catch(()=>{}); 
+        }
+    };
 
     window.processScannedCode = function() {
         let code = document.getElementById('manual-code-input').value.trim().toUpperCase(); if(!code) return; closeScanner();
@@ -696,7 +642,7 @@
                     if(window.contractCircle) { map.removeLayer(window.contractCircle); window.contractCircle = null; } return;
                 }
                 if (myContract.type === 'DESTROY' && myContract.targetId === code && myContract.state === 'GOTO') { 
-                    alert("Bomba innescata! Difendete per 7 minuti."); myContract.state = 'ARMED'; myContract.endTime = Date.now() + (7 * 60000); logEvent(`💣 SQUADRA ${myTeam} ha innescato ordigno.`); 
+                    alert("Bomba innescata! Difendete per 7 minuti."); myContract.state = 'ARMED'; myContract.endTime = Date.now() + (7 * 60000); logEvent(`💣 SQUADRA ${myTeam} ha innescato ordigno in ${baseExists.name}.`); 
                     if(window.contractCircle) { map.removeLayer(window.contractCircle); window.contractCircle = null; } return; 
                 }
                 return alert("Hai già un altro contratto in corso.");
@@ -719,7 +665,8 @@
                                 let players = snap.val() || {}; let enemies = Object.keys(players).filter(k => players[k].team !== myTeam && players[k].status === 'active');
                                 if (enemies.length === 0) return alert("Nessun nemico vivo in campo.");
                                 let target = enemies[Math.floor(Math.random() * enemies.length)];
-                                myContract = { type: 'HUNT', targetId: target, state: 'HUNTING', endTime: Date.now() + (5 * 60000) }; alert(`Contratto accettato! Dai la caccia alla SQUADRA ${players[target].team}.`); logEvent(`🎯 CACCIA ALLA SQUADRA contro la ${players[target].team}.`);
+                                myContract = { type: 'HUNT', targetId: target, state: 'HUNTING', endTime: Date.now() + (5 * 60000) }; alert(`Contratto accettato! Dai la caccia alla SQUADRA ${players[target].team}. Guarda la mappa!`);
+                                logEvent(`🎯 CACCIA ALLA SQUADRA contro la ${players[target].team}.`);
                             });
                         }
                     }
@@ -787,7 +734,6 @@
                 
                 activeBases = masterBasesDB.filter(b => isInsideArea([b.lat, b.lng], activePlayAreaCoords));
                 
-                // V43 FailSafe logic for start gear assignments
                 if (globalSettings.start_gear_config) {
                     let mode = globalSettings.start_gear_config.mode; let pool = globalSettings.start_gear_config.pool || []; let limit = globalSettings.start_gear_config.limit || 5;
                     if (mode === 'fixed') { pool.forEach(i => { let ni = { ...i }; if (ni.name.includes("CHIAVE")) ni.uses = 3; if (myBackpack.length < 5) myBackpack.push(ni); }); } 
