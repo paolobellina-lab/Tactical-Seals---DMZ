@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
-<title>DMZ: TACTICAL MAP v44.1</title>
+<title>DMZ: TACTICAL MAP v44.3</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -21,7 +21,7 @@
 
 <div id="login-screen" class="full-screen-ui">
     <h1>DMZ: DEPLOY</h1>
-    <div class="version-tag">PLAYER TERMINAL v44.1</div>
+    <div class="version-tag">PLAYER TERMINAL v44.3</div>
     
     <div id="status-label" class="status-label">CONNESSIONE...</div>
     
@@ -57,7 +57,9 @@
 
 <div id="scanner-modal" class="game-modal">
     <div class="modal-title">SCANSIONE OTTICA</div>
-    <div id="qr-reader" style="width: 100%; max-width: 350px; background: #000; border: 2px solid #0ff; margin-bottom:15px;"></div>
+    <div id="qr-reader-container" style="width: 100%; max-width: 350px; min-height: 250px; background: #000; border: 2px solid #0ff; margin-bottom:15px; display:flex; justify-content:center; align-items:center;">
+        <div id="qr-reader" style="width: 100%;"></div>
+    </div>
     <div style="display:flex; width: 90%; max-width: 350px; gap: 5px; margin-top: 15px;">
         <input type="text" id="manual-code-input" class="input-box" placeholder="ES: B5" style="width:70%; font-size:18px; border-color:#0ff; color:#0ff; margin:0;">
         <button class="btn-deploy" style="width:30%; background:linear-gradient(135deg, #004444 0%, #001111 100%); border-color:#0ff; margin:0; padding:10px;" onclick="processScannedCode()">INVIA</button>
@@ -106,6 +108,7 @@
 <div id="gas-overlay"></div>
 <div id="cuav-overlay"></div>
 <div id="crosshair">✛</div>
+<div id="targeting-overlay" style="display:none; z-index:2000; position:absolute; top:120px; left:50%; transform:translateX(-50%); background:rgba(255,0,0,0.85); color:#fff; padding:15px; border:1px solid #f00;">⬇ CLICCA SULLA MAPPA PER LANCIARE L'ATTACCO AEREO ⬇</div>
 
 <div id="hud-top-container" style="display:none;">
     <div id="obj-banner">OBIETTIVO: SOPRAVVIVENZA</div>
@@ -343,32 +346,47 @@
     };
     window.cancelRevive = function() { if (window.reviveInterval) clearInterval(window.reviveInterval); document.getElementById('revive-overlay').style.display = 'none'; };
 
-    // V44.1: RIPRISTINO CODICE FOTOCAMERA FUNZIONANTE
+    // V44.3 - ROBUST CAMERA FIX
     let html5QrCode = null;
+    
     window.openScanner = function() { 
-        if(myStatus !== 'active') return alert("Sei a terra o eliminato!"); if(document.getElementById('emp-overlay').style.display === 'flex') return alert("SISTEMA BLOCCATO DA EMP.");
-        document.getElementById('scanner-modal').style.display = 'flex'; document.getElementById('manual-code-input').value = ""; 
-        html5QrCode = new Html5Qrcode("qr-reader"); 
-        html5QrCode.start(
-            { facingMode: "environment" }, 
-            { fps: 10, qrbox: { width: 250, height: 250 } }, 
-            (decodedText) => { 
-                if (html5QrCode && html5QrCode.isScanning) { 
-                    html5QrCode.stop().then(() => { 
-                        document.getElementById('manual-code-input').value = decodedText; 
-                        window.processScannedCode(); 
-                    }).catch(()=>{}); 
-                } 
-            }, 
-            () => {} 
-        ).catch(() => { 
-            document.getElementById('qr-reader').innerHTML = `<div style="color:red; padding:20px; text-align:center;">Fotocamera non disponibile.</div>`; 
-        });
+        if(myStatus !== 'active') return alert("Sei a terra o eliminato!"); 
+        if(document.getElementById('emp-overlay').style.display === 'flex') return alert("SISTEMA BLOCCATO DA EMP.");
+        
+        document.getElementById('scanner-modal').style.display = 'flex'; 
+        document.getElementById('manual-code-input').value = ""; 
+        
+        // Ritardo per assicurarsi che il DOM sia visibile prima di accendere la camera
+        setTimeout(() => {
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("qr-reader"); 
+            }
+            
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                { fps: 10, qrbox: { width: 250, height: 250 } }, 
+                (decodedText) => { 
+                    if (html5QrCode && html5QrCode.isScanning) { 
+                        html5QrCode.stop().then(() => { 
+                            document.getElementById('manual-code-input').value = decodedText; 
+                            window.processScannedCode(); 
+                        }).catch(()=>{}); 
+                    } 
+                }, 
+                (err) => { /* Ignora errori di scansione frame singoli */ }
+            ).catch((err) => { 
+                document.getElementById('qr-reader').innerHTML = `<div style="color:red; padding:20px; text-align:center;">Fotocamera non disponibile.<br>Controlla di aver dato i permessi e di usare HTTPS.</div>`; 
+            });
+        }, 150);
     };
+    
     window.closeScanner = function() { 
         document.getElementById('scanner-modal').style.display = 'none'; 
         if (html5QrCode && html5QrCode.isScanning) {
-            html5QrCode.stop().catch(()=>{}); 
+            html5QrCode.stop().then(() => {
+                html5QrCode.clear();
+                html5QrCode = null;
+            }).catch(()=>{}); 
         }
     };
 
@@ -397,7 +415,7 @@
                     if(window.contractCircle) { map.removeLayer(window.contractCircle); window.contractCircle = null; } return;
                 }
                 if (myContract.type === 'DESTROY' && myContract.targetId === code && myContract.state === 'GOTO') { 
-                    alert("Bomba innescata! Difendete per 7 minuti."); myContract.state = 'ARMED'; myContract.endTime = Date.now() + (7 * 60000); logEvent(`💣 SQUADRA ${myTeam} ha innescato ordigno.`); 
+                    alert("Bomba innescata! Difendete per 7 minuti."); myContract.state = 'ARMED'; myContract.endTime = Date.now() + (7 * 60000); logEvent(`💣 SQUADRA ${myTeam} ha innescato ordigno in ${baseExists.name}.`); 
                     if(window.contractCircle) { map.removeLayer(window.contractCircle); window.contractCircle = null; } return; 
                 }
                 return alert("Hai già un altro contratto in corso.");
@@ -526,12 +544,6 @@
         if (bleedoutTimer) { clearTimeout(bleedoutTimer); bleedoutTimer = null; window.bleedoutEndTime = null; }
         if (newStatus === 'dead' || newStatus === 'down') { if (myContract && myContract.type === 'DESTROY') myContract = null; exfilTimerEnd = null; }
         if (newStatus === 'down' && globalSettings.medic_config && globalSettings.medic_config.active) { let boTime = globalSettings.medic_config.bleedout_time || 60; window.bleedoutEndTime = Date.now() + (boTime * 1000); } else { window.bleedoutEndTime = null; }
-    };
-
-    window.toggleMapRotation = function() {
-        let mapEl = document.getElementById('map'); isMapRotated = !isMapRotated;
-        if(isMapRotated) { mapEl.classList.add('rotated-east'); logEvent("🧭 Mappa ruotata a Est."); } else { mapEl.classList.remove('rotated-east'); logEvent("🧭 Mappa allineata a Nord."); }
-        setTimeout(() => { map.invalidateSize(); centerMap(); }, 300);
     };
 
     function initMap() {
@@ -697,6 +709,11 @@
         });
         onDisconnect(ref(db, 'dmz_players/' + myId)).remove();
     }
+    window.toggleMapRotation = function() {
+        let mapEl = document.getElementById('map'); isMapRotated = !isMapRotated;
+        if(isMapRotated) { mapEl.classList.add('rotated-east'); logEvent("🧭 Mappa ruotata a Est."); } else { mapEl.classList.remove('rotated-east'); logEvent("🧭 Mappa allineata a Nord."); }
+        setTimeout(() => { map.invalidateSize(); centerMap(); }, 300);
+    };
     window.centerMap = function() { if(myMarker) map.setView(myMarker.getLatLng(), 18); };
 </script>
 </body>
