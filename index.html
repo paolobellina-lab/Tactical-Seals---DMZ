@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
-<title>DMZ: TACTICAL MAP v40 - CLEAN DEPLOY</title>
+<title>DMZ: TACTICAL MAP v43 - COMPLETE & STABLE</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -15,7 +15,7 @@
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
 <style>
-    /* STILE MILITARE/DMZ V35 */
+    /* STILE MILITARE/DMZ */
     @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
     
     body { margin: 0; padding: 0; background: #000; font-family: 'Share Tech Mono', 'Courier New', monospace; overflow: hidden; color: #0f0; }
@@ -49,34 +49,17 @@
     
     .cfg-box { background: rgba(0,10,0,0.8); border: 1px solid #444; width: 80%; max-width: 300px; padding: 15px; display: none; flex-direction: column; gap: 10px; margin-top: -5px; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); }
     .cfg-label { color: #aaa; font-size: 11px; text-align: left; }
+    .cfg-input-edit { background: transparent; border: 1px dashed #555; color: #fff; width: 40px; text-align: center; font-family: monospace; font-size: 12px; }
+    .cfg-input-edit:focus { border-color: #0f0; outline: none; }
     .cfg-checkbox-list label { color: #ddd; font-size: 13px; display: flex; align-items: center; gap: 8px; margin-bottom: 5px; cursor: pointer; }
 
-    /* MAPPA */
+    /* MAPPA E ROTAZIONE */
     #map { height: 100vh; width: 100vw; z-index: 1; background: #111; position: absolute; top:0; left:0; }
-    /* V40: ROTAZIONE MAPPA CSS (EST IN ALTO) */
-    .rotated-east {
-        transform: rotate(-90deg);
-        transform-origin: center center;
-        width: 100vh !important;
-        height: 100vw !important;
-        position: fixed !important;
-        top: 50% !important;
-        left: 50% !important;
-        margin-top: -50vw !important;
-        margin-left: -50vh !important;
-    }
-
-    /* V40: MARKER MINIMALI (BASI SENZA MATTONCINO) */
-    .base-marker-container { position:relative; width:30px; height:30px; display:flex; justify-content:center; align-items:center; }
-    .base-circle { background:rgba(255,255,0,0.9); border:2px solid #000; border-radius:50%; width:20px; height:20px; display:flex; justify-content:center; align-items:center; color:#000; font-family:'Share Tech Mono', sans-serif; font-weight:bold; font-size:10px; box-shadow:0 0 8px #ff0; }
-    .base-name { position:absolute; top:24px; width:120px; text-align:center; color:#ff0; font-size:10px; font-weight:bold; text-shadow:1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; letter-spacing:1px; white-space:nowrap; pointer-events: none; }
-    
-    .exfil-circle { background:rgba(0,255,255,0.9); border:2px solid #000; border-radius:50%; width:24px; height:24px; display:flex; justify-content:center; align-items:center; font-size:12px; box-shadow:0 0 8px #0ff; }
-    .exfil-name { position:absolute; top:28px; width:100px; text-align:center; color:#0ff; font-size:10px; font-weight:bold; text-shadow:1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; pointer-events: none; }
+    .rotated-east { transform: rotate(-90deg); transform-origin: center center; width: 100vh !important; height: 100vw !important; position: fixed !important; top: 50% !important; left: 50% !important; margin-top: -50vw !important; margin-left: -50vh !important; }
 
     #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(0, 255, 0, 0.6); font-size: 30px; font-weight: bold; z-index: 1000; pointer-events: none; text-shadow: 0 0 5px #000; display: none; font-family: sans-serif; }
 
-    /* EFFETTI A SCHERMO */
+    /* EFFETTI */
     #gas-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(200, 0, 255, 0.15); z-index: 999; display: none; pointer-events: none; box-shadow: inset 0 0 100px rgba(200,0,255,0.9); }
     #cuav-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0, 50, 0, 0.1), rgba(0, 50, 0, 0.1) 2px, transparent 2px, transparent 4px); backdrop-filter: blur(8px) grayscale(100%); z-index: 999; display: none; pointer-events: none; }
     #emp-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #050000; z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; color: #f00; font-family: monospace; font-size: 24px; font-weight: bold; text-align: center; text-shadow: 0 0 20px #f00; }
@@ -85,18 +68,21 @@
     /* HUD SUPERIORE */
     #hud-top-container { position: absolute; top: 0; left: 0; width: 100%; z-index: 1000; display: flex; flex-direction: column; pointer-events: none; }
     #obj-banner { width: 100%; background: rgba(0, 15, 0, 0.85); border-bottom: 2px solid #0f0; padding: 10px 0; color: #0f0; font-weight: bold; font-size: 16px; text-shadow: 0 0 8px #0f0; text-align: center; letter-spacing: 1px; backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    
+    #team-banner { background: rgba(0,0,0,0.6); color: #fff; font-size: 10px; padding: 4px; text-align: center; border-bottom: 1px solid #555; }
+    
     #hud-sub-top { display: flex; justify-content: space-between; padding: 10px; width: calc(100% - 20px); }
     .hud-box { background: rgba(0, 20, 0, 0.7); border: 1px solid #0f0; padding: 6px 12px; color: #0f0; font-size: 12px; text-shadow: 0 0 5px #0f0; backdrop-filter: blur(4px); clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); box-shadow: 0 0 5px rgba(0,255,0,0.2); }
     .hud-economy { background: linear-gradient(135deg, rgba(0,40,0,0.9) 0%, rgba(0,15,0,0.9) 100%); cursor: pointer; pointer-events: auto; font-size: 14px; font-weight: bold; }
 
-    /* FEED DEGLI EVENTI (COMBAT LOG) */
+    /* FEED COMBAT LOG */
     #combat-log { position: absolute; top: 120px; right: 10px; width: 65%; max-width: 280px; display: flex; flex-direction: column; gap: 5px; align-items: flex-end; z-index: 1000; pointer-events: none; }
     .log-entry { background: rgba(0, 15, 0, 0.85); border-right: 3px solid #0f0; color: #fff; padding: 6px 10px; font-size: 11px; font-family: 'Share Tech Mono', monospace; text-shadow: 0 0 3px #000; clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px); animation: slideIn 0.4s ease-out; backdrop-filter: blur(2px); text-align: right; }
     .log-entry span.time { color: #0ff; margin-right: 5px; }
     @keyframes slideIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
 
     /* HUD LATERALE E INFERIORE */
-    #hud-status { position: absolute; top: 110px; left: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
+    #hud-status { position: absolute; top: 130px; left: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
     .btn-status { background: rgba(0,10,0,0.8); border: 1px solid #555; color: #fff; padding: 10px; font-family: 'Share Tech Mono', monospace; font-size: 12px; cursor: pointer; text-align: left; transition: 0.2s; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); backdrop-filter: blur(4px); pointer-events: auto; }
     .btn-status:active { transform: scale(0.95); }
 
@@ -104,7 +90,16 @@
     .action-btn { background: rgba(0,20,0,0.85); border: 2px solid #0f0; color: #0f0; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; backdrop-filter: blur(5px); box-shadow: 0 0 15px rgba(0,255,0,0.3); transition: 0.2s; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); }
     .action-btn:active { background: #0f0; color: #000; transform: scale(0.9); box-shadow: 0 0 25px #0f0; }
     .action-btn.btn-scanner { border-color: #0ff; color: #0ff; box-shadow: 0 0 15px rgba(0,255,255,0.4); }
-    .action-btn.btn-scanner:active { background: #0ff; color: #000; }
+
+    /* MARKER MINIMALI */
+    .base-marker-container { position:relative; width:30px; height:30px; display:flex; justify-content:center; align-items:center; }
+    .base-circle { background:rgba(255,255,0,0.9); border:2px solid #000; border-radius:50%; width:20px; height:20px; display:flex; justify-content:center; align-items:center; color:#000; font-family:'Share Tech Mono', sans-serif; font-weight:bold; font-size:10px; box-shadow:0 0 8px #ff0; }
+    .base-name { position:absolute; top:24px; width:120px; text-align:center; color:#ff0; font-size:10px; font-weight:bold; text-shadow:1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; letter-spacing:1px; white-space:nowrap; pointer-events: none; }
+    
+    .exfil-circle { background:rgba(0,255,255,0.9); border:2px solid #000; border-radius:50%; width:24px; height:24px; display:flex; justify-content:center; align-items:center; font-size:12px; box-shadow:0 0 8px #0ff; }
+    .exfil-name { position:absolute; top:28px; width:100px; text-align:center; color:#0ff; font-size:10px; font-weight:bold; text-shadow:1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; pointer-events: none; }
+
+    .teammate-label { background: rgba(0,0,0,0.7); color: #fff; font-family: sans-serif; font-weight: bold; border-radius: 3px; padding: 2px 4px; font-size: 10px; margin-top: -38px; text-align: center; width: 100px; margin-left: -42px; border: 1px solid #555; pointer-events: none; }
 
     /* MODALS */
     .game-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 15, 0, 0.95); backdrop-filter: blur(8px); z-index: 3000; display: none; flex-direction: column; justify-content: center; align-items: center; border: 2px solid #0f0; box-sizing: border-box; }
@@ -113,7 +108,7 @@
     .btn-close-modal { background: transparent; color: #fff; border: 1px solid #f00; padding: 12px 25px; font-size: 16px; margin-top: 25px; cursor: pointer; font-family: 'Share Tech Mono', monospace; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); transition: 0.2s; text-transform: uppercase; }
     .btn-close-modal:active { background: #f00; color: #000; box-shadow: 0 0 15px #f00; }
 
-    #qr-reader { width: 100%; max-width: 350px; border: 2px solid #0ff; margin-bottom: 15px; background: #000; box-shadow: 0 0 20px rgba(0,255,255,0.2); clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); }
+    #qr-reader { width: 100%; max-width: 350px; border: 2px solid #0ff; margin-bottom: 15px; background: #000; box-shadow: 0 0 20px rgba(0,255,255,0.2); }
 
     .shop-item { display:flex; justify-content:space-between; align-items:center; background:rgba(0,30,0,0.6); border:1px solid #0aa; padding:12px; margin-bottom:8px; width:90%; max-width:350px; color:#fff; font-size:14px; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
     .shop-btn { background:rgba(0,80,0,0.8); border:1px solid #0f0; color:#0f0; padding:6px 12px; cursor:pointer; font-family: 'Share Tech Mono', monospace; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px); transition: 0.2s; }
@@ -125,133 +120,188 @@
     .locker-item { background: rgba(0,0,0,0.6); border: 1px solid #0aa; padding: 10px; margin-bottom: 5px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; color: #ddd; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px); }
     .locker-btn { background: rgba(0,80,80,0.8); border: 1px solid #0ff; color: #0ff; padding: 5px 10px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 10px; clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px); transition: 0.2s;}
     .locker-btn:active { background: #0ff; color: #000; }
-
-    /* STILE MARKER E PING */
-    .teammate-label { background: rgba(0,0,0,0.7); color: #fff; font-family: sans-serif; font-weight: bold; border-radius: 3px; padding: 2px 4px; font-size: 10px; margin-top: -38px; text-align: center; width: 100px; margin-left: -42px; border: 1px solid #555; pointer-events: none; }
-    .drop-icon { font-size: 30px; text-shadow: 0 0 10px #ff0; cursor: pointer; text-align:center; }
-    .ping-icon { background: rgba(255, 0, 0, 0.8); border: 2px solid #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; box-shadow: 0 0 15px #f00; animation: ping-pulse 1s infinite; }
-    @keyframes ping-pulse { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
-
-    #targeting-overlay { position: absolute; top: 120px; left: 50%; transform: translateX(-50%); background: rgba(255,0,0,0.85); color: white; padding: 15px 25px; border: 1px solid #f00; z-index: 2000; display: none; text-align: center; pointer-events: none; box-shadow: 0 0 30px #f00; font-size: 14px; letter-spacing: 1px; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); backdrop-filter: blur(5px); }
-    #start-gear-selection { display:none; width:80%; max-width:300px; margin-top:15px; border:1px solid #0cf; padding:15px; background:rgba(0, 20, 30, 0.8); clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); }
 </style>
 </head>
 <body>
 
 <div id="login-screen" class="full-screen-ui">
     <h1>DMZ: DEPLOY</h1>
-    <div class="version-tag">SYSTEM v40 - CLEAN DEPLOY</div>
+    <div class="version-tag">SYSTEM v43 - COMPLETE & STABLE</div>
     
     <div id="status-label" class="status-label">CONNESSIONE...</div>
     
-    <input type="text" id="p-name" class="input-box" placeholder="NOME SULLA PATCH (es: VIPER)">
+    <input type="text" id="p-name" class="input-box" placeholder="NOME (es: VIPER)">
     <select id="p-team" class="input-box">
-        <option value="ALPHA">SQUADRA ALPHA</option><option value="BRAVO">SQUADRA BRAVO</option>
-        <option value="CHARLIE">SQUADRA CHARLIE</option><option value="DELTA">SQUADRA DELTA</option>
+        <option value="ALPHA">SQUADRA ALPHA</option><option value="BRAVO">SQUADRA BRAVO</option><option value="CHARLIE">SQUADRA CHARLIE</option><option value="DELTA">SQUADRA DELTA</option>
+        <option value="ECHO">SQUADRA ECHO</option><option value="FOXTROT">SQUADRA FOXTROT</option><option value="GOLF">SQUADRA GOLF</option><option value="HOTEL">SQUADRA HOTEL</option>
+        <option value="INDIA">SQUADRA INDIA</option><option value="JULIET">SQUADRA JULIET</option><option value="KILO">SQUADRA KILO</option><option value="LIMA">SQUADRA LIMA</option>
+        <option value="MIKE">SQUADRA MIKE</option><option value="NOVEMBER">SQUADRA NOVEMBER</option><option value="OSCAR">SQUADRA OSCAR</option><option value="PAPA">SQUADRA PAPA</option>
+        <option value="QUEBEC">SQUADRA QUEBEC</option><option value="ROMEO">SQUADRA ROMEO</option><option value="SIERRA">SQUADRA SIERRA</option><option value="TANGO">SQUADRA TANGO</option>
+        <option value="UNIFORM">SQUADRA UNIFORM</option><option value="VICTOR">SQUADRA VICTOR</option><option value="WHISKEY">SQUADRA WHISKEY</option><option value="XRAY">SQUADRA X-RAY</option>
+        <option value="YANKEE">SQUADRA YANKEE</option><option value="ZULU">SQUADRA ZULU</option>
     </select>
     
-    <div id="start-gear-selection">
-        <div style="color:#0cf; font-size:14px; font-weight:bold; margin-bottom:15px; text-align:center; letter-spacing:1px;" id="start-gear-title">SELEZIONA EQUIP. AGGIUNTIVO</div>
+    <div id="start-gear-selection" style="display:none; width:80%; max-width:300px; margin-top:15px; border:1px solid #0cf; padding:15px; background:rgba(0, 20, 30, 0.8); clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);">
+        <div style="color:#0cf; font-size:14px; font-weight:bold; margin-bottom:15px; text-align:center;">SELEZIONA EQUIP.</div>
         <div id="start-gear-options" style="display:flex; flex-direction:column; gap:8px; max-height:120px; overflow-y:auto;"></div>
     </div>
 
     <button class="btn-deploy" style="background:linear-gradient(135deg, #003344 0%, #001122 100%); border-color:#0cf; box-shadow: 0 0 10px rgba(0,255,255,0.3); margin-top:10px; color:#0cf;" onclick="openStash()">🏦 ACCEDI AL MAGAZZINO</button>
-
-    <div id="deploy-help" style="color:#ff0; font-size:12px; margin-top:15px; letter-spacing:1px;">Attendi l'avvio della partita dal Comando.</div>
+    <div id="deploy-help" style="color:#ff0; font-size:12px; margin-top:15px;">Attendi l'avvio della partita dal Comando.</div>
     <button id="btn-deploy" class="btn-deploy" onclick="deploy()" style="display:none;">DISPIEGAMENTO</button>
     <button class="btn-master" onclick="openMasterPanel()">⚙️ PANNELLO MASTER</button>
 </div>
 
 <div id="master-screen" class="full-screen-ui" style="display:none; z-index: 2500; overflow-y: auto; padding: 40px 0; justify-content: flex-start;">
-    <h1 style="color: #ff0; text-shadow: 0 0 10px #ff0; margin-top:20px;">SISTEMA MASTER</h1>
-    <div class="cfg-label" style="width:80%; max-width:300px; margin-top:10px;">CAMPO OPERATIVO:</div>
+    <h1 style="color: #ff0; text-shadow: 0 0 10px #ff0; margin-top:20px;">SISTEMA MASTER PRO</h1>
+    
+    <div class="cfg-label" style="width:80%; max-width:300px; text-align:center; font-size:14px; color:#0cf; margin-top:10px;">PRESET DI GIOCO:</div>
+    <select id="config-slot" class="input-box" style="border-color: #0cf; color: #0cf; margin-top:5px;">
+        <option value="BATTLE_ROYALE">BATTLE ROYALE</option><option value="MALLOPPO">MALLOPPO</option>
+        <option value="DOMINIO">DOMINIO</option><option value="COMPLETA">COMPLETA</option>
+    </select>
+    <div style="display:flex; width:80%; max-width:300px; gap:10px; margin-bottom:30px;">
+        <button class="btn-deploy" style="padding:10px; font-size:12px; margin:0; width:50%;" onclick="saveConfig()">💾 SALVA</button>
+        <button class="btn-deploy" style="padding:10px; font-size:12px; margin:0; width:50%; background:#004;" onclick="loadConfig()">📂 CARICA</button>
+    </div>
+
+    <div class="cfg-label" style="width:80%; max-width:300px;">CAMPO OPERATIVO:</div>
     <select id="m-field" class="input-box" style="border-color: #ff0; color: #ff0;"><option value="campo1">CAMPO 1: DMZ ORIGINALE</option><option value="campo2">CAMPO 2: ZONA URBANA</option><option value="campo5">CAMPO 5: TEST LOCALE</option></select>
+    
     <div class="toggle-row"><span style="color:#ffa500; font-weight:bold;">SISTEMA MEDICO E SQUADRE 🏥</span><label class="switch"><input type="checkbox" id="cfg-medic-toggle" checked onchange="toggleMedicMenu()"><span class="slider"></span></label></div>
     <div id="medic-settings" class="cfg-box" style="display:flex;"><div class="cfg-label" style="color:#ffa500; font-weight:bold;">MAX GIOCATORI PER SQUADRA:</div><input type="number" id="cfg-team-size" class="input-box" style="width:100%; margin:0; padding:8px;" value="4"><div class="cfg-label" style="margin-top:10px;">TEMPO DISSANGUAMENTO (SECONDI):</div><input type="number" id="cfg-medic-bleedout" class="input-box" style="width:100%; margin:0; padding:8px;" value="60"><div class="cfg-label" style="margin-top:10px;">MAX CURE CONSENTITE (DA FERITO):</div><input type="number" id="cfg-medic-cures" class="input-box" style="width:100%; margin:0; padding:8px;" value="2"><div class="cfg-label">MAX RIANIMAZIONI (DA MORTO/ASSIMILAZIONE):</div><input type="number" id="cfg-medic-revives" class="input-box" style="width:100%; margin:0; padding:8px;" value="1"></div>
+    
     <div class="toggle-row" style="border-color:#0cf;"><span style="color:#0cf; font-weight:bold;">FORNITURA INIZIALE (BONUS) 🎒</span></div>
-    <div class="cfg-box" style="display:flex; border-color:#0cf; border-top:1px solid #0cf;"><div class="cfg-label">MODALITÀ DI ASSEGNAZIONE:</div><select id="cfg-start-mode" class="input-box" style="width:100%; margin:0; padding:8px; font-size:12px; border-color:#0cf; color:#0cf;" onchange="updateStartModeUI()"><option value="none">NESSUNO (Solo Magazzino Personale)</option><option value="fixed">FISSO (Bonus a tutti)</option><option value="choice">A SCELTA (Bonus a scelta)</option></select><div id="cfg-start-limit-box" style="display:none; margin-top:10px;"><div class="cfg-label">OGGETTI MASSIMI SELEZIONABILI:</div><input type="number" id="cfg-start-limit" class="input-box" style="width:100%; margin:0; padding:8px; border-color:#0cf;" value="2" min="1" max="5"></div><div style="display:flex; gap:5px; margin-bottom:5px; margin-top:10px;"><input type="text" id="start-name" class="input-box" style="width:60%; margin:0; padding:5px; font-size:10px;" placeholder="OGGETTO"><input type="number" id="start-value" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="VALORE $"></div><button class="btn-deploy" style="background:#033; border-color:#0cf; font-size:12px; padding:8px; margin:0;" onclick="addStartGearItem()">+ AGGIUNGI IN LISTA</button><div id="start-gear-list" style="margin-top:10px; border-top:1px solid #444; padding-top:10px; max-height:150px; overflow-y:auto;"></div></div>
+    <div class="cfg-box" style="display:flex; border-color:#0cf; border-top:1px solid #0cf;">
+        <div class="cfg-label">MODALITÀ DI ASSEGNAZIONE:</div>
+        <select id="cfg-start-mode" class="input-box" style="width:100%; margin:0; padding:8px; font-size:12px; border-color:#0cf; color:#0cf;" onchange="updateStartModeUI()">
+            <option value="none">NESSUNO (Solo Magazzino Personale)</option><option value="fixed">FISSO (Bonus a tutti)</option><option value="choice">A SCELTA (Bonus a scelta)</option>
+        </select>
+        <div id="cfg-start-limit-box" style="display:none; margin-top:10px;">
+            <div class="cfg-label">OGGETTI MASSIMI SELEZIONABILI:</div>
+            <input type="number" id="cfg-start-limit" class="input-box" style="width:100%; margin:0; padding:8px; border-color:#0cf;" value="2" min="1" max="5">
+        </div>
+        <div style="display:flex; gap:5px; margin-bottom:5px; margin-top:10px;">
+            <input type="text" id="start-name" class="input-box" style="width:60%; margin:0; padding:5px; font-size:10px;" placeholder="OGGETTO">
+            <input type="number" id="start-value" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="VALORE $">
+        </div>
+        <button class="btn-deploy" style="background:#033; border-color:#0cf; font-size:12px; padding:8px; margin:0;" onclick="addStartGearItem()">+ AGGIUNGI IN LISTA</button>
+        <div id="start-gear-list" style="margin-top:10px; border-top:1px solid #444; padding-top:10px; max-height:150px; overflow-y:auto;"></div>
+    </div>
+
     <div class="toggle-row"><span style="color:#f0f; font-weight:bold;">ZONA GAS ☢️</span><label class="switch"><input type="checkbox" id="cfg-gas-toggle" onchange="toggleGasMenu()"><span class="slider"></span></label></div>
-    <div id="gas-settings" class="cfg-box"><div class="toggle-row" style="margin-top:0; border:none; padding:0; width:100%;"><span style="color:#f0f; font-size:12px;">GAS LETALE</span><label class="switch"><input type="checkbox" id="cfg-gas-lethal" checked><span class="slider"></span></label></div><div class="cfg-label" style="margin-top:10px;">TEMPO SOPRAVVIVENZA SENZA MASCHERA (SEC):</div><input type="number" id="cfg-gas-time" class="input-box" style="width:100%; margin:0; padding:8px;" value="30"><div class="toggle-row" style="margin-top:10px; border:none; padding:0; width:100%;"><span style="color:#f0f; font-size:12px; max-width:70%;">MOSTRA NEMICI CHE TOSSISCONO NEL GAS</span><label class="switch"><input type="checkbox" id="cfg-gas-vis" checked><span class="slider"></span></label></div><div class="cfg-label" style="margin-top:10px;">NUMERO RESTRINGIMENTI AREA (STEP):</div><input type="number" id="cfg-gas-steps" class="input-box" style="width:100%; margin:0; padding:8px;" value="3"><div class="cfg-label">INTERVALLO TRA STEP (MINUTI):</div><input type="number" id="cfg-gas-interval" class="input-box" style="width:100%; margin:0; padding:8px;" value="10"></div>
-    <div class="toggle-row"><span style="color:#e6e6fa; font-weight:bold;">CONTRATTI BASI (B) 📜</span><label class="switch"><input type="checkbox" id="cfg-contracts-toggle" checked onchange="toggleContractsMenu()"><span class="slider"></span></label></div>
-    <div id="contracts-settings" class="cfg-box cfg-checkbox-list" style="display:flex;"><label><input type="checkbox" class="contract-cb" value="INTEL" checked> RECUPERO DATI SEGRETI</label><label><input type="checkbox" class="contract-cb" value="DESTROY" checked> DISTRUZIONE SCORTE</label><label><input type="checkbox" class="contract-cb" value="CARGO" checked> CONSEGNA MATERIALE (DROP)</label><label><input type="checkbox" class="contract-cb" value="HUNT" checked> CACCIA ALLA SQUADRA (PvP)</label></div>
-    <div class="toggle-row"><span style="color:#8f8; font-weight:bold;">SISTEMA ECONOMICO E CHIAVI 💵</span><label class="switch"><input type="checkbox" id="cfg-eco-toggle" checked><span class="slider"></span></label></div>
-    <div class="toggle-row" style="display:none;"><span style="color:#ffd700; font-weight:bold; max-width: 60%; font-size:14px;">RICHIEDI CHIAVI PER SBLOCCARE OBIETTIVI 🔑</span><label class="switch"><input type="checkbox" id="cfg-keys-toggle" checked><span class="slider"></span></label></div>
-    <div class="toggle-row"><span style="color:#0aa; font-weight:bold;">NEGOZI E KILLSTREAKS 🛒</span><label class="switch"><input type="checkbox" id="cfg-shops-toggle" checked onchange="toggleShopMenu()"><span class="slider"></span></label></div>
-    <div id="shop-settings" class="cfg-box" style="display:flex;"><div class="cfg-label">LISTINO PREZZI NEGOZIO:</div><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="shop-name" class="input-box" style="width:60%; margin:0; padding:5px; font-size:10px;" placeholder="OGGETTO"><input type="number" id="shop-price" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="PREZZO $"></div><button class="btn-deploy" style="background:#333; border-color:#aaa; font-size:12px; padding:8px; margin:0;" onclick="addShopItem()">+ AGGIUNGI IN VENDITA</button><div id="shop-list" style="margin-top:10px; border-top:1px solid #444; padding-top:10px; max-height:150px; overflow-y:auto; font-family:'Share Tech Mono', monospace;"></div></div>
+    <div id="gas-settings" class="cfg-box">
+        <div class="toggle-row" style="margin-top:0; border:none; padding:0; width:100%;"><span style="color:#f0f; font-size:12px;">GAS LETALE</span><label class="switch"><input type="checkbox" id="cfg-gas-lethal" checked><span class="slider"></span></label></div>
+        <div class="cfg-label" style="margin-top:10px;">TEMPO SOPRAVVIVENZA SENZA MASCHERA (SEC):</div>
+        <input type="number" id="cfg-gas-time" class="input-box" style="width:100%; margin:0; padding:8px;" value="30">
+        <div class="toggle-row" style="margin-top:10px; border:none; padding:0; width:100%;"><span style="color:#f0f; font-size:12px; max-width:70%;">MOSTRA NEMICI CHE TOSSISCONO NEL GAS</span><label class="switch"><input type="checkbox" id="cfg-gas-vis" checked><span class="slider"></span></label></div>
+        <div class="cfg-label" style="margin-top:10px;">NUMERO RESTRINGIMENTI AREA (STEP):</div>
+        <input type="number" id="cfg-gas-steps" class="input-box" style="width:100%; margin:0; padding:8px;" value="3">
+        <div class="cfg-label">INTERVALLO TRA STEP (MINUTI):</div>
+        <input type="number" id="cfg-gas-interval" class="input-box" style="width:100%; margin:0; padding:8px;" value="10">
+    </div>
+
+    <div class="toggle-row"><span style="color:#e6e6fa; font-weight:bold;">CONTRATTI E BASI (B) 📜</span><label class="switch"><input type="checkbox" id="cfg-contracts-toggle" checked onchange="toggleContractsMenu()"><span class="slider"></span></label></div>
+    <div id="contracts-settings" class="cfg-box cfg-checkbox-list" style="display:flex;">
+        <label><input type="checkbox" class="contract-cb" value="INTEL" checked> RECUPERO DATI SEGRETI</label>
+        <label><input type="checkbox" class="contract-cb" value="DESTROY" checked> DISTRUZIONE SCORTE</label>
+        <label><input type="checkbox" class="contract-cb" value="CARGO" checked> CONSEGNA MATERIALE (DROP)</label>
+        <label><input type="checkbox" class="contract-cb" value="HUNT" checked> CACCIA ALLA SQUADRA (PvP)</label>
+        <label><input type="checkbox" class="contract-cb" value="NUKE" checked> <span style="color:#ff0;">MATERIALI NUCLEARI (Geiger)</span></label>
+        <div style="border-top:1px solid #444; margin-top:10px; padding-top:10px;">
+            <label style="color:#ffd700;"><input type="checkbox" id="cfg-keys-bases"> RICHIEDI CHIAVI PER I CONTRATTI</label>
+        </div>
+    </div>
+
     <div class="toggle-row"><span style="color:#e6b800; font-weight:bold;">ARMADIETTI E LOOT (A) 📦</span><label class="switch"><input type="checkbox" id="cfg-lockers-toggle" checked onchange="toggleLockerMenu()"><span class="slider"></span></label></div>
-    <div id="locker-settings" class="cfg-box" style="display:flex;"><div class="cfg-label" style="color:#8f8; font-weight:bold; margin-top:10px;">PROBABILITÀ DENARO (Somma = 100%):</div><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="number" id="money-amount" class="input-box" style="width:50%; margin:0; padding:5px; font-size:10px; color:#8f8; border-color:#8f8;" placeholder="IMPORTO $"><input type="number" id="money-chance" class="input-box" style="width:50%; margin:0; padding:5px; font-size:10px;" placeholder="% CHANCE"></div><button class="btn-deploy" style="background:#030; border-color:#0f0; font-size:12px; padding:8px; margin:0;" onclick="addMoneyItem()">+ AGGIUNGI PACCHETTO DENARO</button><div id="money-list" style="margin-top:10px; border-top:1px dashed #8f8; padding-top:10px; max-height:100px; overflow-y:auto;"></div><div class="cfg-label" style="color:#e6b800; font-weight:bold; margin-top:20px;">PROBABILITÀ OGGETTI (Somma = 100%):</div><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="loot-name" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px;" placeholder="NOME OGGETTO"><input type="number" id="loot-chance" class="input-box" style="width:25%; margin:0; padding:5px; font-size:10px;" placeholder="%"><input type="number" id="loot-value" class="input-box" style="width:35%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="VALORE $"></div><button class="btn-deploy" style="background:#330; border-color:#ff0; font-size:12px; padding:8px; margin:0;" onclick="addLootItem()">+ AGGIUNGI OGGETTO</button><div id="loot-list" style="margin-top:10px; border-top:1px dashed #ff0; padding-top:10px; max-height:150px; overflow-y:auto;"></div></div>
+    <div id="locker-settings" class="cfg-box" style="display:flex;">
+        <label style="color:#ffd700; font-size:13px; margin-bottom:10px;"><input type="checkbox" id="cfg-keys-lockers" checked> ARMADIETTI CHIUSI A CHIAVE</label>
+        <div class="cfg-label" style="color:#8f8; font-weight:bold;">PROBABILITÀ DENARO (Editabile):</div>
+        <div id="money-list" style="margin-top:5px; border-bottom:1px dashed #8f8; padding-bottom:10px; max-height:100px; overflow-y:auto;"></div>
+        <div class="cfg-label" style="color:#e6b800; font-weight:bold; margin-top:10px;">PROBABILITÀ OGGETTI (Editabile):</div>
+        <div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="loot-name" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px;" placeholder="NOME"><input type="number" id="loot-chance" class="input-box" style="width:25%; margin:0; padding:5px; font-size:10px;" placeholder="%"><input type="number" id="loot-value" class="input-box" style="width:35%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="VAL $"></div><button class="btn-deploy" style="background:#330; border-color:#ff0; font-size:12px; padding:8px; margin:0;" onclick="addLootItem()">+ AGGIUNGI</button>
+        <div id="loot-list" style="margin-top:10px; border-top:1px dashed #ff0; padding-top:10px; max-height:150px; overflow-y:auto;"></div>
+    </div>
+
+    <div class="toggle-row"><span style="color:#0aa; font-weight:bold;">NEGOZI E KILLSTREAKS 🛒</span><label class="switch"><input type="checkbox" id="cfg-shops-toggle" checked onchange="toggleShopMenu()"><span class="slider"></span></label></div>
+    <div id="shop-settings" class="cfg-box" style="display:flex;">
+        <div class="cfg-label">LISTINO (Editabile):</div><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="shop-name" class="input-box" style="width:60%; margin:0; padding:5px; font-size:10px;" placeholder="OGGETTO"><input type="number" id="shop-price" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="PREZZO $"></div><button class="btn-deploy" style="background:#333; border-color:#aaa; font-size:12px; padding:8px; margin:0;" onclick="addShopItem()">+ AGGIUNGI IN VENDITA</button><div id="shop-list" style="margin-top:10px; border-top:1px solid #444; padding-top:10px; max-height:150px; overflow-y:auto;"></div>
+    </div>
+
     <div class="toggle-row"><span style="color:#0ff; font-weight:bold;">ESFILTRAZIONE (E/C) 🚁</span><label class="switch"><input type="checkbox" id="cfg-exfil-toggle" checked onchange="toggleExfilMenu()"><span class="slider"></span></label></div>
     <div id="exfil-settings" class="cfg-box" style="display:flex;"><div class="cfg-label">NUMERO DI PUNTI ATTIVI:</div><input type="number" id="cfg-exfil-num" class="input-box" style="width:100%; margin:0; padding:8px;" value="2" min="1" max="10"><div class="cfg-label">POSIZIONE ESTRAZIONI:</div><select id="cfg-exfil-pos" class="input-box" style="width:100%; margin:0; padding:8px; font-size:14px;"><option value="defined">C: Punti Mappa Standard</option><option value="random">E: Punti Casuali (Sceglie Basi in area)</option></select><div class="cfg-label">TEMPO ARRIVO ELICOTTERO (MINUTI):</div><input type="number" id="cfg-exfil-wait" class="input-box" style="width:100%; margin:0; padding:8px;" value="2" min="0" max="10"></div>
+    
+    <div class="toggle-row" style="display:none;"><label class="switch"><input type="checkbox" id="cfg-eco-toggle" checked><span class="slider"></span></label></div>
+
     <button class="btn-deploy" style="background:#004400; border-color:#0f0; margin-top:40px;" onclick="masterStartGame()">🚀 AVVIA PARTITA</button>
     <button class="btn-deploy" style="background:rgba(255,0,0,0.2); border-color:#f00; margin-top:20px;" onclick="masterStopGame()">⏹ TERMINA PARTITA</button>
     <button class="btn-master" style="margin-bottom: 50px;" onclick="closeMasterPanel()">TORNA AL LOGIN</button>
 </div>
 
 <div id="stash-modal" class="game-modal">
-    <div class="modal-title" style="color:#0cf; text-shadow:0 0 10px #0cf;">MAGAZZINO SEGRETO</div>
-    <div class="modal-desc" style="color:#0cf;">Gestisci il tuo equipaggiamento persistente prima di schierarti.</div>
+    <div class="modal-title" style="color:#0cf;">MAGAZZINO SEGRETO</div>
     <div style="display:flex; width:95%; max-width: 400px; gap:10px; height: 50%;">
-        <div class="locker-panel" style="border-color:#0cf;"><h3 style="color:#0cf; border-color:#0cf;">STASH (Rifugio)</h3><div id="stash-money-box" style="margin-bottom:10px; padding:5px; background:rgba(0,30,30,0.8); border:1px solid #0cf; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);"></div><div id="stash-items-box"></div></div>
-        <div class="locker-panel"><h3 style="color:#8f8; border-color:#8f8;">LOADOUT (Da Portare)</h3><div id="stash-loadout-money" style="margin-bottom:10px; padding:5px; background:rgba(0,40,0,0.8); border:1px solid #0f0; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);"></div><div id="stash-loadout-items"></div></div>
+        <div class="locker-panel" style="border-color:#0cf;"><h3 style="color:#0cf;">STASH</h3><div id="stash-money-box" style="margin-bottom:10px; padding:5px; background:rgba(0,30,30,0.8); border:1px solid #0cf;"></div><div id="stash-items-box"></div></div>
+        <div class="locker-panel"><h3 style="color:#8f8;">LOADOUT</h3><div id="stash-loadout-money" style="margin-bottom:10px; padding:5px; background:rgba(0,40,0,0.8); border:1px solid #0f0;"></div><div id="stash-loadout-items"></div></div>
     </div>
     <button class="btn-close-modal" style="border-color:#0cf;" onclick="closeStash()">CHIUDI E SALVA</button>
 </div>
 
 <div id="scanner-modal" class="game-modal">
     <div class="modal-title">SCANSIONE OTTICA</div>
-    <div class="modal-desc">Inquadra il QR Code o inserisci codice manuale.<br><span style="color:#aaa; font-size:10px;">(A: Casse, B: Basi, E/C: Estrazione, OP_: Operatori)</span></div>
     <div id="qr-reader"></div>
     <div style="display:flex; width: 90%; max-width: 350px; gap: 5px; margin-top: 15px;">
         <input type="text" id="manual-code-input" class="input-box" placeholder="ES: B5" style="width:70%; font-size:18px; border-color:#0ff; color:#0ff; margin:0;">
-        <button class="btn-deploy" style="width:30%; background:linear-gradient(135deg, #004444 0%, #001111 100%); border-color:#0ff; box-shadow: 0 0 10px rgba(0,255,255,0.4); margin:0; padding:10px;" onclick="processScannedCode()">INVIA</button>
+        <button class="btn-deploy" style="width:30%; background:linear-gradient(135deg, #004444 0%, #001111 100%); border-color:#0ff; margin:0; padding:10px;" onclick="processScannedCode()">INVIA</button>
     </div>
     <button class="btn-close-modal" onclick="closeScanner()">ANNULLA SCANSIONE</button>
 </div>
 
 <div id="player-action-modal" class="game-modal">
-    <div class="modal-title" style="color:#fff; text-shadow:0 0 10px #fff;">OPERATORE RILEVATO</div>
-    <div class="modal-desc" id="pam-desc" style="color:#aaa; font-size:14px; margin-bottom:30px;">Scegli l'azione tattica.</div>
+    <div class="modal-title" style="color:#fff;">OPERATORE RILEVATO</div>
+    <div class="modal-desc" id="pam-desc" style="color:#aaa;"></div>
     <button class="btn-deploy" style="background:linear-gradient(135deg, #005500 0%, #002200 100%); border-color:#0f0; width:90%; max-width:300px; margin-bottom:15px;" onclick="executePlayerAction('REVIVE')">💉 RIANIMA E ASSIMILA</button>
     <button class="btn-deploy" style="background:linear-gradient(135deg, #550000 0%, #220000 100%); border-color:#f00; width:90%; max-width:300px;" onclick="executePlayerAction('LOOT')">🎒 DEPREDA ZAINO</button>
     <button class="btn-close-modal" style="border-color:#555; color:#aaa; margin-top:40px;" onclick="closePlayerAction()">ANNULLA</button>
 </div>
 
 <div id="locker-modal" class="game-modal">
-    <div class="modal-title" id="locker-title" style="color:#e6b800; text-shadow:0 0 10px #e6b800;">CONTENITORE</div>
+    <div class="modal-title" id="locker-title" style="color:#e6b800;">CONTENITORE</div>
     <div style="display:flex; width:95%; max-width: 400px; gap:10px; height: 60%;">
-        <div class="locker-panel"><h3 id="locker-left-title" style="color:#e6b800; border-color:#e6b800;">CONTENUTO</h3><div id="locker-money-box" style="margin-bottom:10px; padding:5px; background:rgba(40,30,0,0.8); border:1px solid #e6b800; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);"></div><div id="locker-items-box"></div></div>
-        <div class="locker-panel"><h3 style="color:#8f8; border-color:#8f8;">IL TUO ZAINO</h3><div id="locker-backpack-box"></div></div>
+        <div class="locker-panel"><h3 id="locker-left-title" style="color:#e6b800;">CONTENUTO</h3><div id="locker-money-box" style="margin-bottom:10px; padding:5px; background:rgba(40,30,0,0.8); border:1px solid #e6b800;"></div><div id="locker-items-box"></div></div>
+        <div class="locker-panel"><h3 style="color:#8f8;">ZAINO</h3><div id="locker-backpack-box"></div></div>
     </div>
     <button class="btn-close-modal" style="border-color:#e6b800;" onclick="closeLocker()">CHIUDI SPORTELLO</button>
 </div>
 
 <div id="shop-modal" class="game-modal">
-    <div class="modal-title" style="color:#0aa; text-shadow:0 0 10px #0aa;">MERCATO NERO</div>
-    <div id="shop-items-container" style="width:100%; display:flex; flex-direction:column; align-items:center; overflow-y:auto; max-height:60%;"></div>
+    <div class="modal-title" style="color:#0aa;">MERCATO NERO</div>
+    <div style="display:flex; width:95%; max-width:400px; gap:10px; height:60%;">
+        <div class="locker-panel" style="border-color:#0aa;"><h3 style="color:#0aa;">COMPRA</h3><div id="shop-items-container" style="display:flex; flex-direction:column; gap:5px;"></div></div>
+        <div class="locker-panel" style="border-color:#f00;"><h3 style="color:#f00;">VENDI ZAINO (50%)</h3><div id="shop-sell-container" style="display:flex; flex-direction:column; gap:5px;"></div></div>
+    </div>
     <button class="btn-close-modal" style="border-color:#0aa;" onclick="closeShop()">ESCI DAL NEGOZIO</button>
 </div>
 
 <div id="backpack-modal" class="game-modal">
-    <div class="modal-title" style="color:#8f8; text-shadow:0 0 10px #8f8;">IL TUO ZAINO</div>
-    <div class="modal-desc" id="bp-desc" style="color:#8f8;">Usa o getta gli oggetti (Capacità: 5 slot)</div>
+    <div class="modal-title" style="color:#8f8;">IL TUO ZAINO</div>
     <div id="bp-items-container" style="width:100%; display:flex; flex-direction:column; align-items:center; overflow-y:auto; max-height:60%;"></div>
     <button class="btn-close-modal" style="border-color:#8f8;" onclick="closeBackpack()">CHIUDI ZAINO</button>
 </div>
 
 <div id="revive-overlay">
-    🏥 RIANIMAZIONE IN CORSO...<br><br><span id="revive-timer" style="font-size: 60px; color:#fff;">10</span>s<br><br>
+    🏥 RIANIMAZIONE...<br><br><span id="revive-timer" style="font-size: 60px; color:#fff;">10</span>s<br><br>
     <button class="btn-deploy" style="background:#500; border-color:#f00; margin-top:40px;" onclick="cancelRevive()">INTERROMPI</button>
 </div>
 
-<div id="emp-overlay">⚠️ ERRORE CRITICO ⚠️<br><br>IMPULSO ELETROMAGNETICO<br>RILEVATO</div>
 <div id="map"></div>
 <div id="gas-overlay"></div>
 <div id="cuav-overlay"></div>
 <div id="crosshair">✛</div>
-<div id="targeting-overlay">⬇ CLICCA SULLA MAPPA PER LANCIARE L'ATTACCO AEREO ⬇</div>
 
 <div id="hud-top-container" style="display:none;">
     <div id="obj-banner">OBIETTIVO: SOPRAVVIVENZA</div>
+    <div id="team-banner">SQUADRA: <span id="team-name-hud">...</span> | OP: <span id="team-list-hud" style="color:#0f0;">...</span></div>
     <div id="hud-sub-top">
         <div class="hud-box" id="gps-status" style="color:#0ff; border-color:#0ff;">GPS: RICERCA...</div>
         <div id="hud-economy-box" class="hud-box hud-economy" style="display:none;" onclick="openBackpack()">
@@ -285,128 +335,166 @@
     const db = getDatabase(app);
 
     const masterBasesDB = [
-        { id: "B1", name: "CHIRINGUITO", lat: 45.679325, lng: 9.895191 },
-        { id: "B2", name: "BANCA", lat: 45.679668, lng: 9.896275 },
-        { id: "B3", name: "BUCO NERO", lat: 45.679326, lng: 9.897387 },
-        { id: "B4", name: "PRATI BASSI", lat: 45.679367, lng: 9.899083 },
-        { id: "B5", name: "LABORATORIO", lat: 45.679264, lng: 9.900673 },
-        { id: "B6", name: "PRATI ALTI", lat: 45.680613, lng: 9.900875 },
-        { id: "B7", name: "ANFITEATRO", lat: 45.679424, lng: 9.90205 },
-        { id: "B8", name: "AVAMPOSTO 8", lat: 45.679779, lng: 9.894188 },
-        { id: "B9", name: "AVAMPOSTO 9", lat: 45.67905, lng: 9.895674 },
-        { id: "B10", name: "AVAMPOSTO 10", lat: 45.679973, lng: 9.899075 },
-        { id: "B11", name: "AVAMPOSTO 11", lat: 45.680284, lng: 9.894652 },
-        { id: "B12", name: "AVAMPOSTO 12", lat: 45.679344, lng: 9.894223 },
-        { id: "B13", name: "AVAMPOSTO 13", lat: 45.678937, lng: 9.89779 },
-        { id: "B14", name: "AVAMPOSTO 14", lat: 45.678553, lng: 9.895491 },
-        { id: "B15", name: "AVAMPOSTO 15", lat: 45.6798, lng: 9.898087 },
-        { id: "B16", name: "AVAMPOSTO 16", lat: 45.678941, lng: 9.898419 },
-        { id: "B17", name: "AVAMPOSTO 17", lat: 45.680119, lng: 9.894049 },
-        { id: "B18", name: "AVAMPOSTO 18", lat: 45.680112, lng: 9.899236 },
-        { id: "B19", name: "AVAMPOSTO 19", lat: 45.679181, lng: 9.895166 },
-        { id: "B20", name: "AVAMPOSTO 20", lat: 45.680414, lng: 9.896524 }
+        { id: "B1", name: "CHIRINGUITO", lat: 45.679325, lng: 9.895191 }, { id: "B2", name: "BANCA", lat: 45.679668, lng: 9.896275 },
+        { id: "B3", name: "BUCO NERO", lat: 45.679326, lng: 9.897387 }, { id: "B4", name: "PRATI BASSI", lat: 45.679367, lng: 9.899083 },
+        { id: "B5", name: "LABORATORIO", lat: 45.679264, lng: 9.900673 }, { id: "B6", name: "PRATI ALTI", lat: 45.680613, lng: 9.900875 },
+        { id: "B7", name: "ANFITEATRO", lat: 45.679424, lng: 9.90205 }, { id: "B8", name: "AVAMPOSTO 8", lat: 45.679779, lng: 9.894188 },
+        { id: "B9", name: "AVAMPOSTO 9", lat: 45.67905, lng: 9.895674 }, { id: "B10", name: "AVAMPOSTO 10", lat: 45.679973, lng: 9.899075 },
+        { id: "B11", name: "AVAMPOSTO 11", lat: 45.680284, lng: 9.894652 }, { id: "B12", name: "AVAMPOSTO 12", lat: 45.679344, lng: 9.894223 },
+        { id: "B13", name: "AVAMPOSTO 13", lat: 45.678937, lng: 9.89779 }, { id: "B14", name: "AVAMPOSTO 14", lat: 45.678553, lng: 9.895491 },
+        { id: "B15", name: "AVAMPOSTO 15", lat: 45.6798, lng: 9.898087 }, { id: "B16", name: "AVAMPOSTO 16", lat: 45.678941, lng: 9.898419 },
+        { id: "B17", name: "AVAMPOSTO 17", lat: 45.680119, lng: 9.894049 }, { id: "B18", name: "AVAMPOSTO 18", lat: 45.680112, lng: 9.899236 },
+        { id: "B19", name: "AVAMPOSTO 19", lat: 45.679181, lng: 9.895166 }, { id: "B20", name: "AVAMPOSTO 20", lat: 45.680414, lng: 9.896524 }
     ];
 
     const fieldsDB = {
-        "campo1": { 
-            center: [45.6795, 9.8975], 
-            boundaries: [ [45.679223, 9.892754], [45.679053, 9.894369], [45.678634, 9.896859], [45.678212, 9.903234], [45.680357, 9.902110], [45.679790, 9.899845], [45.679941, 9.897482], [45.679488, 9.894333] ], 
-            exfils: [ { id: "C1", lat: 45.6800, lng: 9.8966, label: "EXFIL C1" } ] 
-        },
+        "campo1": { center: [45.6795, 9.8975], boundaries: [ [45.679223, 9.892754], [45.679053, 9.894369], [45.678634, 9.896859], [45.678212, 9.903234], [45.680357, 9.902110], [45.679790, 9.899845], [45.679941, 9.897482], [45.679488, 9.894333] ], exfils: [ { id: "C1", lat: 45.6800, lng: 9.8966, label: "EXFIL C1" } ] },
         "campo2": { center: [45.000, 9.000], boundaries: [[45.001, 8.999], [45.001, 9.001], [44.999, 9.001], [44.999, 8.999]], exfils: [] },
         "campo5": { center: [45.699417, 9.827667], boundaries: [[45.7014, 9.8256], [45.7014, 9.8296], [45.6974, 9.8296], [45.6974, 9.8256]], exfils: [ { id: "C1", lat: 45.6998, lng: 9.8276, label: "EXFIL C1" } ] }
     };
 
     let activeFieldCenter = [], activePlayAreaCoords = [], activeBases = [], currentExfilPoints = [];
-
     let myId = ""; let myName = "", myTeam = "", myStatus = "active", myCash = 0, myBackpack = [];
     let myStash = { cash: 0, items: [] }; 
     let map, myMarker = null, markers = {}; 
     let isDeployed = false, bleedoutTimer = null, localUAVActive = false, isTargetingAirstrike = false;
-    let myContract = null, exfilTimerEnd = null; window.bleedoutEndTime = null;
-    let isMapRotated = false;
-
-    let masterStartPool = [ { name: "Benda Medica", value: 0, enabled: true }, { name: "MASCHERA GAS SEMPLICE", value: 500, enabled: true }, { name: "Kit Medico", value: 1500, enabled: false }, { name: "CHIAVE UNIVERSALE", value: 5000, enabled: false } ];
-    let masterMoneyPool = [{ amount: 0, chance: 30, enabled: true }, { amount: 500, chance: 40, enabled: true }, { amount: 2500, chance: 30, enabled: true }];
-    let masterLootPool = [ { name: "VUOTO", chance: 15, value: 0, enabled: true }, { name: "CHIAVE UNIVERSALE", chance: 5, value: 5000, enabled: true }, { name: "MASCHERA GAS SEMPLICE", chance: 15, value: 500, enabled: true }, { name: "Hard Disk Segreto", chance: 15, value: 2500, enabled: true }, { name: "Benda Medica", chance: 20, value: 0, enabled: true }, { name: "ATTACCO AEREO", chance: 10, value: 4000, enabled: true }, { name: "LANCIO EQUIPAGGIAMENTO", chance: 10, value: 5000, enabled: true }, { name: "UAV DI DISTURBO", chance: 10, value: 2500, enabled: true } ];
-    let masterShopPool = [ { name: "CHIAVE UNIVERSALE", price: 10000, enabled: true }, { name: "MASCHERA GAS COMPLETA", price: 3000, enabled: true }, { name: "Terminale UAV", price: 4000, enabled: true }, { name: "Kit Medico", price: 1500, enabled: true }, { name: "ATTACCO AEREO", price: 8000, enabled: true }, { name: "IMPULSO EMP", price: 12000, enabled: true }, { name: "LANCIO EQUIPAGGIAMENTO", price: 10000, enabled: true } ];
-
+    let myContract = null, exfilTimerEnd = null; window.bleedoutEndTime = null; let isMapRotated = false;
     let globalSettings = { status: 'lobby' }; let activeStreaks = {};
+
+    let masterStartPool = [ { name: "Benda Medica", value: 0, enabled: true }, { name: "MASCHERA GAS SEMPLICE", value: 500, enabled: true } ];
+    let masterMoneyPool = [{ amount: 0, chance: 30, enabled: true }, { amount: 500, chance: 40, enabled: true }, { amount: 2500, chance: 30, enabled: true }];
+    let masterLootPool = [ { name: "VUOTO", chance: 20, value: 0, enabled: true }, { name: "Benda Medica", chance: 30, value: 0, enabled: true }, { name: "Hard Disk Segreto", chance: 20, value: 2500, enabled: true } ];
+    let masterRareLootPool = [ { name: "CHIAVE UNIVERSALE", chance: 30, value: 5000, enabled: true }, { name: "LINGOTTO D'ORO", chance: 30, value: 8000, enabled: true }, { name: "ATTACCO AEREO", chance: 20, value: 8000, enabled: true }, { name: "UAV DI DISTURBO", chance: 20, value: 2500, enabled: true } ];
+    let masterShopPool = [ { name: "CHIAVE UNIVERSALE", price: 10000, enabled: true }, { name: "MASCHERA GAS COMPLETA", price: 3000, enabled: true }, { name: "Kit Medico", price: 1500, enabled: true }, { name: "ATTACCO AEREO", price: 8000, enabled: true } ];
 
     window.logEvent = function(msg) { push(ref(db, 'dmz_logs'), { msg: msg, timestamp: Date.now() }); };
 
-    function isInsideArea(p, poly) { let x = p[0], y = p[1], inside = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { let intersect = ((poly[i][1] > y) != (poly[j][1] > y)) && (x < (poly[j][0] - poly[i][0]) * (y - poly[i][1]) / (poly[j][1] - poly[i][1]) + poly[i][0]); if (intersect) inside = !inside; } return inside; }
+    // V43: FUNZIONI SICURE PER RECUPERARE DATI DAL PANNELLO MASTER
+    let getVal = (id, def) => { let el = document.getElementById(id); return el ? (parseInt(el.value) || def) : def; };
+    let getChk = (id, def) => { let el = document.getElementById(id); return el ? el.checked : def; };
+    let getStr = (id, def) => { let el = document.getElementById(id); return el ? el.value : def; };
 
-    window.updateStartModeUI = function() { document.getElementById('cfg-start-limit-box').style.display = (document.getElementById('cfg-start-mode').value === 'choice') ? 'block' : 'none'; };
-    window.toggleGasMenu = function() { document.getElementById('gas-settings').style.display = document.getElementById('cfg-gas-toggle').checked ? 'block' : 'none'; };
-    window.toggleExfilMenu = function() { document.getElementById('exfil-settings').style.display = document.getElementById('cfg-exfil-toggle').checked ? 'flex' : 'none'; };
-    window.toggleLockerMenu = function() { document.getElementById('locker-settings').style.display = document.getElementById('cfg-lockers-toggle').checked ? 'flex' : 'none'; };
-    window.toggleShopMenu = function() { document.getElementById('shop-settings').style.display = document.getElementById('cfg-shops-toggle').checked ? 'flex' : 'none'; };
-    window.toggleContractsMenu = function() { document.getElementById('contracts-settings').style.display = document.getElementById('cfg-contracts-toggle').checked ? 'flex' : 'none'; };
-    window.toggleMedicMenu = function() { document.getElementById('medic-settings').style.display = document.getElementById('cfg-medic-toggle').checked ? 'flex' : 'none'; };
+    window.updateStartModeUI = function() { let el = document.getElementById('cfg-start-limit-box'); if(el) el.style.display = (document.getElementById('cfg-start-mode').value === 'choice') ? 'block' : 'none'; };
+    window.toggleGasMenu = function() { let el = document.getElementById('gas-settings'); if(el) el.style.display = document.getElementById('cfg-gas-toggle').checked ? 'block' : 'none'; };
+    window.toggleExfilMenu = function() { let el = document.getElementById('exfil-settings'); if(el) el.style.display = document.getElementById('cfg-exfil-toggle').checked ? 'flex' : 'none'; };
+    window.toggleLockerMenu = function() { let el = document.getElementById('locker-settings'); if(el) el.style.display = document.getElementById('cfg-lockers-toggle').checked ? 'flex' : 'none'; };
+    window.toggleShopMenu = function() { let el = document.getElementById('shop-settings'); if(el) el.style.display = document.getElementById('cfg-shops-toggle').checked ? 'flex' : 'none'; };
+    window.toggleContractsMenu = function() { let el = document.getElementById('contracts-settings'); if(el) el.style.display = document.getElementById('cfg-contracts-toggle').checked ? 'flex' : 'none'; };
+    window.toggleMedicMenu = function() { let el = document.getElementById('medic-settings'); if(el) el.style.display = document.getElementById('cfg-medic-toggle').checked ? 'flex' : 'none'; };
 
-    window.renderStartGearList = function() { const list = document.getElementById('start-gear-list'); list.innerHTML = ""; masterStartPool.forEach((i, idx) => { let valStr = i.value > 0 ? `<span style="color:#8f8;">$${i.value}</span>` : `<span style="color:#aaa;">Consum.</span>`; let chk = i.enabled ? "checked" : "", op = i.enabled ? "1" : "0.4"; list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#0cf; margin-bottom:5px; align-items:center; opacity:${op};"><div style="display:flex; align-items:center; gap:8px;"><input type="checkbox" ${chk} onchange="toggleStartGearItem(${idx})" style="transform:scale(1.2);"><span>- ${i.name} - ${valStr}</span></div><span style="color:red;cursor:pointer;font-weight:bold;padding:2px 5px;" onclick="removeStartGearItem(${idx})">X</span></div>`; });  };
+    window.updateMoneyItem = function(idx, field, val) { masterMoneyPool[idx][field] = parseInt(val) || 0; };
+    window.updateLootItem = function(idx, field, val) { masterLootPool[idx][field] = parseInt(val) || 0; };
+    window.updateShopItem = function(idx, field, val) { masterShopPool[idx][field] = parseInt(val) || 0; };
+
+    window.renderStartGearList = function() { const list = document.getElementById('start-gear-list'); if(!list) return; list.innerHTML = ""; masterStartPool.forEach((i, idx) => { let valStr = i.value > 0 ? `<span style="color:#8f8;">$${i.value}</span>` : `<span style="color:#aaa;">Consum.</span>`; let chk = i.enabled ? "checked" : "", op = i.enabled ? "1" : "0.4"; list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#0cf; margin-bottom:5px; align-items:center; opacity:${op};"><div style="display:flex; align-items:center; gap:8px;"><input type="checkbox" ${chk} onchange="toggleStartGearItem(${idx})" style="transform:scale(1.2);"><span>- ${i.name} - ${valStr}</span></div><span style="color:red;cursor:pointer;font-weight:bold;padding:2px 5px;" onclick="removeStartGearItem(${idx})">X</span></div>`; });  };
     window.toggleStartGearItem = function(idx) { masterStartPool[idx].enabled = !masterStartPool[idx].enabled; window.renderStartGearList(); };
     window.addStartGearItem = function() { let n=document.getElementById('start-name').value.toUpperCase(), v=parseInt(document.getElementById('start-value').value)||0; if(n){ masterStartPool.push({name:n, value:v, enabled: true}); document.getElementById('start-name').value=''; document.getElementById('start-value').value=''; window.renderStartGearList(); } };
     window.removeStartGearItem = function(idx) { masterStartPool.splice(idx, 1); window.renderStartGearList(); };
 
-    window.renderMoneyList = function() { const list = document.getElementById('money-list'); list.innerHTML = ""; masterMoneyPool.forEach((i, idx) => { let chk = i.enabled ? "checked" : "", op = i.enabled ? "1" : "0.4"; list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#8f8; margin-bottom:5px; align-items:center; opacity:${op};"><div style="display:flex; align-items:center; gap:8px;"><input type="checkbox" ${chk} onchange="toggleMoneyItem(${idx})" style="transform:scale(1.2);"><span>$${i.amount} (${i.chance}%)</span></div><span style="color:red;cursor:pointer;font-weight:bold;padding:2px 5px;" onclick="removeMoneyItem(${idx})">X</span></div>`; }); };
-    window.toggleMoneyItem = function(idx) { masterMoneyPool[idx].enabled = !masterMoneyPool[idx].enabled; window.renderMoneyList(); };
+    window.renderMoneyList = function() { const list = document.getElementById('money-list'); if(!list) return; list.innerHTML = ""; masterMoneyPool.forEach((i, idx) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#8f8; margin-bottom:5px; align-items:center;"><div style="display:flex; align-items:center; gap:5px;">$<input type="number" class="cfg-input-edit" value="${i.amount}" onchange="updateMoneyItem(${idx}, 'amount', this.value)"> | %<input type="number" class="cfg-input-edit" value="${i.chance}" onchange="updateMoneyItem(${idx}, 'chance', this.value)"></div><span style="color:red;cursor:pointer;" onclick="removeMoneyItem(${idx})">X</span></div>`; }); };
     window.addMoneyItem = function() { let a=parseInt(document.getElementById('money-amount').value)||0, c=parseInt(document.getElementById('money-chance').value); if(c>0){ masterMoneyPool.push({amount:a, chance:c, enabled: true}); window.renderMoneyList(); } };
     window.removeMoneyItem = function(idx) { masterMoneyPool.splice(idx, 1); window.renderMoneyList(); };
 
-    window.renderLootList = function() { const list = document.getElementById('loot-list'); list.innerHTML = ""; masterLootPool.forEach((i, idx) => { let valStr = i.value > 0 ? `<span style="color:#8f8;">$${i.value}</span>` : `<span style="color:#aaa;">Consum.</span>`; let chk = i.enabled ? "checked" : "", op = i.enabled ? "1" : "0.4"; list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#e6b800; margin-bottom:5px; align-items:center; opacity:${op};"><div style="display:flex; align-items:center; gap:8px;"><input type="checkbox" ${chk} onchange="toggleLootItem(${idx})" style="transform:scale(1.2);"><span>- ${i.name} (${i.chance}%) - ${valStr}</span></div><span style="color:red;cursor:pointer;font-weight:bold;padding:2px 5px;" onclick="removeLootItem(${idx})">X</span></div>`; }); };
-    window.toggleLootItem = function(idx) { masterLootPool[idx].enabled = !masterLootPool[idx].enabled; window.renderLootList(); };
+    window.renderLootList = function() { const list = document.getElementById('loot-list'); if(!list) return; list.innerHTML = ""; masterLootPool.forEach((i, idx) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#e6b800; margin-bottom:5px; align-items:center;"><span>${i.name}</span><div style="display:flex; align-items:center; gap:5px;">%<input type="number" class="cfg-input-edit" value="${i.chance}" onchange="updateLootItem(${idx}, 'chance', this.value)"> | $<input type="number" class="cfg-input-edit" value="${i.value}" onchange="updateLootItem(${idx}, 'value', this.value)"> <span style="color:red;cursor:pointer;" onclick="removeLootItem(${idx})">X</span></div></div>`; }); };
     window.addLootItem = function() { let n=document.getElementById('loot-name').value.toUpperCase(), c=parseInt(document.getElementById('loot-chance').value), v=parseInt(document.getElementById('loot-value').value)||0; if(n&&c>0){ masterLootPool.push({name:n, chance:c, value:v, enabled: true}); window.renderLootList(); } };
     window.removeLootItem = function(idx) { masterLootPool.splice(idx, 1); window.renderLootList(); };
 
-    window.renderShopList = function() { const list = document.getElementById('shop-list'); list.innerHTML = ""; masterShopPool.forEach((i, idx) => { let chk = i.enabled ? "checked" : "", op = i.enabled ? "1" : "0.4"; list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#0aa; margin-bottom:5px; align-items:center; opacity:${op};"><div style="display:flex; align-items:center; gap:8px;"><input type="checkbox" ${chk} onchange="toggleShopItem(${idx})" style="transform:scale(1.2);"><span>- ${i.name} [$${i.price}]</span></div><span style="color:red;cursor:pointer;font-weight:bold;padding:2px 5px;" onclick="removeShopItem(${idx})">X</span></div>`; }); };
-    window.toggleShopItem = function(idx) { masterShopPool[idx].enabled = !masterShopPool[idx].enabled; window.renderShopList(); };
+    window.renderShopList = function() { const list = document.getElementById('shop-list'); if(!list) return; list.innerHTML = ""; masterShopPool.forEach((i, idx) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#0aa; margin-bottom:5px; align-items:center;"><span>${i.name}</span><div style="display:flex; align-items:center; gap:5px;">$<input type="number" class="cfg-input-edit" value="${i.price}" onchange="updateShopItem(${idx}, 'price', this.value)"> <span style="color:red;cursor:pointer;" onclick="removeShopItem(${idx})">X</span></div></div>`; }); };
     window.addShopItem = function() { let n=document.getElementById('shop-name').value.toUpperCase(), p=parseInt(document.getElementById('shop-price').value); if(n&&p>0){ masterShopPool.push({name:n, price:p, enabled:true}); window.renderShopList(); } };
     window.removeShopItem = function(idx) { masterShopPool.splice(idx, 1); window.renderShopList(); };
+
+    window.saveConfig = function() {
+        let slot = document.getElementById('config-slot').value;
+        let conf = { 
+            loot: masterLootPool, money: masterMoneyPool, shop: masterShopPool, startPool: masterStartPool,
+            teamSize: getVal('cfg-team-size', 4),
+            bleedout: getVal('cfg-medic-bleedout', 60),
+            cures: getVal('cfg-medic-cures', 2),
+            revives: getVal('cfg-medic-revives', 1),
+            medicActive: getChk('cfg-medic-toggle', true),
+            contractsActive: getChk('cfg-contracts-toggle', true),
+            keysBases: getChk('cfg-keys-bases', false),
+            keysLockers: getChk('cfg-keys-lockers', true),
+            gasActive: getChk('cfg-gas-toggle', false),
+            gasLethal: getChk('cfg-gas-lethal', true),
+            gasTime: getVal('cfg-gas-time', 30),
+            gasSteps: getVal('cfg-gas-steps', 3),
+            gasInterval: getVal('cfg-gas-interval', 10),
+            startMode: getStr('cfg-start-mode', 'choice'),
+            startLimit: getVal('cfg-start-limit', 2)
+        };
+        localStorage.setItem('dmz_config_' + slot, JSON.stringify(conf));
+        alert("Configurazione " + slot + " salvata nel browser!");
+    };
+    
+    window.loadConfig = function() {
+        let slot = document.getElementById('config-slot').value;
+        let data = localStorage.getItem('dmz_config_' + slot);
+        if(data) {
+            let conf = JSON.parse(data); 
+            masterLootPool = conf.loot || masterLootPool; masterMoneyPool = conf.money || masterMoneyPool; masterShopPool = conf.shop || masterShopPool; masterStartPool = conf.startPool || masterStartPool;
+            
+            if(conf.teamSize) document.getElementById('cfg-team-size').value = conf.teamSize;
+            if(conf.bleedout) document.getElementById('cfg-medic-bleedout').value = conf.bleedout;
+            if(conf.cures) document.getElementById('cfg-medic-cures').value = conf.cures;
+            if(conf.revives) document.getElementById('cfg-medic-revives').value = conf.revives;
+            if(conf.startMode) document.getElementById('cfg-start-mode').value = conf.startMode;
+            if(conf.startLimit) document.getElementById('cfg-start-limit').value = conf.startLimit;
+            
+            if(conf.medicActive !== undefined) { document.getElementById('cfg-medic-toggle').checked = conf.medicActive; window.toggleMedicMenu(); }
+            if(conf.contractsActive !== undefined) { document.getElementById('cfg-contracts-toggle').checked = conf.contractsActive; window.toggleContractsMenu(); }
+            if(conf.keysBases !== undefined) document.getElementById('cfg-keys-bases').checked = conf.keysBases;
+            if(conf.keysLockers !== undefined) document.getElementById('cfg-keys-lockers').checked = conf.keysLockers;
+            if(conf.gasActive !== undefined) { document.getElementById('cfg-gas-toggle').checked = conf.gasActive; window.toggleGasMenu(); }
+            if(conf.gasLethal !== undefined) document.getElementById('cfg-gas-lethal').checked = conf.gasLethal;
+            
+            if(conf.gasTime) document.getElementById('cfg-gas-time').value = conf.gasTime;
+            if(conf.gasSteps) document.getElementById('cfg-gas-steps').value = conf.gasSteps;
+            if(conf.gasInterval) document.getElementById('cfg-gas-interval').value = conf.gasInterval;
+
+            window.renderMoneyList(); window.renderLootList(); window.renderShopList(); window.renderStartGearList(); window.updateStartModeUI();
+            alert("Configurazione " + slot + " caricata con successo!");
+        } else alert("Nessun salvataggio trovato per: " + slot);
+    };
 
     window.openMasterPanel = function() { 
         if(prompt("PIN:")==="0000"){ 
             document.getElementById('master-screen').style.display='flex'; 
-            window.renderStartGearList(); 
-            window.updateStartModeUI(); 
-            window.renderMoneyList(); 
-            window.renderLootList(); 
-            window.renderShopList(); 
+            window.renderMoneyList(); window.renderLootList(); window.renderShopList(); window.renderStartGearList(); window.updateStartModeUI();
         } else { alert("ACCESSO NEGATO"); }
     };
     window.closeMasterPanel = function() { document.getElementById('master-screen').style.display = 'none'; };
 
+    // V43: FAILSAFE ENGINE (ANTI-CRASH)
     window.masterStartGame = function() {
-        let startMode = document.getElementById('cfg-start-mode').value; let startLimit = parseInt(document.getElementById('cfg-start-limit').value) || 2; let activeStartGear = masterStartPool.filter(i => i.enabled);
-        let activeMoney = masterMoneyPool.filter(i => i.enabled); let activeLoot = masterLootPool.filter(i => i.enabled); let activeShop = masterShopPool.filter(i => i.enabled);
-        let activeContracts = []; if (document.getElementById('cfg-contracts-toggle').checked) { document.querySelectorAll('.contract-cb:checked').forEach(cb => activeContracts.push(cb.value)); }
-
-        let exfilPosMode = document.getElementById('cfg-exfil-pos').value; let generatedExfils = []; let selectedFieldCoords = fieldsDB[document.getElementById('m-field').value].boundaries;
+        let activeContracts = []; document.querySelectorAll('.contract-cb:checked').forEach(cb => activeContracts.push(cb.value)); 
+        
+        let exfilPosMode = getStr('cfg-exfil-pos', 'defined'); 
+        let generatedExfils = []; 
+        let selectedFieldCoords = fieldsDB[getStr('m-field', 'campo1')].boundaries;
         if (exfilPosMode === 'random') {
             let validBases = masterBasesDB.filter(b => isInsideArea([b.lat, b.lng], selectedFieldCoords));
-            let numP = parseInt(document.getElementById('cfg-exfil-num').value)||2; let shuffled = validBases.sort(() => 0.5 - Math.random()); let selectedBases = shuffled.slice(0, numP);
+            let numP = getVal('cfg-exfil-num', 2); 
+            let shuffled = validBases.sort(() => 0.5 - Math.random()); let selectedBases = shuffled.slice(0, numP);
             for(let i=0; i<selectedBases.length; i++) { let num = selectedBases[i].id.replace('B',''); generatedExfils.push({ id: "E"+num, lat: selectedBases[i].lat, lng: selectedBases[i].lng, label: "EXFIL E"+num }); }
-        } else { generatedExfils = fieldsDB[document.getElementById('m-field').value].exfils; }
+        } else { generatedExfils = fieldsDB[getStr('m-field', 'campo1')].exfils; }
 
         update(ref(db, 'dmz_settings'), {
-            status: 'running', activeField: document.getElementById('m-field').value, economy_active: document.getElementById('cfg-eco-toggle').checked, keys_active: document.getElementById('cfg-keys-toggle').checked,
-            start_gear_config: { mode: startMode, pool: activeStartGear, limit: startLimit }, shop_config: { enabled: document.getElementById('cfg-shops-toggle').checked, pool: activeShop }, 
-            exfil_config: { enabled: document.getElementById('cfg-exfil-toggle').checked, numPoints: parseInt(document.getElementById('cfg-exfil-num').value)||2, waitTime: parseInt(document.getElementById('cfg-exfil-wait').value)||2, position: exfilPosMode, points: generatedExfils },
-            lockers_config: { enabled: document.getElementById('cfg-lockers-toggle').checked, pool: activeLoot, moneyPool: activeMoney }, contracts_config: { enabled: document.getElementById('cfg-contracts-toggle').checked, pool: activeContracts },
-            team_config: { maxPlayers: parseInt(document.getElementById('cfg-team-size').value) || 4 },
-            medic_config: { active: document.getElementById('cfg-medic-toggle').checked, bleedout_time: parseInt(document.getElementById('cfg-medic-bleedout').value) || 60, maxCures: parseInt(document.getElementById('cfg-medic-cures').value) || 2, maxRevives: parseInt(document.getElementById('cfg-medic-revives').value) || 1 },
-            gas_config: { enabled: document.getElementById('cfg-gas-toggle').checked, lethal: document.getElementById('cfg-gas-lethal').checked, survivalTime: parseInt(document.getElementById('cfg-gas-time').value) || 30, visibility: document.getElementById('cfg-gas-vis').checked, steps: parseInt(document.getElementById('cfg-gas-steps').value) || 3, interval: parseInt(document.getElementById('cfg-gas-interval').value) || 10, startTime: Date.now() }
+            status: 'running', activeField: getStr('m-field', 'campo1'), economy_active: getChk('cfg-eco-toggle', true),
+            keys_bases: getChk('cfg-keys-bases', false), keys_lockers: getChk('cfg-keys-lockers', true),
+            start_gear_config: { mode: getStr('cfg-start-mode', 'choice'), pool: masterStartPool.filter(i => i.enabled), limit: getVal('cfg-start-limit', 2) },
+            shop_config: { enabled: getChk('cfg-shops-toggle', true), pool: masterShopPool }, 
+            exfil_config: { enabled: getChk('cfg-exfil-toggle', true), numPoints: getVal('cfg-exfil-num', 2), waitTime: getVal('cfg-exfil-wait', 2), position: exfilPosMode, points: generatedExfils },
+            lockers_config: { enabled: getChk('cfg-lockers-toggle', true), pool: masterLootPool, moneyPool: masterMoneyPool }, 
+            contracts_config: { enabled: getChk('cfg-contracts-toggle', true), pool: activeContracts },
+            team_config: { maxPlayers: getVal('cfg-team-size', 4) },
+            medic_config: { active: getChk('cfg-medic-toggle', true), bleedout_time: getVal('cfg-medic-bleedout', 60), maxCures: getVal('cfg-medic-cures', 2), maxRevives: getVal('cfg-medic-revives', 1) },
+            gas_config: { enabled: getChk('cfg-gas-toggle', false), lethal: getChk('cfg-gas-lethal', true), survivalTime: getVal('cfg-gas-time', 30), visibility: getChk('cfg-gas-vis', true), steps: getVal('cfg-gas-steps', 3), interval: getVal('cfg-gas-interval', 10), startTime: Date.now() }
         });
         set(ref(db, 'dmz_lockers'), null); set(ref(db, 'dmz_streaks'), null); set(ref(db, 'dmz_logs'), null); alert("PARTITA INIZIATA.");
     };
     
-    window.masterStopGame = function() { 
-        if(confirm("Terminare Partita?")) { 
-            update(ref(db, 'dmz_settings'), { status: 'lobby' }); 
-            set(ref(db, 'dmz_players'), null); 
-        } 
-    };
+    window.masterStopGame = function() { if(confirm("Terminare Partita?")) { update(ref(db, 'dmz_settings'), { status: 'lobby' }); set(ref(db, 'dmz_players'), null); } };
 
     onValue(ref(db, 'dmz_settings'), (snapshot) => {
         let data = snapshot.val(); if(data) globalSettings = data;
@@ -416,12 +504,12 @@
             let sgs = document.getElementById('start-gear-selection'); let sgo = document.getElementById('start-gear-options'); let sgt = document.getElementById('start-gear-title');
             if (!isDeployed && globalSettings.start_gear_config) {
                 let mode = globalSettings.start_gear_config.mode; let pool = globalSettings.start_gear_config.pool || []; let limit = globalSettings.start_gear_config.limit || 5;
-                if (mode === 'none') { sgs.style.display = 'none'; } 
-                else if (mode === 'fixed') { sgs.style.display = 'block'; sgt.innerText = "EQUIPAGGIAMENTO ASSEGNATO:"; sgo.innerHTML = pool.map(i => `<div style="color:#0cf; font-size:12px;">- ${i.name}</div>`).join(''); } 
-                else if (mode === 'choice') { sgs.style.display = 'block'; sgt.innerText = `SELEZIONA EQUIP. EXTRA (Max ${limit}):`; sgo.innerHTML = pool.map((i, idx) => `<label style="color:#0cf; font-size:12px; display:flex; align-items:center; gap:5px;"><input type="checkbox" class="start-gear-cb" value="${idx}" style="transform:scale(1.2);"> ${i.name}</label>`).join(''); }
-            } else { sgs.style.display = 'none'; }
+                if (mode === 'none') { if(sgs) sgs.style.display = 'none'; } 
+                else if (mode === 'fixed') { if(sgs) sgs.style.display = 'block'; if(sgt) sgt.innerText = "EQUIPAGGIAMENTO ASSEGNATO:"; if(sgo) sgo.innerHTML = pool.map(i => `<div style="color:#0cf; font-size:12px;">- ${i.name}</div>`).join(''); } 
+                else if (mode === 'choice') { if(sgs) sgs.style.display = 'block'; if(sgt) sgt.innerText = `SELEZIONA EQUIP. EXTRA (Max ${limit}):`; if(sgo) sgo.innerHTML = pool.map((i, idx) => `<label style="color:#0cf; font-size:12px; display:flex; align-items:center; gap:5px;"><input type="checkbox" class="start-gear-cb" value="${idx}" style="transform:scale(1.2);"> ${i.name}</label>`).join(''); }
+            } else { if(sgs) sgs.style.display = 'none'; }
         } else {
-            sl.innerText = "🔴 IN ATTESA DEL MASTER"; sl.className = "status-label"; bd.style.display = "none"; document.getElementById('start-gear-selection').style.display = 'none';
+            sl.innerText = "🔴 IN ATTESA DEL MASTER"; sl.className = "status-label"; bd.style.display = "none"; let sgs = document.getElementById('start-gear-selection'); if(sgs) sgs.style.display = 'none';
             if (isDeployed) { alert("Partita Terminata!"); window.location.reload(); }
         }
         if (isDeployed) { document.getElementById('hud-economy-box').style.display = globalSettings.economy_active ? 'flex' : 'none'; getDatabase()._root && get(ref(db, 'dmz_players')); }
@@ -436,8 +524,7 @@
     });
 
     window.openStash = function() {
-        let n = document.getElementById('p-name').value.trim().toUpperCase();
-        if(!n) return alert("Inserisci il tuo Nome Operatore per accedere al magazzino.");
+        let n = document.getElementById('p-name').value.trim().toUpperCase(); if(!n) return alert("Inserisci il tuo Nome Operatore per accedere al magazzino.");
         myName = n; let safeName = myName.replace(/[^A-Z0-9]/g, '');
         get(ref(db, 'dmz_stash/' + safeName)).then((snap) => {
             myStash = snap.val() || { cash: 0, items: [] }; if(!myStash.items) myStash.items = [];
@@ -446,8 +533,8 @@
     }
 
     function renderStashUI() {
-        let sm = document.getElementById('stash-money-box'); sm.innerHTML = `<span style="color:#8f8; font-weight:bold;">💵 $${myStash.cash}</span> <button class="locker-btn" style="float:right;" onclick="transferMoney('TO_LOADOUT')">PRELEVA</button>`;
-        let lm = document.getElementById('stash-loadout-money'); lm.innerHTML = `<span style="color:#8f8; font-weight:bold;">💵 $${myCash}</span> <button class="locker-btn" style="float:right; background:#050;" onclick="transferMoney('TO_STASH')">DEPOSITA</button>`;
+        document.getElementById('stash-money-box').innerHTML = `<span style="color:#8f8; font-weight:bold;">💵 $${myStash.cash}</span> <button class="locker-btn" style="float:right;" onclick="transferMoney('TO_LOADOUT')">PRELEVA</button>`;
+        document.getElementById('stash-loadout-money').innerHTML = `<span style="color:#8f8; font-weight:bold;">💵 $${myCash}</span> <button class="locker-btn" style="float:right; background:#050;" onclick="transferMoney('TO_STASH')">DEPOSITA</button>`;
         let si = document.getElementById('stash-items-box'); si.innerHTML = "";
         if (myStash.items.length === 0) si.innerHTML = "<div style='color:#555; font-size:12px; padding:5px;'>Magazzino vuoto.</div>";
         myStash.items.forEach((it, i) => { let v = it.value > 0 ? `$${it.value}` : "Cons."; let u = it.uses !== undefined ? ` [${it.uses}/3]` : ""; let sellBtn = it.value > 0 ? `<button class="locker-btn" style="background:#550; border-color:#ff0; color:#ff0; margin-right:5px;" onclick="sellStashItem(${i})">VENDI</button>` : ""; si.innerHTML += `<div class="locker-item" style="border-color:#0cf;"><span>${it.name}${u} <span style="color:#aaa;">(${v})</span></span><div>${sellBtn}<button class="locker-btn" onclick="equipStashItem(${i})">PRENDI</button></div></div>`; });
@@ -463,22 +550,37 @@
     window.unequipStashItem = function(idx) { let it = myBackpack.splice(idx, 1)[0]; myStash.items.push(it); saveStashState(); renderStashUI(); };
     window.closeStash = function() { document.getElementById('stash-modal').style.display = 'none'; };
 
+    window.openShop = function() {
+        if (!globalSettings.shop_config || !globalSettings.shop_config.enabled) return alert("Negozio chiuso.");
+        const bCont = document.getElementById('shop-items-container'); bCont.innerHTML = ""; 
+        let pool = globalSettings.shop_config.pool || [];
+        pool.forEach((item, idx) => { bCont.innerHTML += `<div class="locker-item" style="border-color:#0aa; flex-direction:column; align-items:flex-start;"><span>${item.name}</span><div style="width:100%; display:flex; justify-content:space-between; margin-top:5px;"><span style="color:#8f8;">$${item.price}</span><button class="locker-btn" onclick="buyItem(${idx})">COMPRA</button></div></div>`; });
+        
+        const sCont = document.getElementById('shop-sell-container'); sCont.innerHTML = "";
+        myBackpack.forEach((item, idx) => { let sellVal = item.value ? Math.floor(item.value/2) : 0; if(sellVal > 0) sCont.innerHTML += `<div class="locker-item" style="border-color:#f00; flex-direction:column; align-items:flex-start;"><span>${item.name}</span><div style="width:100%; display:flex; justify-content:space-between; margin-top:5px;"><span style="color:#ff0;">+$${sellVal}</span><button class="locker-btn" style="background:#500; border-color:#f00; color:#fff;" onclick="sellBackpackItem(${idx}, ${sellVal})">VENDI</button></div></div>`; });
+        if(sCont.innerHTML === "") sCont.innerHTML = "<div style='color:#555; font-size:10px; text-align:center;'>Zaino vuoto o nessun oggetto di valore.</div>";
+
+        document.getElementById('shop-modal').style.display = 'flex';
+    };
+    window.buyItem = function(idx) { let item = globalSettings.shop_config.pool[idx]; if (myCash >= item.price) { if(myBackpack.length >= 5) return alert("Zaino Pieno!"); myCash -= item.price; let nIt = {...item}; if(nIt.name.includes("CHIAVE")) nIt.uses = 3; myBackpack.push(nIt); updateEconomyHUD(); window.openShop(); logEvent(`🛒 ${myName} ha acquistato ${item.name}.`); } else alert("Fondi insufficienti!"); };
+    window.sellBackpackItem = function(idx, val) { myCash += val; myBackpack.splice(idx, 1); updateEconomyHUD(); window.openShop(); };
+    window.closeShop = function() { document.getElementById('shop-modal').style.display = 'none'; };
+
     let currentLockerCode = null; let currentLockerData = null; let currentLockerType = 'LOCKER';
     function openLockerUI(code, data, type) {
         currentLockerCode = code; currentLockerData = data; currentLockerType = type;
-        let title = `ARMADIETTO ${code}`; let subTitle = `CASSA`;
-        if (code.startsWith("DROP_")) { title = "CASSA EQUIPAGGIAMENTO"; subTitle = "DROP"; }
-        if (type === 'PLAYER') { title = `ZAINO OPERATORE`; subTitle = "NEMICO"; }
-        document.getElementById('locker-title').innerText = title; document.getElementById('locker-left-title').innerText = subTitle; renderLockerUI(); document.getElementById('locker-modal').style.display = 'flex';
+        document.getElementById('locker-title').innerText = (type==='PLAYER') ? `ZAINO OPERATORE` : `CASSA ${code}`; 
+        document.getElementById('locker-left-title').innerText = (type==='PLAYER') ? "NEMICO" : "CONTENUTO"; 
+        renderLockerUI(); document.getElementById('locker-modal').style.display = 'flex';
     }
 
     function renderLockerUI() {
         let lMoney = document.getElementById('locker-money-box');
         if (currentLockerData.money > 0) { lMoney.innerHTML = `<span style="color:#8f8; font-weight:bold;">💵 $${currentLockerData.money}</span> <button class="locker-btn" style="float:right;" onclick="takeMoney()">PRELEVA</button>`; } else { lMoney.innerHTML = `<span style="color:#555;">💵 Nessun contante</span>`; }
         let lItems = document.getElementById('locker-items-box'); lItems.innerHTML = "";
-        if (!currentLockerData.items || currentLockerData.items.length === 0) { lItems.innerHTML = "<div style='color:#555; font-size:12px; padding:5px;'>Vuoto.</div>"; } else { currentLockerData.items.forEach((it, i) => { let v = it.value > 0 ? `$${it.value}` : "Cons."; let u = it.uses !== undefined ? ` [${it.uses}/3 usi]` : ""; lItems.innerHTML += `<div class="locker-item"><span>${it.name}${u} <span style="color:#aaa;">(${v})</span></span><button class="locker-btn" onclick="takeItem(${i})">PRENDI</button></div>`; }); }
+        if (!currentLockerData.items || currentLockerData.items.length === 0) { lItems.innerHTML = "<div style='color:#555; font-size:12px; padding:5px;'>Vuoto.</div>"; } else { currentLockerData.items.forEach((it, i) => { let v = it.value > 0 ? `$${it.value}` : "Cons."; lItems.innerHTML += `<div class="locker-item"><span>${it.name} <span style="color:#aaa;">(${v})</span></span><button class="locker-btn" onclick="takeItem(${i})">PRENDI</button></div>`; }); }
         let bpBox = document.getElementById('locker-backpack-box'); bpBox.innerHTML = "";
-        if (myBackpack.length === 0) { bpBox.innerHTML = "<div style='color:#555; font-size:12px; padding:5px;'>Zaino vuoto.</div>"; } else { myBackpack.forEach((it, i) => { let v = it.value > 0 ? `$${it.value}` : "Cons."; let u = it.uses !== undefined ? ` [${it.uses}/3 usi]` : ""; bpBox.innerHTML += `<div class="locker-item" style="border-color:#8f8;"><span>${it.name}${u} <span style="color:#aaa;">(${v})</span></span><button class="locker-btn" style="background:#050; border-color:#0f0;" onclick="depositItem(${i})">DEPOSITA</button></div>`; }); }
+        myBackpack.forEach((it, i) => { bpBox.innerHTML += `<div class="locker-item" style="border-color:#8f8;"><span>${it.name}</span><button class="locker-btn" style="background:#050; border-color:#0f0;" onclick="depositItem(${i})">DEPOSITA</button></div>`; });
     }
     function saveLockerState() { if (currentLockerType === 'PLAYER') { update(ref(db, `dmz_players/${currentLockerCode}`), { cash: currentLockerData.money, backpack: currentLockerData.items || [] }); } else { update(ref(db, `dmz_lockers/${currentLockerCode}`), currentLockerData); } }
     window.takeMoney = function() { myCash += currentLockerData.money; currentLockerData.money = 0; updateEconomyHUD(); saveLockerState(); renderLockerUI(); };
@@ -486,8 +588,8 @@
     window.depositItem = function(idx) { let it = myBackpack.splice(idx, 1)[0]; if(!currentLockerData.items) currentLockerData.items = []; currentLockerData.items.push(it); updateEconomyHUD(); saveLockerState(); renderLockerUI(); };
     window.closeLocker = function() { document.getElementById('locker-modal').style.display = 'none'; currentLockerCode = null; currentLockerData = null; };
 
-    function generateLockerContent() {
-        let money = 0, items = []; let pMoney = globalSettings.lockers_config.moneyPool; let pItems = globalSettings.lockers_config.pool;
+    function generateLockerContent(isRare) {
+        let money = 0, items = []; let pMoney = globalSettings.lockers_config.moneyPool; let pItems = isRare ? masterRareLootPool : globalSettings.lockers_config.pool;
         if (globalSettings.economy_active && pMoney && pMoney.length > 0) { let rM = Math.random() * 100, cM = 0; for(let m of pMoney) { cM += m.chance; if(rM <= cM){ money = m.amount; break; } } }
         if (pItems && pItems.length > 0) { let rI = Math.random() * 100, cI = 0; for(let i of pItems) { cI += i.chance; if(rI <= cI){ if(i.name !== "VUOTO") { let newItem = { ...i }; if (newItem.name.includes("CHIAVE")) newItem.uses = 3; items.push(newItem); } break; } } }
         return { money, items };
@@ -526,16 +628,15 @@
     };
 
     function consumeKey(targetCode) {
-        if (!globalSettings.keys_active) return true; 
-        let targetKeyName = `CHIAVE ${targetCode}`; let specificIdx = myBackpack.findIndex(i => i.name === targetKeyName); let univIdx = myBackpack.findIndex(i => i.name === "CHIAVE UNIVERSALE"); let idxToUse = specificIdx > -1 ? specificIdx : univIdx;
-        if (idxToUse > -1) {
-            let key = myBackpack[idxToUse]; if (key.uses === undefined) key.uses = 3;
-            if (confirm(`Serratura bloccata. Usare ${key.name}?\n(Usi rimanenti: ${key.uses}/3)`)) {
-                key.uses -= 1; if (key.uses <= 0) { myBackpack.splice(idxToUse, 1); alert(`Porta sbloccata!\nLa ${key.name} si è rotta.`); } else { alert(`Porta sbloccata!\nUsi: ${key.uses}/3.`); }
+        let univIdx = myBackpack.findIndex(i => i.name === "CHIAVE UNIVERSALE"); 
+        if (univIdx > -1) {
+            let key = myBackpack[univIdx]; if (key.uses === undefined) key.uses = 3;
+            if (confirm(`Serratura bloccata. Usare CHIAVE UNIVERSALE?\n(Usi rimanenti: ${key.uses}/3)`)) {
+                key.uses -= 1; if (key.uses <= 0) { myBackpack.splice(univIdx, 1); alert(`Sbloccato!\nLa chiave si è rotta.`); } else { alert(`Sbloccato!\nUsi: ${key.uses}/3.`); }
                 updateEconomyHUD(); return true;
             } else return false;
         }
-        alert(`ACCESSO NEGATO: Serve CHIAVE ${targetCode} o UNIVERSALE.`); return false;
+        alert(`ACCESSO NEGATO: Serve CHIAVE UNIVERSALE.`); return false;
     }
 
     let actionTargetCode = null; let actionTargetData = null;
@@ -575,18 +676,29 @@
         
         if (code.startsWith('A')) {
             if (!globalSettings.lockers_config || !globalSettings.lockers_config.enabled) return alert("Armadietti disattivati.");
-            let num = parseInt(code.replace('A', '')) || 0; if (num >= 50 && globalSettings.keys_active) { if (!consumeKey(code)) return; }
-            get(ref(db, `dmz_lockers/${code}`)).then((snap) => { let lockerData = snap.val(); if (!lockerData) { lockerData = generateLockerContent(); update(ref(db, `dmz_lockers/${code}`), lockerData); } openLockerUI(code, lockerData, 'LOCKER'); });
+            let isRare = globalSettings.keys_lockers;
+            if (isRare) { if (!consumeKey(code)) return; }
+            get(ref(db, `dmz_lockers/${code}`)).then((snap) => { let lockerData = snap.val(); if (!lockerData) { lockerData = generateLockerContent(isRare); update(ref(db, `dmz_lockers/${code}`), lockerData); } openLockerUI(code, lockerData, 'LOCKER'); });
         } 
         else if (code.startsWith('B')) {
             let baseExists = activeBases.find(b => b.id === code); if (!baseExists) return alert(`ERRORE: Base ${code} fuori area.`);
-            if (globalSettings.keys_active) { if (!consumeKey(code)) return; }
+            if (globalSettings.keys_bases) { if (!consumeKey(code)) return; }
+            
             if (myContract) {
+                if (myContract.type === 'NUKE' && myContract.targetId === code && myContract.state === 'FETCH') {
+                    if(myBackpack.length >= 5) return alert("Devi avere 1 slot libero per l'URANIO!"); alert("Materiale Nucleare recuperato! Estrai in sicurezza!");
+                    myBackpack.push({name: "BARRE DI URANIO", value: 12000}); myContract.state = 'DELIVER'; updateEconomyHUD(); logEvent(`☢️ Materiale nucleare messo in sicurezza.`);
+                    if(window.contractCircle) { map.removeLayer(window.contractCircle); window.contractCircle = null; } return;
+                }
                 if (myContract.type === 'INTEL' && myContract.targetId === code && myContract.state === 'FETCH') {
                     if(myBackpack.length >= 5) return alert("Devi avere 1 slot libero per i DATI SEGRETI!"); alert("Dati Segreti recuperati! Estrai (C/E)!");
-                    myBackpack.push({name: "DATI SEGRETI", value: 8000}); myContract.state = 'DELIVER'; updateEconomyHUD(); logEvent(`💾 Dati recuperati in ${baseExists.name}.`); return;
+                    myBackpack.push({name: "DATI SEGRETI", value: 8000}); myContract.state = 'DELIVER'; updateEconomyHUD(); logEvent(`💾 Dati recuperati in ${baseExists.name}.`); 
+                    if(window.contractCircle) { map.removeLayer(window.contractCircle); window.contractCircle = null; } return;
                 }
-                if (myContract.type === 'DESTROY' && myContract.targetId === code && myContract.state === 'GOTO') { alert("Bomba innescata! Difendete per 7 minuti."); myContract.state = 'ARMED'; myContract.endTime = Date.now() + (7 * 60000); logEvent(`💣 SQUADRA ${myTeam} ha innescato ordigno in ${baseExists.name}.`); return; }
+                if (myContract.type === 'DESTROY' && myContract.targetId === code && myContract.state === 'GOTO') { 
+                    alert("Bomba innescata! Difendete per 7 minuti."); myContract.state = 'ARMED'; myContract.endTime = Date.now() + (7 * 60000); logEvent(`💣 SQUADRA ${myTeam} ha innescato ordigno.`); 
+                    if(window.contractCircle) { map.removeLayer(window.contractCircle); window.contractCircle = null; } return; 
+                }
                 return alert("Hai già un altro contratto in corso.");
             }
             if (globalSettings.contracts_config && globalSettings.contracts_config.enabled) {
@@ -594,16 +706,20 @@
                 if (pool && pool.length > 0) {
                     let randomContract = pool[Math.floor(Math.random() * pool.length)];
                     if (confirm(`BASE ${code} SBLOCCATA.\nCONTRATTO DISPONIBILE: "${randomContract}".\nAccettare?`)) { 
-                        if (randomContract === 'INTEL') { let pB = activeBases.filter(b => b.id !== code); if(pB.length===0) return alert("Nessuna Base Intel."); myContract = { type: 'INTEL', targetId: pB[Math.floor(Math.random() * pB.length)].id, state: 'FETCH' }; logEvent(`📜 Sq. ${myTeam} avvia RECUPERO DATI.`); }
-                        else if (randomContract === 'DESTROY') { let pB = activeBases.filter(b => b.id !== code); if(pB.length===0) return alert("Nessuna Base Scorte."); myContract = { type: 'DESTROY', targetId: pB[Math.floor(Math.random() * pB.length)].id, state: 'GOTO' }; logEvent(`📜 Sq. ${myTeam} avvia DISTRUZIONE SCORTE.`); }
-                        else if (randomContract === 'CARGO') { if(myBackpack.length > 2) return alert("Servono 3 slot liberi!"); myBackpack.push({name: "CARICO PESANTE", value: 0}); myBackpack.push({name: "CARICO PESANTE", value: 0}); myBackpack.push({name: "CARICO PESANTE", value: 15000}); myContract = { type: 'CARGO', state: 'DELIVER' }; updateEconomyHUD(); logEvent(`📜 Sq. ${myTeam} sta trasportando CARICO PESANTE.`); }
-                        else if (randomContract === 'HUNT' || randomContract === 'HVT') {
+                        if (randomContract === 'INTEL' || randomContract === 'DESTROY' || randomContract === 'NUKE') { 
+                            let pB = activeBases.filter(b => b.id !== code); if(pB.length===0) return alert("Nessuna Base libera."); 
+                            let targetBase = pB[Math.floor(Math.random() * pB.length)];
+                            myContract = { type: randomContract, targetId: targetBase.id, targetLat: targetBase.lat, targetLng: targetBase.lng, state: randomContract==='DESTROY'?'GOTO':'FETCH' }; 
+                            if(randomContract === 'NUKE') logEvent(`☢️ Sq. ${myTeam} cerca Materiale Nucleare.`);
+                            else logEvent(`📜 Sq. ${myTeam} avvia ${randomContract}.`); 
+                        }
+                        else if (randomContract === 'CARGO') { if(myBackpack.length > 2) return alert("Servono 3 slot liberi!"); myBackpack.push({name: "CARICO PESANTE", value: 0}); myBackpack.push({name: "CARICO PESANTE", value: 0}); myBackpack.push({name: "CARICO PESANTE", value: 15000}); myContract = { type: 'CARGO', state: 'DELIVER' }; updateEconomyHUD(); logEvent(`📜 Sq. ${myTeam} trasporta CARICO PESANTE.`); }
+                        else if (randomContract === 'HUNT') {
                             get(ref(db, 'dmz_players')).then((snap) => {
                                 let players = snap.val() || {}; let enemies = Object.keys(players).filter(k => players[k].team !== myTeam && players[k].status === 'active');
-                                if (enemies.length === 0) return alert("Nessun nemico vivo in campo per la caccia.");
+                                if (enemies.length === 0) return alert("Nessun nemico vivo in campo.");
                                 let target = enemies[Math.floor(Math.random() * enemies.length)];
-                                myContract = { type: 'HUNT', targetId: target, state: 'HUNTING', endTime: Date.now() + (5 * 60000) }; alert(`Contratto accettato! Dai la caccia alla SQUADRA ${players[target].team}. Guarda la mappa!`);
-                                logEvent(`🎯 CACCIA ALLA SQUADRA avviata contro la ${players[target].team}.`);
+                                myContract = { type: 'HUNT', targetId: target, state: 'HUNTING', endTime: Date.now() + (5 * 60000) }; alert(`Contratto accettato! Dai la caccia alla SQUADRA ${players[target].team}.`); logEvent(`🎯 CACCIA ALLA SQUADRA contro la ${players[target].team}.`);
                             });
                         }
                     }
@@ -612,18 +728,13 @@
         } 
         else if (code.startsWith('C') || code.startsWith('E')) {
             if (globalSettings.exfil_config && globalSettings.exfil_config.enabled) {
-                let isValidExfil = currentExfilPoints.some(ex => (ex.id === code) || (ex.label && ex.label.includes(code)));
-                if (!isValidExfil && globalSettings.exfil_config.position === 'random') return alert(`Il punto ${code} non è un'estrazione attiva in questa partita!`);
                 if(exfilTimerEnd) return alert("Hai già chiamato un elicottero!");
                 let waitMins = globalSettings.exfil_config.waitTime || 0;
-                if(waitMins > 0) { exfilTimerEnd = Date.now() + (waitMins * 60000); alert(`Elicottero in arrivo a ${code}! Difendi l'area per ${waitMins} minuti.`); update(push(ref(db, 'dmz_pings')), { team: myTeam, lat: myMarker.getLatLng().lat, lng: myMarker.getLatLng().lng, sender: "ELICOTTERO CHIAMATO", timestamp: Date.now() }); logEvent(`🚁 ELICOTTERO richiesto al punto ${code}.`); } else { doExfil(); }
+                if(waitMins > 0) { exfilTimerEnd = Date.now() + (waitMins * 60000); alert(`Elicottero in arrivo! Difendi l'area per ${waitMins} minuti.`); update(push(ref(db, 'dmz_pings')), { team: myTeam, lat: myMarker.getLatLng().lat, lng: myMarker.getLatLng().lng, sender: "ELICOTTERO CHIAMATO", timestamp: Date.now() }); logEvent(`🚁 ELICOTTERO richiesto.`); } else { doExfil(); }
             } else alert("Elicottero non disponibile.");
         } 
         else if (code.startsWith('D')) {
-            if (!globalSettings.shop_config || !globalSettings.shop_config.enabled) return alert("Negozio chiuso.");
-            const cont = document.getElementById('shop-items-container'); cont.innerHTML = ""; let pool = globalSettings.shop_config.pool || [];
-            if(pool.length === 0) { cont.innerHTML = "<div style='color:#888;'>Negozio vuoto.</div>"; }
-            pool.forEach((item, idx) => { cont.innerHTML += `<div class="shop-item"><span>${item.name}</span><div style="display:flex; align-items:center; gap:10px;"><span style="color:#8f8;">$${item.price}</span><button class="shop-btn" onclick="buyItem(${idx})">COMPRA</button></div></div>`; }); document.getElementById('shop-modal').style.display = 'flex';
+            window.openShop();
         }
         else if (code.startsWith('OP_')) {
             if (code === myId) return alert("Non puoi interagire con te stesso!");
@@ -646,6 +757,7 @@
     function doExfil() {
         let contractReward = 0; let hI = myBackpack.findIndex(i => i.name === "DATI SEGRETI"); if (hI > -1 && myContract && myContract.type === 'INTEL') { contractReward += 8000; alert("CONTRATTO INTEL COMPLETATO! +$8000"); myContract = null; }
         let hC = myBackpack.findIndex(i => i.name === "CARICO PESANTE"); if (hC > -1 && myContract && myContract.type === 'CARGO') { contractReward += 15000; alert("CONTRATTO CARGO COMPLETATO! +$15000"); myContract = null; myBackpack = myBackpack.filter(i => i.name !== "CARICO PESANTE"); }
+        let hN = myBackpack.findIndex(i => i.name === "BARRE DI URANIO"); if (hN > -1 && myContract && myContract.type === 'NUKE') { contractReward += 20000; alert("MATERIALE NUCLEARE ESTRATTO! +$20000"); myContract = null; }
         let totalValue = contractReward; myBackpack.forEach(i => totalValue += (i.value||0)); myCash += totalValue; 
         
         let safeName = myName.replace(/[^A-Z0-9]/g, '');
@@ -653,9 +765,9 @@
             let stash = snap.val() || { cash: 0, items: [] }; stash.cash += myCash; if(!stash.items) stash.items = []; stash.items = stash.items.concat(myBackpack);
             update(ref(db, 'dmz_stash/' + safeName), stash).then(() => {
                 myCash = 0; myBackpack = []; updateEconomyHUD();
-                alert(`ESTRAZIONE COMPLETATA!\nGuadagno Raid: $${totalValue}\nTutto l'equipaggiamento e i fondi sono stati salvati nel tuo Magazzino.`); document.getElementById('obj-status').innerText = `✅ ESTRATTO IN SICUREZZA`; document.getElementById('obj-status').style.color = "#0f0"; setStatus('exfil'); logEvent(`✅ SQUADRA ${myTeam} è stata esfiltrata con successo.`);
+                alert(`ESTRAZIONE COMPLETATA!\nGuadagno Raid: $${totalValue}\nTutto l'equipaggiamento è stato salvato nel tuo Magazzino.`); document.getElementById('obj-status').innerText = `✅ ESTRATTO`; document.getElementById('obj-status').style.color = "#0f0"; setStatus('exfil'); logEvent(`✅ SQUADRA ${myTeam} è stata esfiltrata.`);
             });
-        }).catch(err => { alert("Errore di salvataggio Stash: " + err); });
+        }).catch(err => { alert("Errore di salvataggio: " + err); });
     }
 
     window.deploy = function() {
@@ -675,32 +787,36 @@
                 
                 activeBases = masterBasesDB.filter(b => isInsideArea([b.lat, b.lng], activePlayAreaCoords));
                 
+                // V43 FailSafe logic for start gear assignments
+                if (globalSettings.start_gear_config) {
+                    let mode = globalSettings.start_gear_config.mode; let pool = globalSettings.start_gear_config.pool || []; let limit = globalSettings.start_gear_config.limit || 5;
+                    if (mode === 'fixed') { pool.forEach(i => { let ni = { ...i }; if (ni.name.includes("CHIAVE")) ni.uses = 3; if (myBackpack.length < 5) myBackpack.push(ni); }); } 
+                    else if (mode === 'choice') { let cbs = document.querySelectorAll('.start-gear-cb:checked'); if (cbs.length > limit) return alert(`ERRORE: Max ${limit} oggetti aggiuntivi!`); cbs.forEach(cb => { let ni = { ...pool[parseInt(cb.value)] }; if (ni.name.includes("CHIAVE")) ni.uses = 3; if (myBackpack.length < 5) myBackpack.push(ni); }); }
+                }
+
                 let maxC = globalSettings.medic_config ? globalSettings.medic_config.maxCures : 2; let maxR = globalSettings.medic_config ? globalSettings.medic_config.maxRevives : 1;
                 document.getElementById('login-screen').style.display = 'none'; document.getElementById('hud-top-container').style.display = 'flex'; document.getElementById('hud-status').style.display = 'flex'; document.getElementById('hud-bottom').style.display = 'flex'; document.getElementById('crosshair').style.display = 'block'; 
                 
                 let sgs = document.getElementById('start-gear-selection'); if(sgs) sgs.style.display = 'none';
                 
                 isDeployed = true; document.getElementById('hud-economy-box').style.display = globalSettings.economy_active ? 'flex' : 'none'; updateEconomyHUD(); 
+                document.getElementById('team-name-hud').innerText = myTeam;
                 
                 update(ref(db, 'dmz_players/' + myId), { name: myName, team: myTeam, status: 'active', cash: myCash, backpack: myBackpack, cures_left: maxC, revives_left: maxR, lastUpdate: Date.now() });
                 
                 initMap(); startGPS(); setupNetworking(); logEvent(`🪂 ${myName} (Sq. ${myTeam}) schierato nell'AO.`);
-            }).catch(err => {
-                alert("Errore di connessione a Firebase: " + err.message);
-            });
-        } catch (error) {
-            alert("ERRORE DI SISTEMA INTERNO: " + error.message);
-        }
+            }).catch(err => { alert("Errore di connessione a Firebase: " + err.message); });
+        } catch (error) { alert("ERRORE DI SISTEMA INTERNO: " + error.message); }
     };
 
     window.manualSetStatus = function(newStatus) {
-        if (myStatus === 'dead') return alert("Sei eliminato. Non puoi cambiare stato da solo.");
-        if (myStatus === 'down' && newStatus === 'active') return alert("Sei ferito e in dissanguamento! Curati o attendi un compagno.");
+        if (myStatus === 'dead') return alert("Sei eliminato. Non puoi cambiare stato.");
+        if (myStatus === 'down' && newStatus === 'active') return alert("Sei ferito! Curati o attendi un medico.");
         setStatus(newStatus);
     };
 
     window.setStatus = function(newStatus, btnElement) {
-        if (myStatus === 'down' && newStatus === 'dead') alert("Eliminato. Attendi alleato/nemico per rianimazione.");
+        if (myStatus === 'down' && newStatus === 'dead') alert("Eliminato. Attendi rianimazione.");
         myStatus = newStatus; update(ref(db, 'dmz_players/' + myId), { status: myStatus }); document.querySelectorAll('.btn-status').forEach(btn => { btn.style.borderColor = "#555"; btn.style.color = "#fff"; });
         if(!btnElement) btnElement = document.getElementById('btn-status-' + newStatus); 
         if(btnElement) { btnElement.style.borderColor = (newStatus==='active')?"#0f0":(newStatus==='down')?"#ffa500":"#aaa"; btnElement.style.color = btnElement.style.borderColor; }
@@ -712,15 +828,8 @@
     };
 
     window.toggleMapRotation = function() {
-        let mapEl = document.getElementById('map');
-        isMapRotated = !isMapRotated;
-        if(isMapRotated) {
-            mapEl.classList.add('rotated-east');
-            logEvent("🧭 Mappa ruotata a Est.");
-        } else {
-            mapEl.classList.remove('rotated-east');
-            logEvent("🧭 Mappa allineata a Nord.");
-        }
+        let mapEl = document.getElementById('map'); isMapRotated = !isMapRotated;
+        if(isMapRotated) { mapEl.classList.add('rotated-east'); logEvent("🧭 Mappa ruotata a Est."); } else { mapEl.classList.remove('rotated-east'); logEvent("🧭 Mappa allineata a Nord."); }
         setTimeout(() => { map.invalidateSize(); centerMap(); }, 300);
     };
 
@@ -731,22 +840,14 @@
 
         activeBases.forEach(b => { 
             let baseLabel = b.name ? b.name : b.id;
-            let iconHtml = `
-                <div class="base-marker-container">
-                    <div class="base-circle">${b.id.replace('B','')}</div>
-                    <div class="base-name">${baseLabel}</div>
-                </div>`;
+            let iconHtml = `<div class="base-marker-container"><div class="base-circle">${b.id.replace('B','')}</div><div class="base-name">${baseLabel}</div></div>`;
             L.marker([b.lat, b.lng], {icon: L.divIcon({ className: 'base-icon', html: iconHtml, iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(map); 
         });
         
         if (globalSettings.exfil_config && globalSettings.exfil_config.enabled) {
             let maxPoints = globalSettings.exfil_config.numPoints || currentExfilPoints.length;
             currentExfilPoints.slice(0, maxPoints).forEach(ex => { 
-                let iconHtml = `
-                <div class="base-marker-container">
-                    <div class="exfil-circle">🚁</div>
-                    <div class="exfil-name">${ex.label}</div>
-                </div>`;
+                let iconHtml = `<div class="base-marker-container"><div class="exfil-circle">🚁</div><div class="exfil-name">${ex.label}</div></div>`;
                 L.marker([ex.lat, ex.lng], {icon: L.divIcon({ className: 'exfil-icon', html: iconHtml, iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(map); 
             });
         }
@@ -755,8 +856,7 @@
             if(isTargetingAirstrike) {
                 isTargetingAirstrike = false; document.getElementById('targeting-overlay').style.display = 'none'; document.getElementById('map').style.cursor = ''; myBackpack.splice(window.airstrikeIdxPending, 1); updateEconomyHUD();
                 update(ref(db, `dmz_streaks/airstrikes/STRK_${Math.floor(Math.random()*9999)}`), { lat: e.latlng.lat, lng: e.latlng.lng, timestamp: Date.now(), team: myTeam, sender: myName });
-                alert("Attacco aereo in arrivo! Impatto tra 15 secondi.");
-                logEvent(`✈️ ATTACCO AEREO sganciato dalla Sq. ${myTeam}.`);
+                alert("Attacco aereo in arrivo! Impatto tra 15 secondi."); logEvent(`✈️ ATTACCO AEREO sganciato dalla Sq. ${myTeam}.`);
             }
         });
     }
@@ -774,7 +874,7 @@
         }, (err) => {
             let gs = document.getElementById('gps-status');
             if(gs) { gs.style.color = "#f00"; if(err.code === 1) gs.innerText = "GPS: NEGATO"; else if(err.code === 2) gs.innerText = "GPS: NO SEGNALE"; else if(err.code === 3) gs.innerText = "GPS: TIMEOUT"; }
-        }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
+        }, { enableHighAccuracy: true, maximumAge: 15000, timeout: 20000 });
     }
 
     setInterval(() => {
@@ -782,6 +882,10 @@
         
         if (exfilTimerEnd) { if (myStatus !== 'active') { exfilTimerEnd = null; } else if (Math.ceil((exfilTimerEnd - now) / 1000) <= 0) { exfilTimerEnd = null; doExfil(); } }
         if (myContract && myContract.type === 'DESTROY' && myContract.state === 'ARMED') { if (myStatus !== 'active') { myContract = null; } else if (Math.ceil((myContract.endTime - now) / 1000) <= 0) { alert("BOOM! Scorte distrutte!\n+$10000"); myCash += 10000; updateEconomyHUD(); myContract = null; logEvent(`💥 Scorte distrutte (Contratto completato).`); } }
+
+        if (myContract && (myContract.type === 'INTEL' || myContract.type === 'NUKE') && myContract.state === 'FETCH') {
+            if (!window.contractCircle) { window.contractCircle = L.circle([myContract.targetLat, myContract.targetLng], {color: '#ff0', fillColor: '#ff0', fillOpacity: 0.2, radius: 50, dashArray: '10, 10'}).addTo(map); }
+        } else if (window.contractCircle) { map.removeLayer(window.contractCircle); window.contractCircle = null; }
 
         let inGas = false; let gasRemain = 0;
         if(globalSettings.gas_config && globalSettings.gas_config.enabled) {
@@ -811,7 +915,14 @@
 
         let osText = (globalSettings.exfil_config && globalSettings.exfil_config.enabled) ? "OBIETTIVO: ESTRAZIONE" : "OBIETTIVO: SOPRAVVIVENZA"; let osColor = "#0f0";
         if (globalSettings.uav_active || localUAVActive) { osText = "⚠️ UAV ATTIVO"; osColor = "#f00"; }
-        if (myContract) { osText = `CONTRATTO ATTIVO`; osColor = "#ff0"; }
+        
+        if (myContract) { 
+            if (myContract.type === 'NUKE' && myContract.state === 'FETCH' && myMarker) {
+                let dist = Math.round(myMarker.getLatLng().distanceTo([myContract.targetLat, myContract.targetLng]));
+                if (dist <= 50) { osText = `☢️ GEIGER: ${dist}m`; osColor = "#0f0"; if(dist < 5) osText = `☢️ SCANSIONA L'ARMADIETTO QUI`; } else { osText = `VAI ALLA ZONA DI RICERCA`; osColor = "#ff0"; }
+            } else { osText = `CONTRATTO ATTIVO`; osColor = "#ff0"; }
+        }
+        
         if (myContract && myContract.type === 'DESTROY' && myContract.state === 'ARMED') { let r = Math.ceil((myContract.endTime - now) / 1000); if (r > 0) { osText = `💣 DETONAZIONE: ${r}s`; osColor = "#ff0"; } }
         if (exfilTimerEnd) { let r = Math.ceil((exfilTimerEnd - now) / 1000); if (r > 0) { osText = `🚁 ESTRAZIONE: ${r}s`; osColor = "#0ff"; } }
         if (inGas) { if (globalSettings.gas_config && globalSettings.gas_config.lethal && myStatus === 'active') { osText = `☢️ GAS: ${gasRemain}s`; osColor = "#f0f"; } else if (globalSettings.gas_config && !globalSettings.gas_config.lethal) { osText = `☢️ ZONA CONTAMINATA`; osColor = "#f0f"; } }
@@ -830,12 +941,16 @@
                 if (data.cash !== undefined && data.cash !== myCash) { myCash = data.cash; document.getElementById('txt-cash').innerText = `💵 $${myCash}`; }
                 if (data.backpack !== undefined) { myBackpack = data.backpack; document.getElementById('txt-bp').innerText = `🎒 ${myBackpack.length}/5`; } else if (myBackpack.length > 0) { myBackpack = []; document.getElementById('txt-bp').innerText = `🎒 0/5`; }
                 if (data.status === 'active' && myStatus !== 'active') { myStatus = 'active'; document.querySelectorAll('.btn-status').forEach(btn => { btn.style.borderColor = "#555"; btn.style.color = "#fff"; }); let btnElement = document.getElementById('btn-status-active'); if(btnElement) { btnElement.style.borderColor = "#0f0"; btnElement.style.color = "#0f0"; } if (bleedoutTimer) { clearTimeout(bleedoutTimer); bleedoutTimer = null; window.bleedoutEndTime = null; } alert("Sei stato curato/rianimato da un Operatore!"); }
-                if (data.team && data.team !== myTeam) { myTeam = data.team; alert("SEI STATO ASSIMILATO!\nOra fai parte della squadra " + myTeam); document.getElementById('p-team').value = myTeam; }
+                if (data.team && data.team !== myTeam) { myTeam = data.team; document.getElementById('team-name-hud').innerText = myTeam; alert("SEI STATO ASSIMILATO!\nOra fai parte della squadra " + myTeam); document.getElementById('p-team').value = myTeam; }
             }
         });
 
         onValue(ref(db, 'dmz_players'), (snap) => {
             if(!isDeployed) return; const players = snap.val() || {}; let isUAV = globalSettings.uav_active || localUAVActive;
+            
+            let teamList = []; Object.keys(players).forEach(k => { if(players[k].team === myTeam && players[k].status !== 'exfil') teamList.push(players[k].name); });
+            document.getElementById('team-list-hud').innerText = teamList.join(', ');
+
             Object.keys(markers).forEach(k => { 
                 let p = players[k]; let isGasVis = p && p.in_gas && globalSettings.gas_config && globalSettings.gas_config.visibility;
                 if(!p || p.status === 'exfil' || (p.team !== myTeam && p.status !== "dead" && !isUAV && !isGasVis && !p.has_cargo)) { map.removeLayer(markers[k]); delete markers[k]; } 
@@ -855,7 +970,7 @@
                 if (p.team === myTeam || p.status === "dead" || isUAV || isGasVis || p.has_cargo) {
                     let c = (p.team===myTeam)?"#0f0":"#f00", s = ""; 
                     if(p.status==="down"){c="#ffa500";s="🏥";} else if(p.status==="dead"){c="#555";s="💀";} else if(p.has_cargo && p.team!==myTeam){c="#ff0";s="📦";}
-                    let ic = L.divIcon({ className:'custom-icon', html:`<div style="width:20px;height:20px;background:${c};border:2px solid #000;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:12px;">${s}</div><div class="teammate-label" style="color:${c};">${p.name}</div>`, iconSize:[20,20] });
+                    let ic = L.divIcon({ className:'custom-icon', html:`<div style="width:20px;height:20px;background:${c};border:2px solid #000;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:12px; pointer-events:none;">${s}</div><div class="teammate-label" style="color:${c};">${p.name}</div>`, iconSize:[20,20] });
                     if(!markers[k]) markers[k] = L.marker([p.lat, p.lng], {icon:ic}).addTo(map); else { markers[k].setIcon(ic); markers[k].setLatLng([p.lat, p.lng]); }
                 }
             });
