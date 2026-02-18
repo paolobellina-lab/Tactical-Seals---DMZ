@@ -6,126 +6,22 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
-<title>DMZ: TACTICAL MAP v42 - PRESET MANAGER</title>
+<title>DMZ: TACTICAL MAP v43 - PLAYER TERMINAL</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 
+<link rel="stylesheet" href="style.css">
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
-<style>
-    /* STILE MILITARE/DMZ */
-    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-    
-    body { margin: 0; padding: 0; background: #000; font-family: 'Share Tech Mono', 'Courier New', monospace; overflow: hidden; color: #0f0; }
-    
-    /* SCHERMATE (LOGIN / MASTER) */
-    .full-screen-ui { position: absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle at center, #0a150a 0%, #000 100%); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-    h1 { color: #fff; text-shadow: 0 0 15px #0f0, 0 0 5px #0f0; font-size: 36px; letter-spacing: 4px; margin-bottom: 5px; text-align: center; }
-    .version-tag { color: #0a0; font-size: 14px; margin-bottom: 20px; font-weight: bold; letter-spacing: 2px; }
-    
-    .status-label { font-size: 18px; font-weight: bold; margin-bottom: 20px; padding: 10px; border: 1px solid #f00; color: #f00; text-align: center; width: 80%; max-width: 300px; background: rgba(255,0,0,0.1); clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
-    .status-label.running { border-color: #0f0; color: #0f0; background: rgba(0,255,0,0.1); }
-
-    .input-box { background: rgba(0, 20, 0, 0.8); border: 1px solid #0f0; color: #0f0; padding: 15px; margin: 8px; width: 80%; max-width: 300px; text-align: center; font-size: 16px; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); transition: 0.3s; outline: none; }
-    .input-box:focus { background: rgba(0, 40, 0, 0.9); box-shadow: 0 0 10px #0f0; }
-    .input-box::placeholder { color: #050; }
-    
-    .btn-deploy { background: linear-gradient(135deg, #004400 0%, #001100 100%); color: #0f0; border: 1px solid #0f0; padding: 15px 40px; font-size: 18px; font-family: 'Share Tech Mono', monospace; cursor: pointer; margin-top: 15px; box-shadow: 0 0 10px rgba(0,255,0,0.2); transition: 0.2s; width: 80%; max-width: 300px; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); text-transform: uppercase; letter-spacing: 1px; }
-    .btn-deploy:active { background: #0f0; color: #000; box-shadow: 0 0 20px #0f0; }
-    .btn-deploy:disabled { background: #111; border-color: #333; color: #555; box-shadow: none; cursor: not-allowed; }
-
-    .btn-master { background: transparent; border: 1px solid #555; color: #aaa; padding: 10px; margin-top: 30px; font-size: 12px; cursor: pointer; width: 60%; max-width: 200px; font-family: 'Share Tech Mono', monospace; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
-
-    /* TOGGLE E MASTER PANEL */
-    .toggle-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,20,0,0.5); padding: 12px; border: 1px solid #333; margin-top: 15px; width: 80%; max-width: 300px; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
-    .switch { position: relative; display: inline-block; width: 50px; height: 24px; flex-shrink: 0; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px); }
-    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px); }
-    input:checked + .slider { background-color: #0f0; }
-    input:checked + .slider:before { transform: translateX(26px); background-color: #000; }
-    
-    .cfg-box { background: rgba(0,10,0,0.8); border: 1px solid #444; width: 80%; max-width: 300px; padding: 15px; display: none; flex-direction: column; gap: 10px; margin-top: -5px; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); }
-    .cfg-label { color: #aaa; font-size: 11px; text-align: left; }
-    .cfg-input-edit { background: transparent; border: 1px dashed #555; color: #fff; width: 40px; text-align: center; font-family: monospace; font-size: 12px; }
-    .cfg-input-edit:focus { border-color: #0f0; outline: none; }
-
-    /* MAPPA E ROTAZIONE */
-    #map { height: 100vh; width: 100vw; z-index: 1; background: #111; position: absolute; top:0; left:0; }
-    .rotated-east { transform: rotate(-90deg); transform-origin: center center; width: 100vh !important; height: 100vw !important; position: fixed !important; top: 50% !important; left: 50% !important; margin-top: -50vw !important; margin-left: -50vh !important; }
-
-    #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(0, 255, 0, 0.6); font-size: 30px; font-weight: bold; z-index: 1000; pointer-events: none; text-shadow: 0 0 5px #000; display: none; font-family: sans-serif; }
-
-    /* EFFETTI */
-    #gas-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(200, 0, 255, 0.15); z-index: 999; display: none; pointer-events: none; box-shadow: inset 0 0 100px rgba(200,0,255,0.9); }
-    #cuav-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0, 50, 0, 0.1), rgba(0, 50, 0, 0.1) 2px, transparent 2px, transparent 4px); backdrop-filter: blur(8px) grayscale(100%); z-index: 999; display: none; pointer-events: none; }
-    #emp-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #050000; z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; color: #f00; font-family: monospace; font-size: 24px; font-weight: bold; text-align: center; text-shadow: 0 0 20px #f00; }
-    #revive-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 40, 0, 0.95); z-index: 6000; display: none; flex-direction: column; justify-content: center; align-items: center; color: #0f0; font-family: 'Share Tech Mono', monospace; font-size: 24px; text-align: center; text-shadow: 0 0 15px #0f0; }
-
-    /* HUD SUPERIORE */
-    #hud-top-container { position: absolute; top: 0; left: 0; width: 100%; z-index: 1000; display: flex; flex-direction: column; pointer-events: none; }
-    #obj-banner { width: 100%; background: rgba(0, 15, 0, 0.85); border-bottom: 2px solid #0f0; padding: 10px 0; color: #0f0; font-weight: bold; font-size: 16px; text-shadow: 0 0 8px #0f0; text-align: center; letter-spacing: 1px; backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-    
-    #team-banner { background: rgba(0,0,0,0.6); color: #fff; font-size: 10px; padding: 4px; text-align: center; border-bottom: 1px solid #555; }
-    
-    #hud-sub-top { display: flex; justify-content: space-between; padding: 10px; width: calc(100% - 20px); }
-    .hud-box { background: rgba(0, 20, 0, 0.7); border: 1px solid #0f0; padding: 6px 12px; color: #0f0; font-size: 12px; text-shadow: 0 0 5px #0f0; backdrop-filter: blur(4px); clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); box-shadow: 0 0 5px rgba(0,255,0,0.2); }
-    .hud-economy { background: linear-gradient(135deg, rgba(0,40,0,0.9) 0%, rgba(0,15,0,0.9) 100%); cursor: pointer; pointer-events: auto; font-size: 14px; font-weight: bold; }
-
-    /* FEED COMBAT LOG */
-    #combat-log { position: absolute; top: 120px; right: 10px; width: 65%; max-width: 280px; display: flex; flex-direction: column; gap: 5px; align-items: flex-end; z-index: 1000; pointer-events: none; }
-    .log-entry { background: rgba(0, 15, 0, 0.85); border-right: 3px solid #0f0; color: #fff; padding: 6px 10px; font-size: 11px; font-family: 'Share Tech Mono', monospace; text-shadow: 0 0 3px #000; clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px); animation: slideIn 0.4s ease-out; backdrop-filter: blur(2px); text-align: right; }
-    .log-entry span.time { color: #0ff; margin-right: 5px; }
-    @keyframes slideIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
-
-    /* HUD LATERALE E INFERIORE */
-    #hud-status { position: absolute; top: 130px; left: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
-    .btn-status { background: rgba(0,10,0,0.8); border: 1px solid #555; color: #fff; padding: 10px; font-family: 'Share Tech Mono', monospace; font-size: 12px; cursor: pointer; text-align: left; transition: 0.2s; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); backdrop-filter: blur(4px); pointer-events: auto; }
-    .btn-status:active { transform: scale(0.95); }
-
-    #hud-bottom { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 20px; pointer-events: auto; }
-    .action-btn { background: rgba(0,20,0,0.85); border: 2px solid #0f0; color: #0f0; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; backdrop-filter: blur(5px); box-shadow: 0 0 15px rgba(0,255,0,0.3); transition: 0.2s; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); }
-    .action-btn:active { background: #0f0; color: #000; transform: scale(0.9); box-shadow: 0 0 25px #0f0; }
-    .action-btn.btn-scanner { border-color: #0ff; color: #0ff; box-shadow: 0 0 15px rgba(0,255,255,0.4); }
-
-    /* MARKER MINIMALI */
-    .base-marker-container { position:relative; width:30px; height:30px; display:flex; justify-content:center; align-items:center; }
-    .base-circle { background:rgba(255,255,0,0.9); border:2px solid #000; border-radius:50%; width:20px; height:20px; display:flex; justify-content:center; align-items:center; color:#000; font-family:'Share Tech Mono', sans-serif; font-weight:bold; font-size:10px; box-shadow:0 0 8px #ff0; }
-    .base-name { position:absolute; top:24px; width:120px; text-align:center; color:#ff0; font-size:10px; font-weight:bold; text-shadow:1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; letter-spacing:1px; white-space:nowrap; pointer-events: none; }
-    
-    .exfil-circle { background:rgba(0,255,255,0.9); border:2px solid #000; border-radius:50%; width:24px; height:24px; display:flex; justify-content:center; align-items:center; font-size:12px; box-shadow:0 0 8px #0ff; }
-    .exfil-name { position:absolute; top:28px; width:100px; text-align:center; color:#0ff; font-size:10px; font-weight:bold; text-shadow:1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; pointer-events: none; }
-
-    .teammate-label { background: rgba(0,0,0,0.7); color: #fff; font-family: sans-serif; font-weight: bold; border-radius: 3px; padding: 2px 4px; font-size: 10px; margin-top: -38px; text-align: center; width: 100px; margin-left: -42px; border: 1px solid #555; pointer-events: none; }
-
-    /* MODALS */
-    .game-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 15, 0, 0.95); backdrop-filter: blur(8px); z-index: 3000; display: none; flex-direction: column; justify-content: center; align-items: center; border: 2px solid #0f0; box-sizing: border-box; }
-    .modal-title { color: #0ff; font-size: 26px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 15px #0ff; letter-spacing: 2px; text-transform: uppercase; text-align:center;}
-    .modal-desc { color: #0a0; font-size: 13px; margin-bottom: 20px; text-align: center; width: 85%; line-height: 1.4; }
-    .btn-close-modal { background: transparent; color: #fff; border: 1px solid #f00; padding: 12px 25px; font-size: 16px; margin-top: 25px; cursor: pointer; font-family: 'Share Tech Mono', monospace; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); transition: 0.2s; text-transform: uppercase; }
-    .btn-close-modal:active { background: #f00; color: #000; box-shadow: 0 0 15px #f00; }
-
-    #qr-reader { width: 100%; max-width: 350px; border: 2px solid #0ff; margin-bottom: 15px; background: #000; box-shadow: 0 0 20px rgba(0,255,255,0.2); clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); }
-
-    .shop-item { display:flex; justify-content:space-between; align-items:center; background:rgba(0,30,0,0.6); border:1px solid #0aa; padding:12px; margin-bottom:8px; width:90%; max-width:350px; color:#fff; font-size:14px; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
-    .shop-btn { background:rgba(0,80,0,0.8); border:1px solid #0f0; color:#0f0; padding:6px 12px; cursor:pointer; font-family: 'Share Tech Mono', monospace; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px); transition: 0.2s; }
-    .shop-btn:active { background: #0f0; color: #000; }
-    .bp-item { display:flex; flex-direction:column; background:rgba(0,20,0,0.8); border:1px dashed #0f0; padding:12px; margin-bottom:8px; width:90%; max-width:350px; color:#fff; font-size:14px; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
-    
-    .locker-panel { flex: 1; border: 1px solid #0aa; background: rgba(0,15,15,0.8); display: flex; flex-direction: column; overflow-y: auto; padding: 8px; height: 350px; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); }
-    .locker-panel h3 { margin: 0 0 10px 0; color: #0ff; font-size: 14px; text-align: center; border-bottom: 1px solid #0aa; padding-bottom: 5px; letter-spacing: 1px; }
-    .locker-item { background: rgba(0,0,0,0.6); border: 1px solid #0aa; padding: 10px; margin-bottom: 5px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; color: #ddd; clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px); }
-    .locker-btn { background: rgba(0,80,80,0.8); border: 1px solid #0ff; color: #0ff; padding: 5px 10px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 10px; clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px); transition: 0.2s;}
-    .locker-btn:active { background: #0ff; color: #000; }
-</style>
 </head>
 <body>
 
 <div id="login-screen" class="full-screen-ui">
     <h1>DMZ: DEPLOY</h1>
-    <div class="version-tag">SYSTEM v42 - PRESET MANAGER</div>
+    <div class="version-tag">PLAYER TERMINAL v43</div>
     
     <div id="status-label" class="status-label">CONNESSIONE...</div>
     
@@ -140,7 +36,7 @@
         <option value="YANKEE">SQUADRA YANKEE</option><option value="ZULU">SQUADRA ZULU</option>
     </select>
     
-    <div id="start-gear-selection" style="display:none; width:80%; max-width:300px; margin-top:15px; border:1px solid #0cf; padding:15px; background:rgba(0, 20, 30, 0.8);">
+    <div id="start-gear-selection" style="display:none; width:80%; max-width:300px; margin-top:15px; border:1px solid #0cf; padding:15px; background:rgba(0, 20, 30, 0.8); clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);">
         <div style="color:#0cf; font-size:14px; font-weight:bold; margin-bottom:15px; text-align:center;">SELEZIONA EQUIP.</div>
         <div id="start-gear-options" style="display:flex; flex-direction:column; gap:8px; max-height:120px; overflow-y:auto;"></div>
     </div>
@@ -148,67 +44,6 @@
     <button class="btn-deploy" style="background:linear-gradient(135deg, #003344 0%, #001122 100%); border-color:#0cf; box-shadow: 0 0 10px rgba(0,255,255,0.3); margin-top:10px; color:#0cf;" onclick="openStash()">🏦 ACCEDI AL MAGAZZINO</button>
     <div id="deploy-help" style="color:#ff0; font-size:12px; margin-top:15px;">Attendi l'avvio della partita dal Comando.</div>
     <button id="btn-deploy" class="btn-deploy" onclick="deploy()" style="display:none;">DISPIEGAMENTO</button>
-    <button class="btn-master" onclick="openMasterPanel()">⚙️ PANNELLO MASTER</button>
-</div>
-
-<div id="master-screen" class="full-screen-ui" style="display:none; z-index: 2500; overflow-y: auto; padding: 40px 0; justify-content: flex-start;">
-    <h1 style="color: #ff0; text-shadow: 0 0 10px #ff0; margin-top:20px;">SISTEMA MASTER PRO</h1>
-    
-    <div class="cfg-label" style="width:80%; max-width:300px; text-align:center; font-size:14px; color:#0cf; margin-top:10px;">PRESET DI GIOCO:</div>
-    <select id="config-slot" class="input-box" style="border-color: #0cf; color: #0cf; margin-top:5px;">
-        <option value="BATTLE_ROYALE">BATTLE ROYALE</option>
-        <option value="MALLOPPO">MALLOPPO</option>
-        <option value="DOMINIO">DOMINIO</option>
-        <option value="COMPLETA">COMPLETA</option>
-    </select>
-    <div style="display:flex; width:80%; max-width:300px; gap:10px; margin-bottom:30px;">
-        <button class="btn-deploy" style="padding:10px; font-size:12px; margin:0; width:50%;" onclick="saveConfig()">💾 SALVA</button>
-        <button class="btn-deploy" style="padding:10px; font-size:12px; margin:0; width:50%; background:#004;" onclick="loadConfig()">📂 CARICA</button>
-    </div>
-    <div class="cfg-label" style="width:80%; max-width:300px;">CAMPO OPERATIVO:</div>
-    <select id="m-field" class="input-box" style="border-color: #ff0; color: #ff0;"><option value="campo1">CAMPO 1: DMZ ORIGINALE</option><option value="campo2">CAMPO 2: ZONA URBANA</option><option value="campo5">CAMPO 5: TEST LOCALE</option></select>
-    
-    <div class="toggle-row"><span style="color:#ffa500; font-weight:bold;">SISTEMA MEDICO E SQUADRE 🏥</span><label class="switch"><input type="checkbox" id="cfg-medic-toggle" checked onchange="toggleMedicMenu()"><span class="slider"></span></label></div>
-    <div id="medic-settings" class="cfg-box" style="display:flex;"><div class="cfg-label" style="color:#ffa500; font-weight:bold;">MAX GIOCATORI PER SQUADRA:</div><input type="number" id="cfg-team-size" class="input-box" style="width:100%; margin:0; padding:8px;" value="4"><div class="cfg-label" style="margin-top:10px;">TEMPO DISSANGUAMENTO (SECONDI):</div><input type="number" id="cfg-medic-bleedout" class="input-box" style="width:100%; margin:0; padding:8px;" value="60"><div class="cfg-label" style="margin-top:10px;">MAX CURE CONSENTITE (DA FERITO):</div><input type="number" id="cfg-medic-cures" class="input-box" style="width:100%; margin:0; padding:8px;" value="2"><div class="cfg-label">MAX RIANIMAZIONI (DA MORTO/ASSIMILAZIONE):</div><input type="number" id="cfg-medic-revives" class="input-box" style="width:100%; margin:0; padding:8px;" value="1"></div>
-    
-    <div class="toggle-row"><span style="color:#e6e6fa; font-weight:bold;">CONTRATTI E BASI (B) 📜</span><label class="switch"><input type="checkbox" id="cfg-contracts-toggle" checked onchange="toggleContractsMenu()"><span class="slider"></span></label></div>
-    <div id="contracts-settings" class="cfg-box cfg-checkbox-list" style="display:flex;">
-        <label><input type="checkbox" class="contract-cb" value="INTEL" checked> RECUPERO DATI SEGRETI</label>
-        <label><input type="checkbox" class="contract-cb" value="DESTROY" checked> DISTRUZIONE SCORTE</label>
-        <label><input type="checkbox" class="contract-cb" value="CARGO" checked> CONSEGNA MATERIALE (DROP)</label>
-        <label><input type="checkbox" class="contract-cb" value="HUNT" checked> CACCIA ALLA SQUADRA (PvP)</label>
-        <label><input type="checkbox" class="contract-cb" value="NUKE" checked> <span style="color:#ff0;">MATERIALI NUCLEARI (Geiger)</span></label>
-        <div style="border-top:1px solid #444; margin-top:10px; padding-top:10px;">
-            <label style="color:#ffd700;"><input type="checkbox" id="cfg-keys-bases"> RICHIEDI CHIAVI PER I CONTRATTI</label>
-        </div>
-    </div>
-
-    <div class="toggle-row"><span style="color:#e6b800; font-weight:bold;">ARMADIETTI E LOOT (A) 📦</span><label class="switch"><input type="checkbox" id="cfg-lockers-toggle" checked onchange="toggleLockerMenu()"><span class="slider"></span></label></div>
-    <div id="locker-settings" class="cfg-box" style="display:flex;">
-        <label style="color:#ffd700; font-size:13px; margin-bottom:10px;"><input type="checkbox" id="cfg-keys-lockers" checked> ARMADIETTI BLOCCATI A CHIAVE (Loot Raro)</label>
-        <div class="cfg-label" style="color:#8f8; font-weight:bold;">PROBABILITÀ DENARO (Editabile):</div>
-        <div id="money-list" style="margin-top:5px; border-bottom:1px dashed #8f8; padding-bottom:10px; max-height:100px; overflow-y:auto;"></div>
-        <div class="cfg-label" style="color:#e6b800; font-weight:bold; margin-top:10px;">PROBABILITÀ OGGETTI (Editabile):</div>
-        <div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="loot-name" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px;" placeholder="NOME"><input type="number" id="loot-chance" class="input-box" style="width:25%; margin:0; padding:5px; font-size:10px;" placeholder="%"><input type="number" id="loot-value" class="input-box" style="width:35%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="VAL $"></div><button class="btn-deploy" style="background:#330; border-color:#ff0; font-size:12px; padding:8px; margin:0;" onclick="addLootItem()">+ AGGIUNGI</button>
-        <div id="loot-list" style="margin-top:10px; border-top:1px dashed #ff0; padding-top:10px; max-height:150px; overflow-y:auto;"></div>
-    </div>
-
-    <div class="toggle-row"><span style="color:#0aa; font-weight:bold;">NEGOZI E KILLSTREAKS 🛒</span><label class="switch"><input type="checkbox" id="cfg-shops-toggle" checked onchange="toggleShopMenu()"><span class="slider"></span></label></div>
-    <div id="shop-settings" class="cfg-box" style="display:flex;">
-        <div class="cfg-label">LISTINO (Editabile):</div><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="shop-name" class="input-box" style="width:60%; margin:0; padding:5px; font-size:10px;" placeholder="OGGETTO"><input type="number" id="shop-price" class="input-box" style="width:40%; margin:0; padding:5px; font-size:10px; border-color:#8f8; color:#8f8;" placeholder="PREZZO $"></div><button class="btn-deploy" style="background:#333; border-color:#aaa; font-size:12px; padding:8px; margin:0;" onclick="addShopItem()">+ AGGIUNGI IN VENDITA</button><div id="shop-list" style="margin-top:10px; border-top:1px solid #444; padding-top:10px; max-height:150px; overflow-y:auto;"></div>
-    </div>
-
-    <div class="toggle-row"><span style="color:#0ff; font-weight:bold;">ESFILTRAZIONE (E/C) 🚁</span><label class="switch"><input type="checkbox" id="cfg-exfil-toggle" checked onchange="toggleExfilMenu()"><span class="slider"></span></label></div>
-    <div id="exfil-settings" class="cfg-box" style="display:flex;"><div class="cfg-label">NUMERO DI PUNTI ATTIVI:</div><input type="number" id="cfg-exfil-num" class="input-box" style="width:100%; margin:0; padding:8px;" value="2" min="1" max="10"><div class="cfg-label">POSIZIONE ESTRAZIONI:</div><select id="cfg-exfil-pos" class="input-box" style="width:100%; margin:0; padding:8px; font-size:14px;"><option value="defined">C: Punti Mappa Standard</option><option value="random">E: Punti Casuali (Sceglie Basi in area)</option></select><div class="cfg-label">TEMPO ARRIVO ELICOTTERO (MINUTI):</div><input type="number" id="cfg-exfil-wait" class="input-box" style="width:100%; margin:0; padding:8px;" value="2" min="0" max="10"></div>
-    
-    <div class="toggle-row" style="border-color:#0cf;"><span style="color:#0cf; font-weight:bold;">FORNITURA INIZIALE 🎒</span></div>
-    <div class="cfg-box" style="display:flex; border-color:#0cf; border-top:1px solid #0cf;"><select id="cfg-start-mode" class="input-box" style="width:100%; margin:0; padding:8px; font-size:12px; border-color:#0cf; color:#0cf;"><option value="none">NESSUNO</option><option value="fixed">FISSO</option><option value="choice">A SCELTA</option></select></div>
-    <div class="toggle-row"><span style="color:#f0f; font-weight:bold;">ZONA GAS E SISTEMA ECONOMICO ☢️💵</span><label class="switch"><input type="checkbox" id="cfg-gas-toggle"><span class="slider"></span></label></div>
-    <div class="toggle-row" style="display:none;"><label class="switch"><input type="checkbox" id="cfg-eco-toggle" checked><span class="slider"></span></label></div>
-
-    <button class="btn-deploy" style="background:#004400; border-color:#0f0; margin-top:40px;" onclick="masterStartGame()">🚀 AVVIA PARTITA</button>
-    <button class="btn-deploy" style="background:rgba(255,0,0,0.2); border-color:#f00; margin-top:20px;" onclick="masterStopGame()">⏹ TERMINA PARTITA</button>
-    <button class="btn-master" style="margin-bottom: 50px;" onclick="closeMasterPanel()">TORNA AL LOGIN</button>
 </div>
 
 <div id="stash-modal" class="game-modal">
@@ -271,6 +106,7 @@
 <div id="gas-overlay"></div>
 <div id="cuav-overlay"></div>
 <div id="crosshair">✛</div>
+<div id="targeting-overlay" style="display:none; z-index:2000; position:absolute; top:120px; left:50%; transform:translateX(-50%); background:rgba(255,0,0,0.85); color:#fff; padding:15px; border:1px solid #f00;">⬇ CLICCA SULLA MAPPA PER LANCIARE L'ATTACCO AEREO ⬇</div>
 
 <div id="hud-top-container" style="display:none;">
     <div id="obj-banner">OBIETTIVO: SOPRAVVIVENZA</div>
@@ -326,6 +162,8 @@
         "campo5": { center: [45.699417, 9.827667], boundaries: [[45.7014, 9.8256], [45.7014, 9.8296], [45.6974, 9.8296], [45.6974, 9.8256]], exfils: [ { id: "C1", lat: 45.6998, lng: 9.8276, label: "EXFIL C1" } ] }
     };
 
+    let masterRareLootPool = [ { name: "CHIAVE UNIVERSALE", chance: 30, value: 5000, enabled: true }, { name: "LINGOTTO D'ORO", chance: 30, value: 8000, enabled: true }, { name: "ATTACCO AEREO", chance: 20, value: 8000, enabled: true }, { name: "UAV DI DISTURBO", chance: 20, value: 2500, enabled: true } ];
+
     let activeFieldCenter = [], activePlayAreaCoords = [], activeBases = [], currentExfilPoints = [];
     let myId = ""; let myName = "", myTeam = "", myStatus = "active", myCash = 0, myBackpack = [];
     let myStash = { cash: 0, items: [] }; 
@@ -334,109 +172,26 @@
     let myContract = null, exfilTimerEnd = null; window.bleedoutEndTime = null; let isMapRotated = false;
     let globalSettings = { status: 'lobby' }; let activeStreaks = {};
 
-    let masterStartPool = [ { name: "Benda Medica", value: 0, enabled: true }, { name: "MASCHERA GAS SEMPLICE", value: 500, enabled: true } ];
-    let masterMoneyPool = [{ amount: 0, chance: 30, enabled: true }, { amount: 500, chance: 40, enabled: true }, { amount: 2500, chance: 30, enabled: true }];
-    let masterLootPool = [ { name: "VUOTO", chance: 20, value: 0, enabled: true }, { name: "Benda Medica", chance: 30, value: 0, enabled: true }, { name: "Hard Disk Segreto", chance: 20, value: 2500, enabled: true } ];
-    let masterRareLootPool = [ { name: "CHIAVE UNIVERSALE", chance: 30, value: 5000, enabled: true }, { name: "LINGOTTO D'ORO", chance: 30, value: 8000, enabled: true }, { name: "ATTACCO AEREO", chance: 20, value: 8000, enabled: true }, { name: "UAV DI DISTURBO", chance: 20, value: 2500, enabled: true } ];
-    let masterShopPool = [ { name: "CHIAVE UNIVERSALE", price: 10000, enabled: true }, { name: "MASCHERA GAS COMPLETA", price: 3000, enabled: true }, { name: "Kit Medico", price: 1500, enabled: true }, { name: "ATTACCO AEREO", price: 8000, enabled: true } ];
-
     window.logEvent = function(msg) { push(ref(db, 'dmz_logs'), { msg: msg, timestamp: Date.now() }); };
 
-    // V42 PRESET MANAGER FUNCTIONS
-    window.saveConfig = function() {
-        let slot = document.getElementById('config-slot').value;
-        let conf = { 
-            loot: masterLootPool, money: masterMoneyPool, shop: masterShopPool,
-            teamSize: document.getElementById('cfg-team-size').value,
-            bleedout: document.getElementById('cfg-medic-bleedout').value,
-            cures: document.getElementById('cfg-medic-cures').value,
-            revives: document.getElementById('cfg-medic-revives').value,
-            medicActive: document.getElementById('cfg-medic-toggle').checked,
-            contractsActive: document.getElementById('cfg-contracts-toggle').checked,
-            keysBases: document.getElementById('cfg-keys-bases').checked,
-            keysLockers: document.getElementById('cfg-keys-lockers').checked
-        };
-        localStorage.setItem('dmz_config_' + slot, JSON.stringify(conf));
-        alert("Configurazione " + slot + " salvata nel browser!");
-    };
-    
-    window.loadConfig = function() {
-        let slot = document.getElementById('config-slot').value;
-        let data = localStorage.getItem('dmz_config_' + slot);
-        if(data) {
-            let conf = JSON.parse(data); 
-            masterLootPool = conf.loot || masterLootPool; masterMoneyPool = conf.money || masterMoneyPool; masterShopPool = conf.shop || masterShopPool;
-            if(conf.teamSize) document.getElementById('cfg-team-size').value = conf.teamSize;
-            if(conf.bleedout) document.getElementById('cfg-medic-bleedout').value = conf.bleedout;
-            if(conf.cures) document.getElementById('cfg-medic-cures').value = conf.cures;
-            if(conf.revives) document.getElementById('cfg-medic-revives').value = conf.revives;
-            if(conf.medicActive !== undefined) { document.getElementById('cfg-medic-toggle').checked = conf.medicActive; window.toggleMedicMenu(); }
-            if(conf.contractsActive !== undefined) { document.getElementById('cfg-contracts-toggle').checked = conf.contractsActive; window.toggleContractsMenu(); }
-            if(conf.keysBases !== undefined) document.getElementById('cfg-keys-bases').checked = conf.keysBases;
-            if(conf.keysLockers !== undefined) document.getElementById('cfg-keys-lockers').checked = conf.keysLockers;
-            window.renderMoneyList(); window.renderLootList(); window.renderShopList(); 
-            alert("Configurazione " + slot + " caricata con successo!");
-        } else alert("Nessun salvataggio trovato per: " + slot);
-    };
-
-    window.toggleGasMenu = function() { document.getElementById('gas-settings').style.display = document.getElementById('cfg-gas-toggle').checked ? 'block' : 'none'; };
-    window.toggleExfilMenu = function() { document.getElementById('exfil-settings').style.display = document.getElementById('cfg-exfil-toggle').checked ? 'flex' : 'none'; };
-    window.toggleLockerMenu = function() { document.getElementById('locker-settings').style.display = document.getElementById('cfg-lockers-toggle').checked ? 'flex' : 'none'; };
-    window.toggleShopMenu = function() { document.getElementById('shop-settings').style.display = document.getElementById('cfg-shops-toggle').checked ? 'flex' : 'none'; };
-    window.toggleContractsMenu = function() { document.getElementById('contracts-settings').style.display = document.getElementById('cfg-contracts-toggle').checked ? 'flex' : 'none'; };
-    window.toggleMedicMenu = function() { document.getElementById('medic-settings').style.display = document.getElementById('cfg-medic-toggle').checked ? 'flex' : 'none'; };
-
-    window.updateMoneyItem = function(idx, field, val) { masterMoneyPool[idx][field] = parseInt(val) || 0; };
-    window.updateLootItem = function(idx, field, val) { masterLootPool[idx][field] = parseInt(val) || 0; };
-    window.updateShopItem = function(idx, field, val) { masterShopPool[idx][field] = parseInt(val) || 0; };
-
-    window.renderMoneyList = function() { const list = document.getElementById('money-list'); list.innerHTML = ""; masterMoneyPool.forEach((i, idx) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#8f8; margin-bottom:5px; align-items:center;"><div style="display:flex; align-items:center; gap:5px;">$<input type="number" class="cfg-input-edit" value="${i.amount}" onchange="updateMoneyItem(${idx}, 'amount', this.value)"> | %<input type="number" class="cfg-input-edit" value="${i.chance}" onchange="updateMoneyItem(${idx}, 'chance', this.value)"></div><span style="color:red;cursor:pointer;" onclick="removeMoneyItem(${idx})">X</span></div>`; }); };
-    window.addMoneyItem = function() { let a=parseInt(document.getElementById('money-amount').value)||0, c=parseInt(document.getElementById('money-chance').value); if(c>0){ masterMoneyPool.push({amount:a, chance:c, enabled: true}); window.renderMoneyList(); } };
-    window.removeMoneyItem = function(idx) { masterMoneyPool.splice(idx, 1); window.renderMoneyList(); };
-
-    window.renderLootList = function() { const list = document.getElementById('loot-list'); list.innerHTML = ""; masterLootPool.forEach((i, idx) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#e6b800; margin-bottom:5px; align-items:center;"><span>${i.name}</span><div style="display:flex; align-items:center; gap:5px;">%<input type="number" class="cfg-input-edit" value="${i.chance}" onchange="updateLootItem(${idx}, 'chance', this.value)"> | $<input type="number" class="cfg-input-edit" value="${i.value}" onchange="updateLootItem(${idx}, 'value', this.value)"> <span style="color:red;cursor:pointer;" onclick="removeLootItem(${idx})">X</span></div></div>`; }); };
-    window.addLootItem = function() { let n=document.getElementById('loot-name').value.toUpperCase(), c=parseInt(document.getElementById('loot-chance').value), v=parseInt(document.getElementById('loot-value').value)||0; if(n&&c>0){ masterLootPool.push({name:n, chance:c, value:v, enabled: true}); window.renderLootList(); } };
-    window.removeLootItem = function(idx) { masterLootPool.splice(idx, 1); window.renderLootList(); };
-
-    window.renderShopList = function() { const list = document.getElementById('shop-list'); list.innerHTML = ""; masterShopPool.forEach((i, idx) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:12px; color:#0aa; margin-bottom:5px; align-items:center;"><span>${i.name}</span><div style="display:flex; align-items:center; gap:5px;">$<input type="number" class="cfg-input-edit" value="${i.price}" onchange="updateShopItem(${idx}, 'price', this.value)"> <span style="color:red;cursor:pointer;" onclick="removeShopItem(${idx})">X</span></div></div>`; }); };
-    window.addShopItem = function() { let n=document.getElementById('shop-name').value.toUpperCase(), p=parseInt(document.getElementById('shop-price').value); if(n&&p>0){ masterShopPool.push({name:n, price:p, enabled:true}); window.renderShopList(); } };
-    window.removeShopItem = function(idx) { masterShopPool.splice(idx, 1); window.renderShopList(); };
-
-    window.openMasterPanel = function() { 
-        if(prompt("PIN:")==="0000"){ 
-            document.getElementById('master-screen').style.display='flex'; 
-            window.renderMoneyList(); window.renderLootList(); window.renderShopList(); 
-        } else { alert("ACCESSO NEGATO"); }
-    };
-    window.closeMasterPanel = function() { document.getElementById('master-screen').style.display = 'none'; };
-
-    window.masterStartGame = function() {
-        let activeContracts = []; document.querySelectorAll('.contract-cb:checked').forEach(cb => activeContracts.push(cb.value)); 
-        let exfilPosMode = document.getElementById('cfg-exfil-pos').value; let generatedExfils = []; let selectedFieldCoords = fieldsDB[document.getElementById('m-field').value].boundaries;
-        if (exfilPosMode === 'random') {
-            let validBases = masterBasesDB.filter(b => isInsideArea([b.lat, b.lng], selectedFieldCoords));
-            let numP = parseInt(document.getElementById('cfg-exfil-num').value)||2; let shuffled = validBases.sort(() => 0.5 - Math.random()); let selectedBases = shuffled.slice(0, numP);
-            for(let i=0; i<selectedBases.length; i++) { let num = selectedBases[i].id.replace('B',''); generatedExfils.push({ id: "E"+num, lat: selectedBases[i].lat, lng: selectedBases[i].lng, label: "EXFIL E"+num }); }
-        } else { generatedExfils = fieldsDB[document.getElementById('m-field').value].exfils; }
-
-        update(ref(db, 'dmz_settings'), {
-            status: 'running', activeField: document.getElementById('m-field').value, economy_active: document.getElementById('cfg-eco-toggle').checked,
-            keys_bases: document.getElementById('cfg-keys-bases').checked, keys_lockers: document.getElementById('cfg-keys-lockers').checked,
-            shop_config: { enabled: document.getElementById('cfg-shops-toggle').checked, pool: masterShopPool }, 
-            exfil_config: { enabled: document.getElementById('cfg-exfil-toggle').checked, numPoints: parseInt(document.getElementById('cfg-exfil-num').value)||2, waitTime: parseInt(document.getElementById('cfg-exfil-wait').value)||2, position: exfilPosMode, points: generatedExfils },
-            lockers_config: { enabled: document.getElementById('cfg-lockers-toggle').checked, pool: masterLootPool, moneyPool: masterMoneyPool }, contracts_config: { enabled: document.getElementById('cfg-contracts-toggle').checked, pool: activeContracts },
-            team_config: { maxPlayers: parseInt(document.getElementById('cfg-team-size').value) || 4 },
-            medic_config: { active: document.getElementById('cfg-medic-toggle').checked, bleedout_time: parseInt(document.getElementById('cfg-medic-bleedout').value) || 60, maxCures: parseInt(document.getElementById('cfg-medic-cures').value) || 2, maxRevives: parseInt(document.getElementById('cfg-medic-revives').value) || 1 }
-        });
-        set(ref(db, 'dmz_lockers'), null); set(ref(db, 'dmz_streaks'), null); set(ref(db, 'dmz_logs'), null); alert("PARTITA INIZIATA.");
-    };
-    
-    window.masterStopGame = function() { if(confirm("Terminare Partita?")) { update(ref(db, 'dmz_settings'), { status: 'lobby' }); set(ref(db, 'dmz_players'), null); } };
+    function isInsideArea(p, poly) { let x = p[0], y = p[1], inside = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { let intersect = ((poly[i][1] > y) != (poly[j][1] > y)) && (x < (poly[j][0] - poly[i][0]) * (y - poly[i][1]) / (poly[j][1] - poly[i][1]) + poly[i][0]); if (intersect) inside = !inside; } return inside; }
 
     onValue(ref(db, 'dmz_settings'), (snapshot) => {
         let data = snapshot.val(); if(data) globalSettings = data;
         let sl = document.getElementById('status-label'); let bd = document.getElementById('btn-deploy');
-        if (globalSettings.status === 'running') { sl.innerText = "🟢 PARTITA IN CORSO"; sl.className = "status-label running"; bd.style.display = "block"; } else { sl.innerText = "🔴 IN ATTESA DEL MASTER"; sl.className = "status-label"; bd.style.display = "none"; if (isDeployed) { alert("Partita Terminata!"); window.location.reload(); } }
+        if (globalSettings.status === 'running') {
+            if(sl) sl.innerText = "🟢 PARTITA IN CORSO"; if(sl) sl.className = "status-label running"; if(bd) bd.style.display = "block";
+            let sgs = document.getElementById('start-gear-selection'); let sgo = document.getElementById('start-gear-options');
+            if (!isDeployed && globalSettings.start_gear_config) {
+                let mode = globalSettings.start_gear_config.mode; let pool = globalSettings.start_gear_config.pool || []; let limit = globalSettings.start_gear_config.limit || 5;
+                if (mode === 'none') { if(sgs) sgs.style.display = 'none'; } 
+                else if (mode === 'fixed') { if(sgs) sgs.style.display = 'block'; if(sgo) sgo.innerHTML = pool.map(i => `<div style="color:#0cf; font-size:12px;">- ${i.name}</div>`).join(''); } 
+                else if (mode === 'choice') { if(sgs) sgs.style.display = 'block'; if(sgo) sgo.innerHTML = pool.map((i, idx) => `<label style="color:#0cf; font-size:12px; display:flex; align-items:center; gap:5px;"><input type="checkbox" class="start-gear-cb" value="${idx}" style="transform:scale(1.2);"> ${i.name}</label>`).join(''); }
+            } else { if(sgs) sgs.style.display = 'none'; }
+        } else {
+            if(sl) sl.innerText = "🔴 IN ATTESA DEL MASTER"; if(sl) sl.className = "status-label"; if(bd) bd.style.display = "none"; let sgs = document.getElementById('start-gear-selection'); if(sgs) sgs.style.display = 'none';
+            if (isDeployed) { alert("Partita Terminata!"); window.location.reload(); }
+        }
         if (isDeployed) { document.getElementById('hud-economy-box').style.display = globalSettings.economy_active ? 'flex' : 'none'; getDatabase()._root && get(ref(db, 'dmz_players')); }
     });
 
@@ -449,7 +204,7 @@
     });
 
     window.openStash = function() {
-        let n = document.getElementById('p-name').value.trim().toUpperCase(); if(!n) return alert("Inserisci il tuo Nome Operatore per accedere al magazzino.");
+        let n = document.getElementById('p-name').value.trim().toUpperCase(); if(!n) return alert("Inserisci il Nome Operatore per accedere al magazzino.");
         myName = n; let safeName = myName.replace(/[^A-Z0-9]/g, '');
         get(ref(db, 'dmz_stash/' + safeName)).then((snap) => {
             myStash = snap.val() || { cash: 0, items: [] }; if(!myStash.items) myStash.items = [];
@@ -621,7 +376,7 @@
                     if(window.contractCircle) { map.removeLayer(window.contractCircle); window.contractCircle = null; } return;
                 }
                 if (myContract.type === 'DESTROY' && myContract.targetId === code && myContract.state === 'GOTO') { 
-                    alert("Bomba innescata! Difendete per 7 minuti."); myContract.state = 'ARMED'; myContract.endTime = Date.now() + (7 * 60000); logEvent(`💣 SQUADRA ${myTeam} ha innescato ordigno.`); 
+                    alert("Bomba innescata! Difendete per 7 minuti."); myContract.state = 'ARMED'; myContract.endTime = Date.now() + (7 * 60000); logEvent(`💣 SQUADRA ${myTeam} ha innescato ordigno in ${baseExists.name}.`); 
                     if(window.contractCircle) { map.removeLayer(window.contractCircle); window.contractCircle = null; } return; 
                 }
                 return alert("Hai già un altro contratto in corso.");
@@ -644,7 +399,8 @@
                                 let players = snap.val() || {}; let enemies = Object.keys(players).filter(k => players[k].team !== myTeam && players[k].status === 'active');
                                 if (enemies.length === 0) return alert("Nessun nemico vivo in campo.");
                                 let target = enemies[Math.floor(Math.random() * enemies.length)];
-                                myContract = { type: 'HUNT', targetId: target, state: 'HUNTING', endTime: Date.now() + (5 * 60000) }; alert(`Contratto accettato! Dai la caccia alla SQUADRA ${players[target].team}.`); logEvent(`🎯 CACCIA ALLA SQUADRA contro la ${players[target].team}.`);
+                                myContract = { type: 'HUNT', targetId: target, state: 'HUNTING', endTime: Date.now() + (5 * 60000) }; alert(`Contratto accettato! Dai la caccia alla SQUADRA ${players[target].team}. Guarda la mappa!`);
+                                logEvent(`🎯 CACCIA ALLA SQUADRA contro la ${players[target].team}.`);
                             });
                         }
                     }
@@ -712,6 +468,12 @@
                 
                 activeBases = masterBasesDB.filter(b => isInsideArea([b.lat, b.lng], activePlayAreaCoords));
                 
+                if (globalSettings.start_gear_config) {
+                    let mode = globalSettings.start_gear_config.mode; let pool = globalSettings.start_gear_config.pool || []; let limit = globalSettings.start_gear_config.limit || 5;
+                    if (mode === 'fixed') { pool.forEach(i => { let ni = { ...i }; if (ni.name.includes("CHIAVE")) ni.uses = 3; if (myBackpack.length < 5) myBackpack.push(ni); }); } 
+                    else if (mode === 'choice') { let cbs = document.querySelectorAll('.start-gear-cb:checked'); if (cbs.length > limit) return alert(`ERRORE: Max ${limit} oggetti aggiuntivi!`); cbs.forEach(cb => { let ni = { ...pool[parseInt(cb.value)] }; if (ni.name.includes("CHIAVE")) ni.uses = 3; if (myBackpack.length < 5) myBackpack.push(ni); }); }
+                }
+
                 let maxC = globalSettings.medic_config ? globalSettings.medic_config.maxCures : 2; let maxR = globalSettings.medic_config ? globalSettings.medic_config.maxRevives : 1;
                 document.getElementById('login-screen').style.display = 'none'; document.getElementById('hud-top-container').style.display = 'flex'; document.getElementById('hud-status').style.display = 'flex'; document.getElementById('hud-bottom').style.display = 'flex'; document.getElementById('crosshair').style.display = 'block'; 
                 
