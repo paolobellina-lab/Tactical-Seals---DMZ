@@ -1,6 +1,7 @@
 {
+  "id": "/dmz-master/",
   "name": "DMZ Master Panel",
-  "short_name": "DMZ Master",
+  "short_name": "DMZ Regia",
   "start_url": "master.html",
   "display": "standalone",
   "background_color": "#050000",
