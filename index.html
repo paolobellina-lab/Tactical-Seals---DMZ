@@ -57,9 +57,7 @@
 
 <div id="scanner-modal" class="game-modal">
     <div class="modal-title">SCANSIONE OTTICA</div>
-    <div id="qr-reader-container" style="width: 100%; max-width: 350px; min-height: 250px; background: #000; border: 2px solid #0ff; margin-bottom:15px; display:flex; justify-content:center; align-items:center;">
-        <div id="qr-reader" style="width: 100%;"></div>
-    </div>
+    <div id="qr-reader" style="width: 100%; max-width: 350px; background: #000; border: 2px solid #0ff; margin-bottom:15px;"></div>
     <div style="display:flex; width: 90%; max-width: 350px; gap: 5px; margin-top: 15px;">
         <input type="text" id="manual-code-input" class="input-box" placeholder="ES: B5" style="width:70%; font-size:18px; border-color:#0ff; color:#0ff; margin:0;">
         <button class="btn-deploy" style="width:30%; background:linear-gradient(135deg, #004444 0%, #001111 100%); border-color:#0ff; margin:0; padding:10px;" onclick="processScannedCode()">INVIA</button>
@@ -163,6 +161,8 @@
         "campo2": { center: [45.000, 9.000], boundaries: [[45.001, 8.999], [45.001, 9.001], [44.999, 9.001], [44.999, 8.999]], exfils: [] },
         "campo5": { center: [45.699417, 9.827667], boundaries: [[45.7014, 9.8256], [45.7014, 9.8296], [45.6974, 9.8296], [45.6974, 9.8256]], exfils: [ { id: "C1", lat: 45.6998, lng: 9.8276, label: "EXFIL C1" } ] }
     };
+
+    let masterRareLootPool = [ { name: "CHIAVE UNIVERSALE", chance: 30, value: 5000, enabled: true }, { name: "LINGOTTO D'ORO", chance: 30, value: 8000, enabled: true }, { name: "ATTACCO AEREO", chance: 20, value: 8000, enabled: true }, { name: "UAV DI DISTURBO", chance: 20, value: 2500, enabled: true } ];
 
     let activeFieldCenter = [], activePlayAreaCoords = [], activeBases = [], currentExfilPoints = [];
     let myId = ""; let myName = "", myTeam = "", myStatus = "active", myCash = 0, myBackpack = [];
@@ -268,6 +268,16 @@
     window.depositItem = function(idx) { let it = myBackpack.splice(idx, 1)[0]; if(!currentLockerData.items) currentLockerData.items = []; currentLockerData.items.push(it); updateEconomyHUD(); saveLockerState(); renderLockerUI(); };
     window.closeLocker = function() { document.getElementById('locker-modal').style.display = 'none'; currentLockerCode = null; currentLockerData = null; };
 
+    function generateLockerContent(isRare) {
+        let money = 0, items = []; let pMoney = globalSettings.lockers_config.moneyPool; 
+        let defaultRarePool = [ { name: "CHIAVE UNIVERSALE", chance: 30, value: 5000, enabled: true }, { name: "LINGOTTO D'ORO", chance: 30, value: 8000, enabled: true }, { name: "ATTACCO AEREO", chance: 20, value: 8000, enabled: true }, { name: "UAV DI DISTURBO", chance: 20, value: 2500, enabled: true } ];
+        let pItems = isRare ? defaultRarePool : (globalSettings.lockers_config.pool || []);
+        
+        if (globalSettings.economy_active && pMoney && pMoney.length > 0) { let rM = Math.random() * 100, cM = 0; for(let m of pMoney) { cM += m.chance; if(rM <= cM){ money = m.amount; break; } } }
+        if (pItems && pItems.length > 0) { let rI = Math.random() * 100, cI = 0; for(let i of pItems) { cI += i.chance; if(rI <= cI){ if(i.name !== "VUOTO") { let newItem = { ...i }; if (newItem.name.includes("CHIAVE")) newItem.uses = 3; items.push(newItem); } break; } } }
+        return { money, items };
+    }
+
     window.updateEconomyHUD = function() { document.getElementById('txt-cash').innerText = `💵 $${myCash}`; document.getElementById('txt-bp').innerText = `🎒 ${myBackpack.length}/5`; let hasCargo = myBackpack.some(i => i.name === "CARICO PESANTE"); update(ref(db, 'dmz_players/' + myId), { cash: myCash, backpack: myBackpack, has_cargo: hasCargo }); };
     
     window.openBackpack = function() {
@@ -336,49 +346,49 @@
     };
     window.cancelRevive = function() { if (window.reviveInterval) clearInterval(window.reviveInterval); document.getElementById('revive-overlay').style.display = 'none'; };
 
-    // V2.1: ROBUST CAMERA FIX CON RITARDO DI SICUREZZA E RESET TOTALE
-    let html5QrCode = null;
-    
+    // ==========================================
+    // V44.3 - FIX DEFINITIVO FOTOCAMERA (STILE V35)
+    // ==========================================
     window.openScanner = function() { 
         if(myStatus !== 'active') return alert("Sei a terra o eliminato!"); 
         if(document.getElementById('emp-overlay').style.display === 'flex') return alert("SISTEMA BLOCCATO DA EMP.");
         
         document.getElementById('scanner-modal').style.display = 'flex'; 
         document.getElementById('manual-code-input').value = ""; 
-        document.getElementById('qr-reader').innerHTML = ""; // reset area
         
-        // Ritardo di sicurezza di 150ms per assicurarsi che il DOM sia visibile prima di accendere il sensore
+        // Ritardo di sicurezza per permettere all'interfaccia di caricare
         setTimeout(() => {
-            if (!html5QrCode) {
-                html5QrCode = new Html5Qrcode("qr-reader"); 
-            }
+            if(window.html5QrCode) return; // Evita di aprire due istanze contemporaneamente
             
-            html5QrCode.start(
+            window.html5QrCode = new Html5Qrcode("qr-reader"); 
+            window.html5QrCode.start(
                 { facingMode: "environment" }, 
                 { fps: 10, qrbox: { width: 250, height: 250 } }, 
                 (decodedText) => { 
-                    if (html5QrCode && html5QrCode.isScanning) { 
-                        html5QrCode.stop().then(() => { 
-                            html5QrCode.clear();
-                            html5QrCode = null;
+                    if (window.html5QrCode && window.html5QrCode.isScanning) { 
+                        window.html5QrCode.stop().then(() => { 
+                            window.html5QrCode.clear();
+                            window.html5QrCode = null;
                             document.getElementById('manual-code-input').value = decodedText; 
                             window.processScannedCode(); 
                         }).catch(()=>{}); 
                     } 
                 }, 
-                (err) => { /* Ignora errori di scansione frame singoli (es. qr non a fuoco) */ }
+                (errorMessage) => { 
+                    // ignora gli errori continui di mancata lettura del frame
+                }
             ).catch((err) => { 
-                document.getElementById('qr-reader').innerHTML = `<div style="color:red; padding:20px; text-align:center; font-family:sans-serif;">Fotocamera non disponibile.<br><br>Controlla di aver dato i permessi e di usare HTTPS (non HTTP locale).</div>`; 
+                document.getElementById('qr-reader').innerHTML = `<div style="color:red; padding:20px; text-align:center;">Fotocamera non disponibile.<br>Controlla permessi o ricarica la pagina.</div>`; 
             });
-        }, 150);
+        }, 200);
     };
     
     window.closeScanner = function() { 
         document.getElementById('scanner-modal').style.display = 'none'; 
-        if (html5QrCode && html5QrCode.isScanning) {
-            html5QrCode.stop().then(() => {
-                html5QrCode.clear();
-                html5QrCode = null;
+        if (window.html5QrCode && window.html5QrCode.isScanning) {
+            window.html5QrCode.stop().then(() => {
+                window.html5QrCode.clear();
+                window.html5QrCode = null;
             }).catch(()=>{}); 
         }
     };
@@ -537,12 +547,6 @@
         if (bleedoutTimer) { clearTimeout(bleedoutTimer); bleedoutTimer = null; window.bleedoutEndTime = null; }
         if (newStatus === 'dead' || newStatus === 'down') { if (myContract && myContract.type === 'DESTROY') myContract = null; exfilTimerEnd = null; }
         if (newStatus === 'down' && globalSettings.medic_config && globalSettings.medic_config.active) { let boTime = globalSettings.medic_config.bleedout_time || 60; window.bleedoutEndTime = Date.now() + (boTime * 1000); } else { window.bleedoutEndTime = null; }
-    };
-
-    window.toggleMapRotation = function() {
-        let mapEl = document.getElementById('map'); isMapRotated = !isMapRotated;
-        if(isMapRotated) { mapEl.classList.add('rotated-east'); logEvent("🧭 Mappa ruotata a Est."); } else { mapEl.classList.remove('rotated-east'); logEvent("🧭 Mappa allineata a Nord."); }
-        setTimeout(() => { map.invalidateSize(); centerMap(); }, 300);
     };
 
     function initMap() {
@@ -708,6 +712,11 @@
         });
         onDisconnect(ref(db, 'dmz_players/' + myId)).remove();
     }
+    window.toggleMapRotation = function() {
+        let mapEl = document.getElementById('map'); isMapRotated = !isMapRotated;
+        if(isMapRotated) { mapEl.classList.add('rotated-east'); logEvent("🧭 Mappa ruotata a Est."); } else { mapEl.classList.remove('rotated-east'); logEvent("🧭 Mappa allineata a Nord."); }
+        setTimeout(() => { map.invalidateSize(); centerMap(); }, 300);
+    };
     window.centerMap = function() { if(myMarker) map.setView(myMarker.getLatLng(), 18); };
 </script>
 </body>
