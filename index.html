@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
-<title>DMZ: TACTICAL MAP v43 - PLAYER TERMINAL</title>
+<title>DMZ: TACTICAL MAP v44</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -21,11 +21,11 @@
 
 <div id="login-screen" class="full-screen-ui">
     <h1>DMZ: DEPLOY</h1>
-    <div class="version-tag">PLAYER TERMINAL v43</div>
+    <div class="version-tag">PLAYER TERMINAL v44</div>
     
     <div id="status-label" class="status-label">CONNESSIONE...</div>
     
-    <input type="text" id="p-name" class="input-box" placeholder="NOME SULLA PATCH (es: VIPER)">
+    <input type="text" id="p-name" class="input-box" placeholder="NOME (es: VIPER)">
     <select id="p-team" class="input-box">
         <option value="ALPHA">SQUADRA ALPHA</option><option value="BRAVO">SQUADRA BRAVO</option><option value="CHARLIE">SQUADRA CHARLIE</option><option value="DELTA">SQUADRA DELTA</option>
         <option value="ECHO">SQUADRA ECHO</option><option value="FOXTROT">SQUADRA FOXTROT</option><option value="GOLF">SQUADRA GOLF</option><option value="HOTEL">SQUADRA HOTEL</option>
@@ -36,7 +36,7 @@
         <option value="YANKEE">SQUADRA YANKEE</option><option value="ZULU">SQUADRA ZULU</option>
     </select>
     
-    <div id="start-gear-selection" style="display:none; width:80%; max-width:300px; margin-top:15px; border:1px solid #0cf; padding:15px; background:rgba(0, 20, 30, 0.8); clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);">
+    <div id="start-gear-selection" style="display:none; width:80%; max-width:300px; margin-top:15px; border:1px solid #0cf; padding:15px; background:rgba(0, 20, 30, 0.8);">
         <div style="color:#0cf; font-size:14px; font-weight:bold; margin-bottom:15px; text-align:center;">SELEZIONA EQUIP.</div>
         <div id="start-gear-options" style="display:flex; flex-direction:column; gap:8px; max-height:120px; overflow-y:auto;"></div>
     </div>
@@ -57,7 +57,7 @@
 
 <div id="scanner-modal" class="game-modal">
     <div class="modal-title">SCANSIONE OTTICA</div>
-    <div id="qr-reader"></div>
+    <div id="qr-reader" style="width: 100%; max-width: 350px; background: #000; border: 2px solid #0ff; margin-bottom:15px;"></div>
     <div style="display:flex; width: 90%; max-width: 350px; gap: 5px; margin-top: 15px;">
         <input type="text" id="manual-code-input" class="input-box" placeholder="ES: B5" style="width:70%; font-size:18px; border-color:#0ff; color:#0ff; margin:0;">
         <button class="btn-deploy" style="width:30%; background:linear-gradient(135deg, #004444 0%, #001111 100%); border-color:#0ff; margin:0; padding:10px;" onclick="processScannedCode()">INVIA</button>
@@ -106,7 +106,6 @@
 <div id="gas-overlay"></div>
 <div id="cuav-overlay"></div>
 <div id="crosshair">✛</div>
-<div id="targeting-overlay" style="display:none; z-index:2000; position:absolute; top:120px; left:50%; transform:translateX(-50%); background:rgba(255,0,0,0.85); color:#fff; padding:15px; border:1px solid #f00;">⬇ CLICCA SULLA MAPPA PER LANCIARE L'ATTACCO AEREO ⬇</div>
 
 <div id="hud-top-container" style="display:none;">
     <div id="obj-banner">OBIETTIVO: SOPRAVVIVENZA</div>
@@ -161,8 +160,6 @@
         "campo2": { center: [45.000, 9.000], boundaries: [[45.001, 8.999], [45.001, 9.001], [44.999, 9.001], [44.999, 8.999]], exfils: [] },
         "campo5": { center: [45.699417, 9.827667], boundaries: [[45.7014, 9.8256], [45.7014, 9.8296], [45.6974, 9.8296], [45.6974, 9.8256]], exfils: [ { id: "C1", lat: 45.6998, lng: 9.8276, label: "EXFIL C1" } ] }
     };
-
-    let masterRareLootPool = [ { name: "CHIAVE UNIVERSALE", chance: 30, value: 5000, enabled: true }, { name: "LINGOTTO D'ORO", chance: 30, value: 8000, enabled: true }, { name: "ATTACCO AEREO", chance: 20, value: 8000, enabled: true }, { name: "UAV DI DISTURBO", chance: 20, value: 2500, enabled: true } ];
 
     let activeFieldCenter = [], activePlayAreaCoords = [], activeBases = [], currentExfilPoints = [];
     let myId = ""; let myName = "", myTeam = "", myStatus = "active", myCash = 0, myBackpack = [];
@@ -269,7 +266,12 @@
     window.closeLocker = function() { document.getElementById('locker-modal').style.display = 'none'; currentLockerCode = null; currentLockerData = null; };
 
     function generateLockerContent(isRare) {
-        let money = 0, items = []; let pMoney = globalSettings.lockers_config.moneyPool; let pItems = isRare ? masterRareLootPool : globalSettings.lockers_config.pool;
+        let money = 0, items = []; let pMoney = globalSettings.lockers_config.moneyPool; 
+        
+        // Use default pools if undefined
+        let defaultRarePool = [ { name: "CHIAVE UNIVERSALE", chance: 30, value: 5000, enabled: true }, { name: "LINGOTTO D'ORO", chance: 30, value: 8000, enabled: true }, { name: "ATTACCO AEREO", chance: 20, value: 8000, enabled: true }, { name: "UAV DI DISTURBO", chance: 20, value: 2500, enabled: true } ];
+        let pItems = isRare ? defaultRarePool : (globalSettings.lockers_config.pool || []);
+        
         if (globalSettings.economy_active && pMoney && pMoney.length > 0) { let rM = Math.random() * 100, cM = 0; for(let m of pMoney) { cM += m.chance; if(rM <= cM){ money = m.amount; break; } } }
         if (pItems && pItems.length > 0) { let rI = Math.random() * 100, cI = 0; for(let i of pItems) { cI += i.chance; if(rI <= cI){ if(i.name !== "VUOTO") { let newItem = { ...i }; if (newItem.name.includes("CHIAVE")) newItem.uses = 3; items.push(newItem); } break; } } }
         return { money, items };
@@ -343,12 +345,33 @@
     };
     window.cancelRevive = function() { if (window.reviveInterval) clearInterval(window.reviveInterval); document.getElementById('revive-overlay').style.display = 'none'; };
 
+    // V44: CAMERA ERROR HANDLING ROBUSTO
     let html5QrCode = null;
     window.openScanner = function() { 
-        if(myStatus !== 'active') return alert("Sei a terra o eliminato!"); if(document.getElementById('emp-overlay').style.display === 'flex') return alert("SISTEMA BLOCCATO DA EMP.");
-        document.getElementById('scanner-modal').style.display = 'flex'; document.getElementById('manual-code-input').value = ""; 
-        html5QrCode = new Html5Qrcode("qr-reader"); html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, (decodedText) => { if (html5QrCode && html5QrCode.isScanning) { html5QrCode.stop().then(() => { document.getElementById('manual-code-input').value = decodedText; window.processScannedCode(); }).catch(()=>{}); } }, () => {}).catch(() => { document.getElementById('qr-reader').innerHTML = `<div style="color:red; padding:20px; text-align:center;">Fotocamera non disponibile.</div>`; });
+        if(myStatus !== 'active') return alert("Sei a terra o eliminato!"); 
+        if(document.getElementById('emp-overlay').style.display === 'flex') return alert("SISTEMA BLOCCATO DA EMP.");
+        document.getElementById('scanner-modal').style.display = 'flex'; 
+        document.getElementById('manual-code-input').value = ""; 
+        document.getElementById('qr-reader').innerHTML = ""; // reset area
+        
+        if (!html5QrCode) html5QrCode = new Html5Qrcode("qr-reader"); 
+        
+        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, 
+            (decodedText) => { 
+                if (html5QrCode && html5QrCode.isScanning) { 
+                    html5QrCode.stop().then(() => { 
+                        document.getElementById('manual-code-input').value = decodedText; 
+                        window.processScannedCode(); 
+                    }).catch(()=>{}); 
+                } 
+            }, 
+            (errorMessage) => { /* ignora errori di frame singoli */ }
+        ).catch((err) => { 
+            // Mostra un errore chiaro se la telecamera viene bloccata (es. no HTTPS o permessi negati)
+            document.getElementById('qr-reader').innerHTML = `<div style="color:red; padding:20px; text-align:center; font-family:sans-serif;">Errore Fotocamera.<br><br>Assicurati di aver concesso i permessi e di essere su una connessione sicura (HTTPS).<br><br><span style="font-size:10px; color:#555;">Dettaglio tecnico: ${err}</span></div>`; 
+        });
     };
+    
     window.closeScanner = function() { document.getElementById('scanner-modal').style.display = 'none'; if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop().catch(()=>{}); };
 
     window.processScannedCode = function() {
@@ -376,7 +399,7 @@
                     if(window.contractCircle) { map.removeLayer(window.contractCircle); window.contractCircle = null; } return;
                 }
                 if (myContract.type === 'DESTROY' && myContract.targetId === code && myContract.state === 'GOTO') { 
-                    alert("Bomba innescata! Difendete per 7 minuti."); myContract.state = 'ARMED'; myContract.endTime = Date.now() + (7 * 60000); logEvent(`💣 SQUADRA ${myTeam} ha innescato ordigno in ${baseExists.name}.`); 
+                    alert("Bomba innescata! Difendete per 7 minuti."); myContract.state = 'ARMED'; myContract.endTime = Date.now() + (7 * 60000); logEvent(`💣 SQUADRA ${myTeam} ha innescato ordigno.`); 
                     if(window.contractCircle) { map.removeLayer(window.contractCircle); window.contractCircle = null; } return; 
                 }
                 return alert("Hai già un altro contratto in corso.");
@@ -561,7 +584,7 @@
         if(!isDeployed || !map || myStatus === 'exfil') return; let now = Date.now();
         
         if (exfilTimerEnd) { if (myStatus !== 'active') { exfilTimerEnd = null; } else if (Math.ceil((exfilTimerEnd - now) / 1000) <= 0) { exfilTimerEnd = null; doExfil(); } }
-        if (myContract && myContract.type === 'DESTROY' && myContract.state === 'ARMED') { if (myStatus !== 'active') { myContract = null; } else if (Math.ceil((myContract.endTime - now) / 1000) <= 0) { alert("BOOM! Scorte distrutte!\n+$10000"); myCash += 10000; updateEconomyHUD(); myContract = null; logEvent(`💥 Scorte distrutte.`); } }
+        if (myContract && myContract.type === 'DESTROY' && myContract.state === 'ARMED') { if (myStatus !== 'active') { myContract = null; } else if (Math.ceil((myContract.endTime - now) / 1000) <= 0) { alert("BOOM! Scorte distrutte!\n+$10000"); myCash += 10000; updateEconomyHUD(); myContract = null; logEvent(`💥 Scorte distrutte (Contratto completato).`); } }
 
         if (myContract && (myContract.type === 'INTEL' || myContract.type === 'NUKE') && myContract.state === 'FETCH') {
             if (!window.contractCircle) { window.contractCircle = L.circle([myContract.targetLat, myContract.targetLng], {color: '#ff0', fillColor: '#ff0', fillOpacity: 0.2, radius: 50, dashArray: '10, 10'}).addTo(map); }
